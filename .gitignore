@@ -1,0 +1,7 @@
+# Past papers and PDFs — large, and not yours to redistribute
+reference/*.pdf
+reference/*.zip
+
+# OS noise
+.DS_Store
+Thumbs.db
