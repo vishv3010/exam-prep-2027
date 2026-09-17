@@ -1,0 +1,2017 @@
+You are working inside my EXISTING project/codebase.
+
+DO NOT create a new project.
+DO NOT rebuild the existing dashboard.
+DO NOT migrate to React, Next.js, Vue, TypeScript, Vite, or any framework.
+DO NOT introduce a build tool.
+
+The existing project is intentionally:
+
+* Plain HTML
+* CSS
+* Vanilla JavaScript
+* No framework
+* No build step
+* localStorage-based
+* Designed to run as a static site
+
+Your job is to EXTEND the existing project with a new, highly efficient PERSONAL GUJARAT POLICE PSI preparation module.
+
+============================================================
+
+1. CONTEXT — UNDERSTAND MY REAL USE CASE
+   ============================================================
+
+This tool is only for ME.
+
+Target:
+Gujarat Police PSI — next recruitment / 2027 target.
+
+The 2027 notification has not yet been released.
+
+I expect that the notification may come around December 2026, but this is NOT confirmed and must NOT be treated as an official fact.
+
+The official 2027 GPRB notification will be the final source of truth.
+
+My daily study constraints:
+
+* ~2 hours focused study at home
+* ~40 minutes in metro going
+* ~40 minutes in metro returning
+* Total possible academic study time: ~3h20/day
+* In the metro I am normally STANDING
+* Sometimes the metro is packed
+* Sometimes I get a corner with more space
+* I can freely use my smartphone
+* I have earphones
+* I usually cannot write
+* I rarely write notes in a diary
+* Therefore the app must NOT depend on writing, typing or sitting
+
+The application exists to maximize the quality of those available study hours.
+
+The most important real-world use case is:
+
+STANDING IN A METRO + ONE HAND + PHONE + EARPHONES + LIMITED ATTENTION.
+
+============================================================
+2. PRIMARY OBJECTIVE
+====================
+
+Build a personal:
+
+"Gujarat PSI Preparation Engine"
+
+whose primary purpose is:
+
+* MCQ practice
+* revision
+* mistake correction
+* spaced repetition
+* Gujarati exam familiarity
+* identifying weak topics
+* making metro time highly productive
+
+This is NOT a coaching platform.
+
+This is NOT a public website.
+
+This is NOT a social platform.
+
+This is NOT a content-heavy learning platform.
+
+This is NOT a startup product.
+
+Do not optimize for number of screens or number of features.
+
+Optimize for:
+
+QUESTIONS ANSWERED
+MISTAKES CORRECTED
+WEAK AREAS IMPROVED
+REVISION COMPLETED
+TIME USED PRODUCTIVELY
+
+============================================================
+3. EXISTING PROJECT — PROTECT IT
+================================
+
+The current project contains:
+
+/goal
+├── README.md
+├── books.md
+├── calendar.md
+├── daily-schedule.md
+├── gujarat-gk.md
+├── gujarati.md
+├── phases.md
+├── physical.md
+├── psi.md
+├── ssc-cgl-2026-sprint.md
+├── syllabus-tracker.md
+├── week-01-04.md
+├── log/
+│   ├── README.md
+│   ├── daily.md
+│   ├── errors.md
+│   ├── gujarati-vocab.md
+│   └── mocks.md
+├── reference/
+└── site/
+└── index.html
+
+The existing dashboard already works.
+
+IMPORTANT:
+Preserve all currently working dashboard functionality.
+
+Do not casually redesign or refactor it.
+
+Do not modify existing behavior unless required for integration.
+
+Do not break:
+
+* #today
+* #progress
+* #month
+* #plan
+* #phases
+* #shelf
+* existing checklist
+* existing mock logger
+* existing run logger
+* existing countdowns
+* existing theme
+* existing localStorage state
+
+============================================================
+4. EXISTING LOCALSTORAGE — NEVER BREAK IT
+=========================================
+
+Existing key:
+
+cds2027.v1
+
+Current structure includes:
+
+{
+"days": {},
+"mocks": [],
+"runs": [],
+"updatedAt": 0
+}
+
+THIS KEY MUST REMAIN COMPLETELY COMPATIBLE.
+
+Do NOT rename it.
+Do NOT change its schema.
+Do NOT move its data.
+Do NOT overwrite it.
+
+Create a completely separate PSI namespace:
+
+psi_trainer.v1
+
+The PSI module must never depend on the CDS state being present.
+
+============================================================
+5. TECHNICAL ARCHITECTURE
+=========================
+
+Keep the existing Vanilla JS architecture.
+
+Do NOT put the entire PSI system inside the existing 43KB index.html.
+
+Create a clean modular static structure such as:
+
+site/
+├── index.html
+├── psi/
+│   ├── psi-app.js
+│   ├── psi-storage.js
+│   ├── psi-srs.js
+│   ├── psi-question-engine.js
+│   ├── psi-ui.js
+│   └── psi.css
+└── data/
+└── psi/
+├── index.js
+├── polity.js
+├── gujarat-gk.js
+├── history.js
+├── geography.js
+├── law.js
+├── science.js
+├── economy.js
+├── reasoning.js
+└── current-affairs.js
+
+Exact filenames may differ if your implementation is cleaner, but preserve the principle:
+
+EXISTING DASHBOARD = OLD SYSTEM
+
+PSI TRAINER = SEPARATE MODULE
+
+QUESTION BANK = SEPARATE DATA
+
+STATE = SEPARATE STORAGE
+
+Do not use fetch() for required question data if it would break direct file:// execution.
+
+Prefer classic static JavaScript files loaded through script tags or dynamically inserted script tags.
+
+The application must still work as a static site.
+
+============================================================
+6. QUESTION DATABASE ARCHITECTURE
+=================================
+
+Design a scalable question schema.
+
+Each question should support:
+
+{
+id,
+subject,
+topic,
+
+question_gu,
+question_en,
+
+options_gu,
+options_en,
+
+answer,
+
+explanation_gu,
+explanation_en,
+
+sourceType,
+sourceName,
+sourceYear,
+sourceReference,
+sourceUrl,
+
+verified,
+verifiedAt,
+
+difficulty,
+tags,
+
+glossary,
+
+status
+}
+
+Recommended sourceType values:
+
+PYQ_OFFICIAL
+PYQ_REPRODUCED
+REFERENCE
+AI_GENERATED
+
+Never mix these classifications.
+
+Every question must clearly identify its source.
+
+Example:
+
+PYQ • Gujarat PSI • 202X
+
+or:
+
+REFERENCE • [source]
+
+or:
+
+AI PRACTICE • Generated for revision
+
+============================================================
+7. ABSOLUTE CONTENT ACCURACY RULE
+=================================
+
+This is one of the MOST IMPORTANT requirements.
+
+NEVER invent:
+
+* PSI exam pattern
+* syllabus
+* marks
+* timing
+* negative marking
+* qualifying rules
+* language rules
+* PET requirements
+* recruitment dates
+* vacancies
+* official answer keys
+* PYQs
+
+The latest OFFICIAL Gujarat Police Recruitment Board / Government notification must override everything.
+
+The expected 2027 notification date is NOT confirmed.
+
+Until the official 2027 notification exists:
+
+Clearly distinguish:
+
+VERIFIED CURRENT/OFFICIAL
+VS
+PREVIOUS EXAM INFORMATION
+VS
+PRACTICE
+VS
+ASSUMPTION
+
+Do not silently convert old rules into 2027 rules.
+
+Make exam-specific rules configurable.
+
+============================================================
+8. EXAM CONFIGURATION SYSTEM
+============================
+
+Create a central configurable object such as:
+
+PSI_EXAM_CONFIG
+
+containing:
+
+* examName
+* targetYear
+* paper structure
+* duration
+* marks
+* negative marking
+* number of options
+* whether Option E exists
+* qualifying requirements
+* language rules
+* subjects
+* topic structure
+
+DO NOT hard-code 2027 assumptions throughout the UI.
+
+When the 2027 notification is released, I should be able to update the configuration in ONE PLACE.
+
+============================================================
+9. IMPORTANT — OPTION E
+=======================
+
+Do not blindly hard-code Option E as the real exam behavior.
+
+The existing project contains notes about Option E and previous PSI rules.
+
+Treat those as historical/reference information until verified against the applicable official notification.
+
+The question engine should support:
+
+A
+B
+C
+D
+
+and optionally:
+
+E / Not Attempted
+
+ONLY when exam configuration says the actual exam uses it.
+
+For normal practice mode, "Not Attempted" may simply be a separate action rather than a fake answer choice.
+
+The scoring engine must be configuration-driven.
+
+============================================================
+10. PYQ SYSTEM
+==============
+
+Create a dedicated:
+
+PYQ PRACTICE
+
+mode.
+
+Allow filtering by:
+
+* year
+* subject
+* topic
+* difficulty
+
+Each PYQ should display:
+
+* year
+* source
+* question number/reference if available
+* verified status
+
+IMPORTANT:
+
+Do NOT call a question a PYQ unless its provenance is known.
+
+Do NOT fabricate question numbers.
+
+Do NOT fabricate years.
+
+Do NOT claim a random coaching-site question is official.
+
+For official answer keys:
+
+Prefer:
+
+Original question paper
++
+Official answer key
++
+Final/revised answer key if applicable
+
+If an answer has changed or is disputed, represent that accurately in the data.
+
+If there are two accepted answers or a revised key, the question model must support that.
+
+============================================================
+11. REFERENCE QUESTIONS
+=======================
+
+Support a:
+
+REFERENCE
+
+question category.
+
+These may come from:
+
+* reputable preparation platforms
+* books
+* question banks
+* user-provided datasets
+
+BUT:
+
+Do not scrape or reproduce entire copyrighted test banks without appropriate rights.
+
+The system should support importing legitimately obtained question data.
+
+Always preserve source attribution.
+
+============================================================
+12. AI-GENERATED QUESTIONS
+==========================
+
+Support:
+
+AI_GENERATED
+
+as a separate category.
+
+AI-generated questions are allowed as SUPPLEMENTARY practice only.
+
+They must NEVER be presented as PYQs.
+
+AI-generated questions must:
+
+* follow the verified syllabus
+* have one unambiguous correct answer
+* have plausible distractors
+* contain an explanation
+* avoid fabricated facts
+* avoid outdated information
+* be clearly marked AI GENERATED
+* be reviewed/validated before becoming trusted content
+
+Do not generate thousands of poor questions just to inflate the database.
+
+QUALITY > QUANTITY.
+
+The question system should allow AI-generated questions to be disabled entirely.
+
+============================================================
+13. BILINGUAL SYSTEM — VERY IMPORTANT
+=====================================
+
+I studied in English medium.
+
+I understand English more comfortably.
+
+My mother tongue is Gujarati, but I sometimes struggle with:
+
+* formal Gujarati vocabulary
+* administrative terminology
+* difficult Gujarati question wording
+* Gujarati writing
+
+Therefore the application MUST support:
+
+LANGUAGE TOGGLE
+
+[ ગુજરાતી ]
+[ English ]
+
+Persist the user's selected language.
+
+Changing language must NOT:
+
+* reset the question
+* reset the timer
+* lose the selected answer
+* reset session progress
+
+When Gujarati is selected:
+
+* Gujarati question
+* Gujarati options
+* Gujarati explanation
+
+When English is selected:
+
+* English question
+* English options
+* English explanation
+
+Translations must preserve meaning.
+
+Do not produce unnatural word-for-word Gujarati.
+
+Do not produce unnatural English.
+
+============================================================
+14. GUJARATI SUPPORT FEATURE
+============================
+
+Add a very lightweight:
+
+"Explain Gujarati"
+
+feature.
+
+It should appear only when useful.
+
+Example:
+
+Question contains:
+
+"અધિનિયમ"
+
+Tap:
+
+Explain Gujarati
+
+Shows:
+
+અધિનિયમ
+Simple Gujarati: કાયદો
+English: Act / Law
+
+Support a small curated glossary per question.
+
+Do not create a huge dictionary system.
+
+The purpose is:
+
+UNDERSTAND EXAM GUJARATI FASTER
+
+not:
+
+AVOID GUJARATI.
+
+Over time the system should help me become comfortable reading Gujarati directly.
+
+============================================================
+15. METRO 40 — THE MOST IMPORTANT FEATURE
+=========================================
+
+Create a prominent mode:
+
+METRO 40
+
+This is the feature I will use most.
+
+Purpose:
+
+Turn every 40-minute metro ride into a productive PSI study session.
+
+I am usually standing.
+
+Therefore:
+
+* one-handed friendly
+* minimal typing
+* large buttons
+* minimal scrolling
+* no complex controls
+* no tiny text
+* fast transitions
+* no unnecessary animations
+* no long forms
+
+The user must be able to start Metro 40 within 1–2 taps.
+
+============================================================
+16. METRO 40 SESSION DESIGN
+===========================
+
+Do NOT define success as "exactly 40 questions."
+
+The objective is:
+
+MAXIMUM LEARNING IN 40 MINUTES.
+
+Use a session structure such as:
+
+0–5 minutes:
+DUE REVISION
+
+5–30 minutes:
+ADAPTIVE MCQs
+
+30–37 minutes:
+MISTAKES / REPEATED ERRORS
+
+37–40 minutes:
+ACTIVE RECALL
+
+But make timing configurable.
+
+Do NOT force the same number of questions every day.
+
+One ride might produce:
+28 questions.
+
+Another:
+36 questions.
+
+Another:
+20 difficult questions.
+
+Learning quality matters more than question count.
+
+============================================================
+17. METRO 40 INTERRUPTION RECOVERY
+==================================
+
+This is highly important.
+
+I may:
+
+* receive a call
+* lock my phone
+* lose connection
+* leave the metro
+* accidentally close the browser
+
+Therefore persist session progress immediately after every important action.
+
+Support:
+
+RESUME METRO 40
+
+The app should restore:
+
+* current question
+* session timer state where possible
+* answered questions
+* current mode
+* progress
+
+Do not lose a 30-minute session because of one accidental close.
+
+============================================================
+18. OPTIONAL SCREEN WAKE
+========================
+
+Where supported, use the browser Wake Lock API during Metro 40.
+
+If unavailable:
+
+* gracefully continue
+* do not break anything
+
+This should be optional and lightweight.
+
+============================================================
+19. MCQ EXPERIENCE
+==================
+
+One question at a time.
+
+UI:
+
+QUESTION
+
+A. ...
+B. ...
+C. ...
+D. ...
+
+Optional E only if configured.
+
+After selection:
+
+CORRECT
+or
+INCORRECT
+
+Then:
+
+SHORT EXPLANATION
+
+SOURCE
+
+Then:
+
+NEXT
+
+Additional buttons:
+
+MARK
+REPORT
+
+Do not overload the screen.
+
+Do not place five different analytics widgets around every question.
+
+============================================================
+20. PRACTICE MODES
+==================
+
+Create only useful modes.
+
+Recommended:
+
+1. QUICK PRACTICE
+2. METRO 40
+3. REVISION
+4. PYQ
+
+Optional:
+
+5. AI PRACTICE
+
+No other modes unless genuinely necessary.
+
+============================================================
+21. ADAPTIVE QUESTION SELECTION
+===============================
+
+Do NOT serve random questions all the time.
+
+Prioritize roughly in this order:
+
+1. Revision due
+2. Repeated mistakes
+3. Weak topics
+4. Marked/doubt questions
+5. Unseen questions
+6. Strong topics for maintenance
+
+The exact weights should be configurable.
+
+Every answer should improve future question selection.
+
+============================================================
+22. MISTAKE CLASSIFICATION
+==========================
+
+Use the existing project's error philosophy.
+
+When I get a question wrong, allow me to classify it as:
+
+1. GAP
+   Didn't know the concept/fact.
+
+2. MISREAD
+   Misread the question/stem/options.
+
+3. SLIP
+   Knew the concept but made a careless/calculation/process mistake.
+
+Do NOT force me to classify every mistake if that would slow down metro practice.
+
+Allow:
+"Quick mark as wrong"
+
+and optionally classify later.
+
+============================================================
+23. SPACED REPETITION
+=====================
+
+Implement a lightweight SRS.
+
+A simple Leitner-style system is sufficient.
+
+Suggested initial schedule:
+
+New / incorrect:
+1 day
+
+then:
+3 days
+
+then:
+7 days
+
+then:
+14 days
+
+then:
+30 days
+
+Correct but uncertain:
+1 day → 7 days → 21 days
+
+Strong/mastered:
+maintenance intervals
+
+However:
+
+Make intervals configurable.
+
+Store per-question state such as:
+
+{
+box,
+due,
+lapses,
+lastSeen,
+attempts,
+correct,
+wrong,
+confidence
+}
+
+The app should automatically resurface questions I repeatedly forget.
+
+============================================================
+24. CONFIDENCE SIGNAL
+=====================
+
+After answering, optionally allow a single-tap:
+
+CONFIDENT
+UNSURE
+
+Do not force it.
+
+This can improve SRS priority.
+
+The system should remain fast even if I never use it.
+
+============================================================
+25. MARK / DOUBT
+================
+
+Each question can be:
+
+MARKED
+
+Use this for:
+
+* confusing questions
+* important facts
+* questions I want to revisit
+
+Create:
+
+MARKED QUESTIONS
+
+inside Revision.
+
+============================================================
+26. MISTAKES PAGE
+=================
+
+Create:
+
+MY MISTAKES
+
+Show:
+
+* repeated mistakes
+* recent mistakes
+* gap mistakes
+* misread mistakes
+* slip mistakes
+
+The most useful view should be:
+
+QUESTIONS I KEEP GETTING WRONG
+
+This should have the highest visibility.
+
+============================================================
+27. WEAK TOPIC ENGINE
+=====================
+
+Track:
+
+* attempted
+* correct
+* wrong
+* accuracy
+* repeated errors
+* due reviews
+
+at:
+
+Subject level
+
+AND
+
+Topic level.
+
+Example:
+
+Law — 56%
+Polity — 73%
+Gujarat Geography — 81%
+
+The point is not pretty analytics.
+
+The point is:
+
+WHAT SHOULD I PRACTICE NEXT?
+
+Therefore always include:
+
+RECOMMENDED NEXT
+
+Example:
+
+Recommended:
+BNSS → Topic X
+15 revision questions
+
+============================================================
+28. MINIMAL PROGRESS DASHBOARD
+==============================
+
+Create a simple PSI progress section.
+
+Only show useful metrics:
+
+* Questions attempted
+* Accuracy
+* Due today
+* Repeated mistakes
+* Weakest subject
+* Weakest topic
+* Metro sessions completed
+
+Do not create:
+
+* unnecessary charts
+* fancy heat maps
+* badges
+* XP
+* coins
+* leaderboards
+
+============================================================
+29. DAILY TARGET
+================
+
+Use a simple target.
+
+Example:
+
+TODAY
+
+30 questions
+
+18 / 30
+
+But do not build guilt-heavy streak mechanics.
+
+I want preparation, not gamification.
+
+============================================================
+30. HOME vs METRO PHILOSOPHY
+============================
+
+The application must understand that:
+
+# HOME STUDY
+
+deep learning
+concept building
+long-form study
+mock analysis
+
+# METRO STUDY
+
+MCQs
+revision
+recall
+current affairs
+vocabulary
+mistake correction
+
+Do not make Metro 40 dependent on long reading.
+
+============================================================
+31. AUDIO / EARPHONES
+=====================
+
+I use earphones.
+
+Support optional browser text-to-speech where practical.
+
+Allow:
+
+* Read question
+* Read explanation
+
+Gujarati text should use Gujarati speech when the browser supports it.
+
+English should use English speech.
+
+Do NOT build a complicated audio platform.
+
+Audio is supplementary.
+
+MCQs must remain the core interaction.
+
+============================================================
+32. OFFLINE / WEAK NETWORK
+==========================
+
+This is important because I use the app in the metro.
+
+The core app should remain useful with weak/intermittent internet.
+
+Use static local question data.
+
+Avoid runtime network dependence for basic MCQ practice.
+
+The current application must still function as a static site.
+
+Do not make the quiz dependent on an API being available.
+
+If PWA/offline support can be added cleanly without complicating the architecture, implement it.
+
+Otherwise prioritize reliable static operation first.
+
+============================================================
+33. DATA STORAGE
+================
+
+Do NOT put full question text into localStorage.
+
+Question bank:
+static files
+
+User progress:
+localStorage
+
+Use:
+
+psi_trainer.v1
+
+Suggested schema:
+
+{
+"version": 1,
+
+"preferences": {
+"language": "gu",
+"defaultMode": "metro40"
+},
+
+"stats": {
+"attempted": 0,
+"correct": 0,
+"wrong": 0
+},
+
+"cards": {},
+
+"marked": [],
+
+"mistakes": {},
+
+"history": [],
+
+"updatedAt": 0
+}
+
+Keep this compact.
+
+Question IDs should be stored instead of duplicating question content.
+
+============================================================
+34. EXPORT / IMPORT
+===================
+
+Because this is localStorage-based:
+
+Add a simple backup feature:
+
+EXPORT PROGRESS
+
+IMPORT PROGRESS
+
+Use JSON.
+
+This is strongly preferred because I must not lose months of study history.
+
+Do NOT upload my personal study data to a server.
+
+============================================================
+35. NO LOGIN
+============
+
+Do not build:
+
+* login
+* signup
+* password
+* OAuth
+* Firebase authentication
+* Supabase auth
+* accounts
+
+This is a personal offline-friendly tool.
+
+============================================================
+36. CURRENT AFFAIRS
+===================
+
+Do NOT build a news website.
+
+Simply create data support for current-affairs MCQs.
+
+Each item should have:
+
+* date
+* category
+* question
+* answer
+* explanation
+* source
+* verification date
+
+Do not let AI fabricate current events.
+
+Future current-affairs content can be added as data.
+
+============================================================
+37. SYLLABUS STRUCTURE
+======================
+
+The existing project contains:
+
+psi.md
+gujarat-gk.md
+gujarati.md
+syllabus-tracker.md
+
+Use these as planning references.
+
+However:
+
+THE OFFICIAL APPLICABLE PSI SYLLABUS OVERRIDES THESE DOCUMENTS.
+
+Do not assume the existing Markdown files are perfectly current.
+
+Build the question taxonomy so it can be updated easily.
+
+Potential broad categories may include:
+
+* Gujarat GK
+* Gujarat History
+* Gujarat Geography
+* Gujarat Culture
+* Gujarat Economy
+* Constitution / Polity
+* Criminal Law
+* BNS
+* BNSS
+* BSA
+* Gujarat Police-related topics
+* General Science
+* Economy
+* History
+* Geography
+* Reasoning
+* Current Affairs
+* Other officially specified areas
+
+These are examples, NOT authoritative 2027 syllabus claims.
+
+============================================================
+38. LAW CONTENT
+===============
+
+For law questions:
+
+Use current applicable law.
+
+Do not blindly rely on old IPC/CrPC/Evidence Act content when the applicable exam requires BNS/BNSS/BSA.
+
+Store legal content with a version/effective-date concept where useful.
+
+If a law changes before the 2027 exam:
+
+The data should be updateable without changing the UI.
+
+============================================================
+39. GUJARATI WRITING SUPPORT
+============================
+
+For now this app is primarily an MCQ/revision tool.
+
+Do NOT build a large writing platform.
+
+However, create a lightweight infrastructure for:
+
+DIFFICULT GUJARATI WORDS
+
+Allow saving a word from a question.
+
+Store:
+
+* word
+* simple Gujarati meaning
+* English meaning
+* optional example
+
+This should connect conceptually with the existing:
+
+gujarati-vocab.md
+
+but DO NOT attempt to automatically modify the Markdown file unless explicitly designed and tested.
+
+The web app and Markdown remain separate systems.
+
+============================================================
+40. EXISTING MARKDOWN FILES
+===========================
+
+Do not pretend the Markdown files are automatically connected to the dashboard.
+
+The current architecture is manually transcribed.
+
+Do NOT build unnecessary Markdown synchronization.
+
+Instead:
+
+Use the Markdown files as reference documents during implementation.
+
+The PSI web module should maintain its own structured data.
+
+============================================================
+41. USER INTERFACE
+==================
+
+Use the existing visual system.
+
+Reuse:
+
+* colors
+* typography
+* buttons
+* cards
+* borders
+* spacing
+* light/dark theme
+* visual language
+
+The PSI module should LOOK LIKE IT BELONGS TO THE EXISTING APP.
+
+Do not create a completely different product aesthetic.
+
+Style direction:
+
+* professional
+* calm
+* serious
+* exam-focused
+* high readability
+* minimal
+* premium but not flashy
+
+============================================================
+42. MOBILE-FIRST REQUIREMENTS
+=============================
+
+This is one of the TOP priorities.
+
+Design first for:
+
+320px
+360px
+375px
+390px
+430px
+
+The desktop version is secondary.
+
+Requirements:
+
+* one-handed operation
+* large tap targets
+* readable text
+* minimal vertical travel
+* no tiny controls
+* no horizontal scrolling for normal quiz interaction
+* no dense tables inside the quiz
+* fast transitions
+* persistent progress visibility
+* easy Next button
+* thumb-friendly placement
+
+METRO 40 should feel comfortable while standing.
+
+============================================================
+43. INTERRUPTION / RESUME DESIGN
+================================
+
+Every meaningful answer/action should save progress.
+
+Support:
+
+Resume Session
+
+Do not require me to restart if the browser closes.
+
+Persist:
+
+* current mode
+* session question list
+* current index
+* answers
+* timestamps
+* session start
+* session status
+
+============================================================
+44. DESKTOP EXPERIENCE
+======================
+
+Desktop can provide:
+
+* wider cards
+* compact statistics
+* question list views
+
+But do NOT let desktop assumptions drive the design.
+
+Mobile is the primary device.
+
+============================================================
+45. NAVIGATION
+==============
+
+Add PSI to the existing navigation.
+
+For example:
+
+PSI
+
+Clicking it should open the PSI module cleanly.
+
+Possible structure:
+
+PSI TRAINER
+
+[ METRO 40 ]
+
+[ PRACTICE ]
+
+[ REVISION ]
+
+[ PYQ ]
+
+[ MISTAKES ]
+
+[ PROGRESS ]
+
+Keep the number of top-level items small.
+
+============================================================
+46. PSI HOME SCREEN
+===================
+
+The PSI home screen should immediately answer:
+
+WHAT SHOULD I DO NOW?
+
+Example:
+
+PSI PREPARATION
+
+Due for revision: 12
+Repeated mistakes: 7
+
+[ START METRO 40 ]
+
+Recommended:
+Law → BNSS → Topic X
+
+[ PRACTICE 20 ]
+
+Then small progress summary.
+
+Do NOT waste the first screen on a welcome banner.
+
+============================================================
+47. METRO 40 LAUNCH
+===================
+
+Metro 40 must be visually prominent.
+
+One tap:
+
+START METRO 40
+
+Then immediately enter the session.
+
+No:
+
+* onboarding
+* multi-screen wizard
+* setup questionnaire
+* unnecessary configuration
+
+Default selections should be remembered.
+
+============================================================
+48. SESSION QUESTION BALANCING
+==============================
+
+Build a sensible selection strategy.
+
+A session can combine:
+
+* due cards
+* weak topics
+* mistakes
+* new questions
+
+Avoid:
+
+* repeating the same exact topic endlessly
+* giving only easy questions
+* giving only new questions
+
+The engine should balance learning and retention.
+
+============================================================
+49. DUPLICATE DETECTION
+=======================
+
+Avoid duplicate questions in the same session.
+
+If possible, detect near-duplicate content during question import.
+
+Do not create a complex AI duplicate system if it is unnecessary.
+
+Simple normalized-text duplicate checks are acceptable.
+
+============================================================
+50. QUESTION VALIDATION
+=======================
+
+Before a question enters the trusted bank, validate:
+
+* question exists
+* language variants exist
+* options exist
+* exactly one correct answer unless officially multiple-answer
+* no duplicate options
+* explanation exists
+* subject exists
+* topic exists
+* source type exists
+
+For PYQs:
+
+* source information required
+* verification status required
+
+For AI questions:
+
+* AI_GENERATED label required
+
+Invalid questions should not silently enter the production bank.
+
+============================================================
+51. QUESTION REPORTING
+======================
+
+Allow:
+
+REPORT QUESTION
+
+Possible reasons:
+
+* Wrong answer
+* Ambiguous
+* Typo
+* Translation issue
+* Outdated
+* Bad source
+
+Store reports locally.
+
+Keep it simple.
+
+============================================================
+52. NO UNNECESSARY FEATURES
+===========================
+
+ABSOLUTELY DO NOT BUILD:
+
+* social feed
+* community
+* chat
+* friends
+* leaderboard
+* profile system
+* points
+* coins
+* badges
+* avatars
+* motivational quote system
+* elaborate streak system
+* payment
+* advertisements
+* subscriptions
+* public accounts
+* video platform
+* huge AI chatbot
+* unnecessary calendar
+* complex note-taking
+* unnecessary gamification
+* marketing landing page
+* public ranking
+* notifications unless they clearly provide study value
+
+Every feature must pass this test:
+
+"Will this directly improve my PSI preparation?"
+
+If NO:
+
+DO NOT BUILD IT.
+
+============================================================
+53. DEVELOPMENT ORDER
+=====================
+
+Implement in this order.
+
+P0 — CORE
+
+1. Inspect existing codebase
+2. Preserve existing dashboard
+3. Add PSI module shell
+4. Create question schema
+5. Create separate question data architecture
+6. Build MCQ engine
+7. Build language toggle
+8. Build Metro 40
+9. Build local progress state
+10. Build mistake tracking
+11. Build SRS
+12. Build weak-topic engine
+13. Build Revision page
+14. Build PYQ mode
+15. Mobile optimization
+
+P1 — USEFUL
+
+16. Gujarati vocabulary helper
+17. Question reporting
+18. Export/import
+19. Resume session
+20. Optional TTS
+21. Offline/PWA improvements if clean
+
+P2 — FUTURE
+
+22. Full mock tests
+23. More advanced analytics
+24. Other useful modules
+
+DO NOT START P2 UNTIL P0 WORKS EXCELLENTLY.
+
+============================================================
+54. INITIAL QUESTION BANK STRATEGY
+==================================
+
+Do NOT immediately create 5,000 questions.
+
+First build the engine and validate it with a small dataset.
+
+Start with approximately:
+
+100–200 QUALITY QUESTIONS
+
+preferably consisting of:
+
+* verified PYQs
+* verified reference questions
+* a small clearly labeled AI practice set
+
+Once the system is proven, the database can scale to thousands.
+
+The architecture must support much larger banks without redesign.
+
+============================================================
+55. QUESTION IMPORT SYSTEM
+==========================
+
+Create a clean import format.
+
+I should be able to add new question data later without changing the application code.
+
+For example:
+
+data/psi/import/
+
+or whatever clean structure you choose.
+
+The important principle:
+
+DATA SHOULD BE SEPARATE FROM UI.
+
+Do not hard-code questions directly into UI rendering code.
+
+============================================================
+56. PERFORMANCE
+===============
+
+Priorities:
+
+1. Accuracy
+2. Speed
+3. Reliability
+4. Mobile usability
+5. Simplicity
+6. Visual polish
+
+The PSI module should load quickly.
+
+Do not render hundreds of questions simultaneously.
+
+Render one question at a time.
+
+Do not repeatedly re-render the whole application unnecessarily.
+
+Use event delegation where appropriate.
+
+Use a clean namespace such as:
+
+window.PSI_APP
+
+to avoid collisions with the existing IIFE.
+
+============================================================
+57. QUESTION BANK LOADING
+=========================
+
+Do not load every possible question bank into the initial dashboard if it would slow the existing dashboard.
+
+Prefer loading PSI data only when the PSI module is opened.
+
+Subject datasets can be loaded on demand.
+
+Avoid fetch dependency when possible because the app must remain compatible with file://.
+
+============================================================
+58. EXISTING DASHBOARD PERFORMANCE
+==================================
+
+The original dashboard currently loads quickly.
+
+Do not turn the home dashboard into a heavy application.
+
+The PSI module must be isolated enough that:
+
+Opening the existing dashboard remains fast.
+
+============================================================
+59. LOCAL STATE VERSIONING
+==========================
+
+Use:
+
+psi_trainer.v1
+
+with explicit version support.
+
+Create migration logic for future versions where practical.
+
+Do not silently break old progress data.
+
+============================================================
+60. SETTINGS
+============
+
+Keep settings extremely small.
+
+Useful settings only:
+
+* Language
+* Default session mode
+* Optional TTS
+* Question difficulty preference if useful
+
+Do not create a giant settings page.
+
+============================================================
+61. ACCESSIBILITY
+=================
+
+Implement practical accessibility:
+
+* adequate contrast
+* large buttons
+* readable text
+* semantic controls
+* visible selected state
+* keyboard support on desktop
+* ARIA where appropriate
+
+Accessibility must not make the UI visually heavy.
+
+============================================================
+62. MOBILE QA
+=============
+
+Before finishing, test at:
+
+320px
+360px
+375px
+390px
+430px
+
+Test:
+
+* starting Metro 40
+* answering questions
+* language switching
+* marking
+* mistakes
+* revision
+* session resume
+* localStorage persistence
+* dark mode
+* light mode
+
+No horizontal overflow.
+
+No clipped buttons.
+
+No inaccessible controls.
+
+============================================================
+63. DESKTOP QA
+==============
+
+Test the existing dashboard and PSI module at desktop widths.
+
+Make sure:
+
+PSI additions do not break:
+
+* existing navigation
+* layout
+* countdowns
+* tables
+* progress tracker
+* theme
+* logging tools
+
+============================================================
+64. FILE:// QA
+==============
+
+The application may be opened directly from disk.
+
+Therefore test:
+
+file://
+
+behavior.
+
+Do not introduce essential functionality that only works under a web server unless clearly documented.
+
+Static script/data loading should be used where appropriate.
+
+============================================================
+65. NO AUTOMATIC ONLINE DEPENDENCY
+==================================
+
+The user should be able to practice previously loaded questions without:
+
+* API keys
+* login
+* backend
+* cloud database
+
+Do not introduce external services unless absolutely necessary.
+
+============================================================
+66. FINAL USER EXPERIENCE
+=========================
+
+Imagine this exact situation:
+
+I am standing in the Gujarat metro.
+
+I have one hand free.
+
+I open the app.
+
+I tap:
+
+PSI
+
+Then:
+
+METRO 40
+
+Within seconds I am answering the first question.
+
+I answer it.
+
+I see whether it is correct.
+
+I understand why.
+
+I tap NEXT.
+
+The system remembers my performance.
+
+It gives me questions I actually need.
+
+When the 40-minute ride is over:
+
+I know:
+
+* what I practiced
+* what I got wrong
+* what needs revision
+* what my weakest area is
+
+That is the experience we are building.
+
+============================================================
+67. DEFINITION OF DONE
+======================
+
+The work is NOT complete just because the page looks good.
+
+It is complete only when:
+
+✓ Existing dashboard still works
+
+✓ Existing localStorage data remains intact
+
+✓ PSI module works independently
+
+✓ MCQ engine works
+
+✓ Gujarati / English toggle works
+
+✓ Metro 40 works
+
+✓ Session can resume after interruption
+
+✓ Wrong answers are tracked
+
+✓ Mistakes can be classified
+
+✓ Spaced repetition works
+
+✓ Weak topics are identified
+
+✓ PYQs are clearly separated from reference/AI questions
+
+✓ Sources are represented accurately
+
+✓ 2027 exam rules are configurable
+
+✓ No unverified rule is presented as official
+
+✓ No fake PYQs exist
+
+✓ Mobile experience is excellent
+
+✓ One-handed use is practical
+
+✓ Local progress persists
+
+✓ Export/import works
+
+✓ Application remains lightweight
+
+✓ No unnecessary features were added
+
+============================================================
+68. VERY IMPORTANT — DEVELOPMENT BEHAVIOR
+=========================================
+
+Do not merely provide a plan.
+
+Inspect the existing project and IMPLEMENT the system.
+
+However:
+
+Do not make giant uncontrolled changes.
+
+Work incrementally.
+
+After every major stage:
+
+* test
+* inspect
+* fix
+* continue
+
+Before editing:
+
+Understand the existing architecture.
+
+Before creating new files:
+
+Use the current structure where sensible.
+
+Before changing existing UI:
+
+Ask whether the change is actually necessary.
+
+If not:
+
+LEAVE IT ALONE.
+
+============================================================
+69. FINAL RULE
+==============
+
+The biggest danger is NOT technical failure.
+
+The biggest danger is building a beautiful application that wastes my study time.
+
+Therefore:
+
+BUILD LESS.
+REMOVE DISTRACTIONS.
+MAXIMIZE RETENTION.
+MAXIMIZE MCQ PRACTICE.
+MAXIMIZE REVISION.
+MAXIMIZE MOBILE USABILITY.
+
+The application should feel like a tool I open to STUDY, not a website I browse.
+
+============================================================
+START NOW
+=========
+
+Step 1:
+Inspect the existing project thoroughly.
+
+Step 2:
+Create a concise implementation map showing:
+
+* files you will add
+* files you will modify
+* files you will not touch
+* data architecture
+* localStorage architecture
+
+Step 3:
+Implement the P0 architecture.
+
+Step 4:
+Build the mobile-first MCQ engine.
+
+Step 5:
+Build Metro 40.
+
+Step 6:
+Build SRS + mistakes + weak-topic engine.
+
+Step 7:
+Build Gujarati/English language toggle.
+
+Step 8:
+Add PYQ/reference/AI source separation.
+
+Step 9:
+Test thoroughly.
+
+Step 10:
+Remove anything unnecessary.
+
+Do NOT stop after producing the architecture.
+Do NOT stop at a mockup.
+Do NOT merely describe what could be built.
+
+IMPLEMENT THE WORKING PRODUCT IN THE EXISTING PROJECT.
+

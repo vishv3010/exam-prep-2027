@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Preparation plan and tracker for CDS I 2027, Gujarat PSI and SSC CGL.">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img,svg{max-width:100%}</style>
+<title>Road to CDS I 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<link rel="stylesheet" href="psi/psi.css">
+
+<style>
+:root{
+  --ground:#F2F4F7; --surface:#FFFFFF; --surface-2:#E9EDF2;
+  --ink:#101F33; --ink-soft:#4A5A6E; --ink-faint:#7A889A;
+  --line:#D6DCE4; --line-soft:#E4E9EF;
+  --accent:#1E4E79; --accent-soft:#E2ECF5;
+  --brass:#8A6425; --brass-soft:#F2E9D8;
+  --alert:#A8342B; --alert-soft:#F7E4E2;
+  --good:#2C6B4F; --good-soft:#E3EFE8;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1420; --surface:#131E2C; --surface-2:#1B283A;
+    --ink:#E4EAF1; --ink-soft:#9DAEC1; --ink-faint:#71829A;
+    --line:#25344A; --line-soft:#1D2A3C;
+    --accent:#79ACDD; --accent-soft:#17293D;
+    --brass:#D3A75F; --brass-soft:#2A2317;
+    --alert:#E6837A; --alert-soft:#2E1A19;
+    --good:#6FBF95; --good-soft:#132A20;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1420; --surface:#131E2C; --surface-2:#1B283A;
+  --ink:#E4EAF1; --ink-soft:#9DAEC1; --ink-faint:#71829A;
+  --line:#25344A; --line-soft:#1D2A3C;
+  --accent:#79ACDD; --accent-soft:#17293D;
+  --brass:#D3A75F; --brass-soft:#2A2317;
+  --alert:#E6837A; --alert-soft:#2E1A19;
+  --good:#6FBF95; --good-soft:#132A20;
+}
+
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.65;margin:0;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:0 20px 96px}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+p{margin:0}
+a{color:var(--accent)}
+.eyebrow{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+button{font-family:var(--f-display);cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- sticky nav ---------- */
+.nav{position:sticky;top:0;z-index:50;background:var(--ground);border-bottom:1px solid var(--line);margin-bottom:0}
+.nav-in{max-width:940px;margin:0 auto;padding:10px 20px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap}
+.nav a{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);text-decoration:none;padding:5px 8px;border-radius:2px}
+.nav a:hover{color:var(--accent);background:var(--accent-soft)}
+.nav .cd{font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--accent);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* ---------- today ---------- */
+.today{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:3px;padding:26px;display:flex;flex-direction:column;gap:20px;margin-top:28px}
+.today-top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap}
+.today-top h2{font-size:25px;font-weight:600}
+.today-date{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-faint);letter-spacing:.04em}
+.blocks{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.block{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:7px}
+.block .t{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--accent)}
+.block .c{font-size:15.5px;color:var(--ink);line-height:1.45}
+.block.psi .t{color:var(--brass)}
+.block.rest .t{color:var(--ink-faint)}
+.milestone{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 18px;border-radius:2px}
+.milestone .l{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.milestone .m{font-size:15.5px;color:var(--ink);margin-top:4px}
+
+/* ---------- counters ---------- */
+.counters{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden;margin-top:20px}
+.counter{background:var(--surface);padding:17px 19px;display:flex;flex-direction:column;gap:5px}
+.counter .num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:32px;font-weight:600;line-height:1;letter-spacing:-.03em;color:var(--accent)}
+.counter.is-brass .num{color:var(--brass)}
+.counter.is-good .num{color:var(--good)}
+.counter .unit{font-size:14px;font-weight:400;color:var(--ink-faint);letter-spacing:0}
+.counter .what{font-family:var(--f-display);font-size:13.5px;font-weight:600;line-height:1.3}
+.counter .when{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-faint)}
+
+/* ---------- sections ---------- */
+section{padding:48px 0;border-bottom:1px solid var(--line-soft);scroll-margin-top:56px}
+.sec-head{display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.sec-head h2{font-size:26px;font-weight:600;letter-spacing:-.015em}
+.sec-head p{color:var(--ink-soft);max-width:65ch}
+.prose{display:flex;flex-direction:column;gap:15px;max-width:65ch}
+.prose p{color:var(--ink-soft)}
+strong{font-weight:600;color:var(--ink)}
+
+/* ---------- habit grid ---------- */
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:6px;margin-bottom:18px}
+.hday{background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);transition:background .12s,border-color .12s}
+.hday .dn{font-size:13px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.hday:hover{border-color:var(--accent)}
+.hday.done{background:var(--good-soft);border-color:var(--good)}
+.hday.done .dn{color:var(--good)}
+.hday.future{opacity:.4}
+.hday.today{border-color:var(--accent);border-width:2px}
+.hstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.hstat{background:var(--surface);padding:15px 17px;display:flex;flex-direction:column;gap:4px}
+.hstat .v{font-family:var(--f-mono);font-size:26px;font-weight:600;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.hstat .v small{font-size:14px;color:var(--ink-faint);font-weight:400}
+.hstat .k{font-family:var(--f-display);font-size:13px;font-weight:600;color:var(--ink-soft)}
+.verdict{margin-top:16px;padding:15px 18px;border-radius:3px;border:1px solid var(--line);background:var(--surface);font-size:15.5px;color:var(--ink-soft)}
+.verdict.pass{background:var(--good-soft);border-color:var(--good)}
+.verdict.warn{background:var(--brass-soft);border-color:var(--brass)}
+
+/* ---------- log forms ---------- */
+.logs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.logcard{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.logcard h3{font-size:17px;font-weight:600}
+.logcard .hint{font-size:14px;color:var(--ink-faint);line-height:1.5}
+.frow{display:flex;gap:7px;flex-wrap:wrap}
+input[type=text],input[type=number],input[type=date]{font-family:var(--f-mono);font-size:13.5px;padding:8px 10px;border:1px solid var(--line);border-radius:2px;background:var(--ground);color:var(--ink);min-width:0;flex:1}
+.btn{font-size:13px;font-weight:600;padding:8px 14px;border:1px solid var(--accent);border-radius:2px;background:var(--accent);color:var(--ground);letter-spacing:.02em}
+.btn:hover{opacity:.88}
+.btn.ghost{background:transparent;color:var(--accent)}
+.entries{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.entry{background:var(--surface);padding:9px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-family:var(--f-mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.entry .v{color:var(--ink);font-weight:600}
+.entry .d{color:var(--ink-faint)}
+.entry .delta{font-size:11px;padding:1px 5px;border-radius:2px}
+.delta.up{background:var(--good-soft);color:var(--good)}
+.delta.down{background:var(--alert-soft);color:var(--alert)}
+.entry button{background:none;border:0;color:var(--ink-faint);font-size:15px;line-height:1;padding:2px 4px}
+.entry button:hover{color:var(--alert)}
+.empty{font-size:14px;color:var(--ink-faint);font-style:italic;padding:4px 0}
+
+/* ---------- save bar ---------- */
+.savebar{position:sticky;bottom:0;z-index:40;background:var(--surface);border-top:1px solid var(--line);padding:11px 20px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.savebar .st{font-family:var(--f-mono);font-size:12px;color:var(--ink-faint)}
+.savebar .st b{color:var(--good)}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{text-align:left;padding:12px 15px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+th{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint);background:var(--surface-2);border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+td{font-size:15px;color:var(--ink-soft)}
+td.k{font-family:var(--f-display);font-weight:600;color:var(--ink);font-size:15px}
+td.d{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink);white-space:nowrap}
+tr.isnow td{background:var(--accent-soft)}
+.chip{display:inline-block;font-family:var(--f-mono);font-size:10.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;padding:3px 8px;border-radius:2px;white-space:nowrap}
+.chip.anchor{background:var(--accent-soft);color:var(--accent)}
+.chip.hard{background:var(--alert-soft);color:var(--alert)}
+
+/* ---------- cards ---------- */
+.reasons{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.reason{background:var(--surface);padding:21px;display:flex;flex-direction:column;gap:9px}
+.reason h3{font-size:16px;font-weight:600}
+.reason p{font-size:15px;color:var(--ink-soft);line-height:1.55}
+.alert{background:var(--alert-soft);border:1px solid var(--alert);border-radius:3px;padding:21px 23px;display:flex;flex-direction:column;gap:10px}
+.alert .eyebrow{color:var(--alert)}
+.alert h3{font-size:19px;font-weight:600;color:var(--ink)}
+.alert p{font-size:15.5px;color:var(--ink-soft);max-width:62ch}
+.callout{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--alert);border-radius:3px;padding:22px 24px;display:flex;flex-direction:column;gap:11px}
+.callout .eyebrow{color:var(--alert)}
+.callout h3{font-size:19px;font-weight:600}
+.callout p{color:var(--ink-soft);max-width:62ch}
+
+/* ---------- phases ---------- */
+.phase{display:grid;grid-template-columns:70px 1fr;gap:20px;padding:22px 0;border-bottom:1px solid var(--line-soft)}
+.phase:last-child{border-bottom:0}
+.phase-n .n{font-family:var(--f-mono);font-size:28px;font-weight:600;line-height:1;color:var(--accent)}
+.phase-n .wk{font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);display:block;margin-top:3px}
+.phase-body{display:flex;flex-direction:column;gap:9px}
+.phase-body h3{font-size:18px;font-weight:600}
+.phase-body .span{font-family:var(--f-mono);font-size:12px;color:var(--brass);letter-spacing:.05em}
+.phase-body p,.phase-body li{color:var(--ink-soft);font-size:15px;max-width:62ch}
+.phase-body ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px}
+.exit{font-family:var(--f-mono);font-size:12.5px;line-height:1.55;background:var(--ground);border:1px solid var(--line);border-radius:3px;padding:10px 13px;color:var(--ink-soft)}
+.exit b{color:var(--ink)}
+
+details{background:var(--surface);border:1px solid var(--line);border-radius:3px;margin-top:14px}
+summary{padding:14px 18px;font-family:var(--f-display);font-weight:600;font-size:15.5px;cursor:pointer;color:var(--ink)}
+summary:hover{color:var(--accent)}
+details[open] summary{border-bottom:1px solid var(--line)}
+.dbody{padding:18px}
+
+footer{padding:40px 0 0;color:var(--ink-faint);font-size:14px;display:flex;flex-direction:column;gap:11px;max-width:68ch}
+
+@media (max-width:560px){
+  body{font-size:16px}
+  .phase{grid-template-columns:1fr;gap:10px}
+  .nav-links{gap:0}
+  .nav a{padding:4px 6px;font-size:10px}
+}
+</style>
+</head>
+<body>
+
+
+<nav class="nav">
+  <div class="nav-in">
+    <div class="nav-links">
+      <a href="#today">Today</a>
+      <a href="#progress">Progress</a>
+      <a href="#month">The month</a>
+      <a href="#plan">Strategy</a>
+      <a href="#phases">Phases</a>
+      <a href="#shelf">Books</a>
+      <a href="#psi-trainer" id="nav-psi-tab" class="nav-tab-badge">Gujarat PSI 2026</a>
+    </div>
+    <span class="cd" id="navcd"></span>
+  </div>
+</nav>
+
+<div id="psi-root" style="display:none;"></div>
+
+<div class="wrap">
+
+  <section id="today" style="border-bottom:0;padding-top:8px">
+    <div id="todaycard"></div>
+    <div class="counters" id="counters"></div>
+  </section>
+
+  <section id="progress">
+    <div class="sec-head">
+      <span class="eyebrow">Phase 0 &middot; the only test that matters</span>
+      <h2>Did the 5:30 block run?</h2>
+      <p>Twenty-five weekdays from 31 August to 2 October. Tap a day when the morning block actually happened. <strong>Twenty out of twenty-five and Phase 1 can safely double the content</strong> &mdash; fewer, and you repeat the ramp instead of adding material.</p>
+    </div>
+    <div class="hgrid" id="hgrid"></div>
+    <div class="hstats" id="hstats"></div>
+    <div class="verdict" id="verdict"></div>
+
+    <div class="logs" style="margin-top:26px">
+      <div class="logcard">
+        <h3>Mock scores</h3>
+        <p class="hint">Out of 300 for the full CDS paper. The 13 September diagnostic is your baseline &mdash; every later score is measured against it, not against what you hoped for.</p>
+        <div class="frow">
+          <input type="date" id="mdate" aria-label="Mock date">
+          <input type="number" id="mscore" placeholder="Score /300" min="0" max="300" aria-label="Mock score">
+          <button class="btn" id="maddbtn">Add</button>
+        </div>
+        <div class="entries" id="mlist"></div>
+      </div>
+      <div class="logcard">
+        <h3>5&nbsp;km times</h3>
+        <p class="hint">PSI needs 5000&nbsp;m in 25:00. Target is comfortably under 23:00 by December, because margin is what survives a bad day and exam-morning nerves.</p>
+        <div class="frow">
+          <input type="date" id="rdate" aria-label="Run date">
+          <input type="text" id="rtime" placeholder="mm:ss" aria-label="5km time">
+          <button class="btn" id="raddbtn">Add</button>
+        </div>
+        <div class="entries" id="rlist"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="month">
+    <div class="sec-head">
+      <span class="eyebrow">The first month &middot; 31 Aug &ndash; 27 Sep</span>
+      <h2>Every day already decided</h2>
+      <p>Nobody fails the morning block for lack of a syllabus. They fail because the first ten minutes require a choice, and at 5:30am a choice is a chance to go back to bed. Today's row is highlighted.</p>
+    </div>
+
+    <div class="callout" style="border-left-color:var(--brass);margin-bottom:22px">
+      <span class="eyebrow" style="color:var(--brass)">Read this before day one</span>
+      <h3>Do not start at 1h45. Ramp it.</h3>
+      <p>Full volume on day one works for four days, feels heroic, and collapses in week two. <strong>Week 1 is 60 minutes, week 2 is 80, weeks 3&ndash;4 are the full 105.</strong></p>
+      <p><strong>Week 1's only real target is getting out of bed five times.</strong> Five easy 60-minute sessions is a complete success even if you learn almost nothing. Three brilliant two-hour sessions followed by a missed Thursday and Friday is a failure. The habit is the asset; content is what it later carries.</p>
+    </div>
+
+    <div class="tw" id="monthtable"></div>
+
+    <details>
+      <summary>Why Polity leads the night block, and geography leads the PSI block</summary>
+      <div class="dbody prose">
+        <p><strong>Polity</strong> has the highest shared value of any topic you could start with &mdash; a large chunk of CDS General Knowledge, recurring in CGL General Awareness, and an <em>entire section of PSI Paper 1 with its own 40% cut-off.</em> Nothing else pays into all three this heavily, so it goes first, while motivation is highest.</p>
+        <p><strong>Gujarat geography</strong> is scaffolding. Once districts, rivers and regions are in your head, historical events and industries have somewhere to attach. Learn Gujarat history first and you are memorising place-names that mean nothing yet.</p>
+      </div>
+    </details>
+  </section>
+
+  <section id="plan">
+    <div class="sec-head">
+      <span class="eyebrow">Where things stand</span>
+      <h2>Two anchors, and one exam still unconfirmed</h2>
+    </div>
+
+    <div class="alert" style="margin-bottom:24px">
+      <span class="eyebrow">Still open &middot; only you can close this</span>
+      <h3>Confirm the SSC CGL 2026 application</h3>
+      <p>You think you submitted it. If you did, <strong>Tier 1 is in September</strong> &mdash; weeks away. The common failure is a form that was filled but never paid for, and SSC does not count an unpaid application as submitted.</p>
+      <p class="mono" style="font-size:13px;line-height:1.75">ssc.gov.in &rarr; Login &rarr; My Applications &rarr; CGLE 2026<br>must read SUBMITTED <em>and</em> FEE PAID</p>
+    </div>
+
+    <div class="tw" style="margin-bottom:24px">
+      <table>
+        <thead><tr><th>Exam</th><th>Post</th><th>Cycle</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td class="k">CDS <span style="font-weight:400;color:var(--ink-faint)">(UPSC)</span></td><td>Officer &mdash; IMA / INA / AFA / OTA</td><td class="d">Exam 11 Apr 2027</td><td><span class="chip anchor">Co-anchor</span></td></tr>
+          <tr><td class="k">Gujarat PSI <span style="font-weight:400;color:var(--ink-faint)">(GPRB)</span></td><td>Police Sub-Inspector</td><td class="d">Next cycle TBD</td><td><span class="chip anchor">Co-anchor</span></td></tr>
+          <tr><td class="k">SSC CGL</td><td>CBI Sub-Inspector</td><td class="d" style="color:var(--alert)">Tier 1 &mdash; Sept 2026</td><td><span class="chip hard">Unconfirmed</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="reasons">
+      <div class="reason"><h3>CDS holds the morning block</h3><p>Not because it matters more. Because roughly four IMA/INA attempts remain before age closes it in 2029, while PSI stays open to 35. <strong>The perishable one gets the protected hours.</strong></p></div>
+      <div class="reason"><h3>Your degree buys three extra doors</h3><p>One application covers IMA, INA, AFA and OTA. INA requires an engineering degree; AFA requires engineering or 10+2 with PCM. Non-engineering graduates compete for two entries. You compete for four.</p></div>
+      <div class="reason"><h3>PSI is a readiness problem</h3><p>858 posts in one Gujarat cycle against 451 CDS vacancies nationally, and no SSB. But no date either &mdash; so it is about standing ready, not waiting. A notification is a 60&ndash;90 day sprint.</p></div>
+      <div class="reason"><h3>The SSB is the real filter</h3><p>CDS written cutoffs run ~20&ndash;25%. The five-day interview converts in single digits, and most candidates walk in cold. SSB prep starts December, not on a call letter.</p></div>
+    </div>
+
+    <details>
+      <summary>&#9888; The PSI trap that CDS and SSC habits will walk you into</summary>
+      <div class="dbody prose">
+        <p>Gujarat deducts <strong>0.25 for a wrong answer and 0.25 for any question left completely blank.</strong> Every question carries a fifth option, <strong>E &mdash; &ldquo;Not Attempted&rdquo;</strong>, which costs nothing. Marking nothing at all costs you.</p>
+        <p>In CDS and SSC, skipping is free. Anyone drilled on those walks in with the habit of leaving blanks and <strong>bleeds marks on questions they never even read.</strong> Answer it, or mark E. Never leave a row empty &mdash; drill it on real OMR sheets until it is automatic.</p>
+        <p>Also: <strong>40% minimum in each part of Paper 1, independently.</strong> A brilliant GK score does not rescue a failed Constitution section, so no part can be punted.</p>
+      </div>
+    </details>
+  </section>
+
+  <section id="phases">
+    <div class="sec-head">
+      <span class="eyebrow">The route</span>
+      <h2>26 August 2026 &rarr; 11 April 2027</h2>
+      <p>Each phase is only worth starting once the previous one's exit test passes.</p>
+    </div>
+    <div id="phaselist"></div>
+  </section>
+
+  <section id="shelf">
+    <div class="sec-head">
+      <span class="eyebrow">The shelf</span>
+      <h2>Buy two books, not ten</h2>
+      <p>Lucent GK, a CDS complete guide, and NCERT Class 9 and 10 already cover most of the first four months.</p>
+    </div>
+    <div class="tw" style="margin-bottom:20px">
+      <table>
+        <thead><tr><th>You own</th><th>Verdict</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Lucent GK &middot; 1&ndash;2 yrs</td><td><span class="chip anchor">Use it</span></td><td>Static GK does not age &mdash; that is 80%+ of the book. Only its current-affairs pages went stale, and those were never why you own it.</td></tr>
+          <tr><td class="k">CDS complete book</td><td><span class="chip anchor">Use it</span></td><td>Pattern has been stable for years: 120/120/100 questions, 1/3 negative. Only its past papers are stale, and UPSC publishes every paper with the key for free.</td></tr>
+          <tr><td class="k">NCERT Class 9 &amp; 10</td><td><span class="chip anchor">Better than you think</span></td><td>CDS Elementary Maths <em>is</em> this level. A primary source, not a fallback &mdash; and better for concepts than practice-volume books.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="reasons">
+      <div class="reason"><h3>Buy: Word Power Made Easy</h3><p>The one real gap. Nothing you own builds vocabulary, and it is tested in CDS, CGL <em>and</em> PSI. Root-based, so it compounds.</p></div>
+      <div class="reason"><h3>Buy: a Gujarat GK book</h3><p>Liberty or World Inbox. Your PSI co-anchor has no source at all right now.</p></div>
+      <div class="reason"><h3>&#9888; Where an old book misleads</h3><p><strong>BNS, BNSS and BSA replaced the IPC, CrPC and Evidence Act from 1 July 2024</strong>, with different section numbers. Affects nothing on your shelf &mdash; only PSI legal material you buy.</p></div>
+      <div class="reason"><h3>Audit your CDS book</h3><p>Ten minutes. Pattern page shows 120/120/100? Newest past paper year &mdash; download everything after it. Grammar section? That decides whether Wren &amp; Martin is worth buying at all.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="eyebrow">Verify before relying on it</span>
+    <p>Every date and standard here was checked against live sources on 26 August 2026, but exam patterns, age relaxations and physical standards are revised year to year. The age window is built from the published pattern, not from the 2027 notification itself. Re-verify against the actual notification at upsc.gov.in, ssc.gov.in and gprb.gujarat.gov.in when each drops &mdash; and read the notification annexure rather than a coaching website.</p>
+    <p>IMA, INA, AFA and OTA all require candidates to be unmarried.</p>
+  </footer>
+</div>
+
+<div class="savebar">
+  <span class="st" id="savest">Loading&hellip;</span>
+  <button class="btn" id="savebtn">Save progress</button>
+</div>
+
+<script>
+(function(){
+"use strict";
+var MS=86400000, KEY="cds2027.v1";
+
+/* ---------------- schedule data ---------------- */
+var SCHED={
+"2026-08-27":["Setup — audit your books, order the two you need",  "Download 10 yrs of CDS past papers from upsc.gov.in","—"],
+"2026-08-28":["Setup — book the medical","Set the 5:15 alarm. Phone across the room","—"],
+"2026-08-29":["Setup — buy an OMR practice pad","—","First easy run, 20 min"],
+"2026-08-30":["Setup — lay tomorrow's book out, open","Read a Gujarati editorial, start the vocab log","Rest"],
+"2026-08-31":["Maths — number system, divisibility","Polity — Constitution, Preamble","Run 20 min"],
+"2026-09-01":["English — nouns, pronouns, articles","PSI — Gujarat geography: districts, rivers, coast","Gym"],
+"2026-09-02":["Maths — LCM, HCF","Polity — Fundamental Rights","Run 20 min"],
+"2026-09-03":["English — tenses, the whole system once","PSI — formation 1960, symbols, capitals","Gym"],
+"2026-09-04":["Maths — simplification, BODMAS, speed drills","Polity — Fundamental Duties, DPSP","Run 20 min"],
+"2026-09-05":["Sectional: 25 maths questions, timed","1 hr PSI — Gujarat history to 1947","Long run 30 min"],
+"2026-09-06":["Review, plan week 2","Gujarati vocabulary revision","Rest"],
+"2026-09-07":["Maths — percentages I","Polity — Parliament, both houses","Run 25 min"],
+"2026-09-08":["English — prepositions, conjunctions","PSI — IPC / BNS basics","Gym"],
+"2026-09-09":["Maths — percentages II, applications","Polity — President, PM, Council","Run 25 min"],
+"2026-09-10":["English — subject-verb agreement, error spotting","PSI — police powers, arrest, FIR","Gym"],
+"2026-09-11":["Maths — percentage speed drills","Polity — judiciary, SC and HCs","Run 25 min"],
+"2026-09-12":["Light revision only. Rest the brain","Prepare: pens, watch, printed papers","Easy 20 min"],
+"2026-09-13":["THE DIAGNOSTIC — full CDS paper, cold","09:00 Eng · 12:00 GK · 15:00 Maths","Rest"],
+"2026-09-14":["Maths — ratio & proportion","Polity — federalism, centre-state","Run 30 min"],
+"2026-09-15":["English — reading comprehension, timed","PSI — Gujarat economy, industry, agriculture","Gym"],
+"2026-09-16":["Maths — averages","Polity — elections, ECI, parties","Run 30 min"],
+"2026-09-17":["English — vocabulary consolidation, roots","PSI — psychology: perception, learning, motivation","Gym"],
+"2026-09-18":["Maths — mixture & alligation","Polity — amendments, emergency provisions","Intervals 6×400m"],
+"2026-09-19":["Sectional: full 100-question maths paper","1 hr PSI — Gujarat culture, festivals, literature","Long run 6 km"],
+"2026-09-20":["Weakest section, per the diagnostic","Gujarati vocab + first written paragraph","Rest"],
+"2026-09-21":["Maths — simple & compound interest","GK — modern history, 1857 to 1900","Run 30 min"],
+"2026-09-22":["English — sentence improvement","PSI — sociology: family, caste, social change","Gym"],
+"2026-09-23":["Maths — time & work","GK — freedom struggle, Gandhi era","Run 30 min"],
+"2026-09-24":["English — idioms, one-word substitution","PSI — Gujarat institutions, administration","Gym"],
+"2026-09-25":["Maths — time, speed & distance","GK — post-independence integration","Run 30 min"],
+"2026-09-26":["Sectional: English, full paper, timed","1 hr PSI — OMR drill, 100 Q, marking Option E","Long run 7 km"],
+"2026-09-27":["Mock #2 — full CDS paper","Month-end review","5 km time trial"]
+};
+var MILE={
+"2026-09-13":["Sunday 13 September","The cold diagnostic. Full CDS past paper at real timing — no notes, no phone, no pausing. It will feel bad; that is the point. An unprepared diagnostic is the only honest one you will ever get."],
+"2026-09-27":["Sunday 27 September","Month-end check. But the number that decides October is not the mock score — it is whether the 5:30 block ran 20 of 25 weekdays."],
+"2026-12-02":["CDS I 2027 notification","Read it the day it drops. Verify the age window and pattern against everything here."],
+"2026-12-22":["Application closes","Apply in the FIRST week of December, not the last. The portal collapses in the final 48 hours every year."],
+"2027-04-11":["CDS I 2027 written","The anchor."]
+};
+var PHASES=[
+[0,"wk 1–5","SEPTEMBER 2026","Baseline","The point is measurement, not progress. You cannot plan around a skill level you have not measured.",
+ ["Confirm the SSC CGL application — if live, September belongs to Tier 1","Sit a full CDS past paper cold on 13 September","Begin Maths from arithmetic, the English grammar spine, the daily GK habit","Start running, start the Gujarati drip, book the medical"],
+ "You know your real starting score, and the 5:30 block ran 20 of 25 weekdays. If the habit didn't hold, fix the habit before adding material."],
+[1,"wk 6–13","OCTOBER – NOVEMBER 2026","Core build","The heavy-lifting phase — the entire syllabus, first pass.",
+ ["Maths end to end: arithmetic → algebra → geometry → mensuration → trigonometry → statistics","English grammar complete; vocabulary at 15 words a day","GK: history → polity → geography → economy → science","Sectional tests from week 8"],
+ "Every Maths and GK topic ticked once, sectional scores rising, ~200 hours logged."],
+[2,"wk 14–21","DECEMBER 2026 – JANUARY 2027","Consolidate &amp; apply","",
+ ["Apply in the first week of December — all four entries, one form","Second syllabus pass, weighted to what the mocks say is weak","Weekly full mocks begin — Sunday, real timing, no pauses","SSB preparation starts: OIR, PPDT, TAT, WAT, SRT"],
+ "Application submitted and confirmed. Mocks clearing the historical cutoff band with margin."],
+[3,"wk 22–30","FEBRUARY – MARCH 2027","Test-heavy","Revision and testing, not new material. This is where scores actually move.",
+ ["Two full mocks a week, each followed by a complete error-log review","SSB to four hours a week — build real evidence of officer-like qualities from your own life","Running peaks, monthly 5 km time trial"],
+ "Mock scores consistently above cutoff, error log shrinking rather than growing."],
+[4,"wk 31–32","APRIL 2027","Taper","",
+ ["No new material after 25 March. None","Past papers and revision notes only","Sleep back to 7+ hours for the final ten days","Logistics: admit card, ID, centre, route, alarm"],
+ ""]
+];
+
+/* ---------------- state ---------------- */
+var state={days:{},mocks:[],runs:[],updatedAt:0};
+var CAP=null, dirty=false;
+
+function todayKey(){var n=new Date();return n.getFullYear()+"-"+pad(n.getMonth()+1)+"-"+pad(n.getDate());}
+function pad(n){return n<10?"0"+n:""+n;}
+function parse(s){var p=s.split("-");return Date.UTC(+p[0],+p[1]-1,+p[2]);}
+function todayUTC(){var n=new Date();return Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());}
+function fmt(s){var d=new Date(parse(s));return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getUTCDay()]+" "+d.getUTCDate()+" "+["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()];}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+function loadLocal(){
+  try{var r=localStorage.getItem(KEY);if(r){var p=JSON.parse(r);if(p&&typeof p==="object"){state=p;state.days=state.days||{};state.mocks=state.mocks||[];state.runs=state.runs||[];}}}catch(e){}
+}
+function saveLocal(){
+  state.updatedAt=Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+}
+
+/* ---------------- habit grid ---------------- */
+function weekdays(){
+  var out=[],d=parse("2026-08-31"),end=parse("2026-10-02");
+  while(d<=end){var wd=new Date(d).getUTCDay();if(wd!==0&&wd!==6)out.push(new Date(d).toISOString().slice(0,10));d+=MS;}
+  return out;
+}
+function renderGrid(){
+  var wd=weekdays(),tk=todayKey(),tu=todayUTC(),h="";
+  for(var i=0;i<wd.length;i++){
+    var k=wd[i],cls="hday";
+    if(state.days[k])cls+=" done";
+    if(parse(k)>tu)cls+=" future";
+    if(k===tk)cls+=" today";
+    var d=new Date(parse(k));
+    h+='<button class="'+cls+'" data-day="'+k+'" aria-pressed="'+(state.days[k]?"true":"false")+'" title="'+fmt(k)+'">'+
+       '<span>'+["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getUTCDay()]+'</span>'+
+       '<span class="dn">'+d.getUTCDate()+'</span></button>';
+  }
+  document.getElementById("hgrid").innerHTML=h;
+
+  var done=0,elapsed=0;
+  for(var j=0;j<wd.length;j++){if(state.days[wd[j]])done++;if(parse(wd[j])<=tu)elapsed++;}
+  var streak=0;
+  for(var s=wd.length-1;s>=0;s--){if(parse(wd[s])>tu)continue;if(state.days[wd[s]])streak++;else break;}
+  var rate=elapsed?Math.round(done/elapsed*100):0;
+  document.getElementById("hstats").innerHTML=
+    '<div class="hstat"><span class="v">'+done+'<small> / 25</small></span><span class="k">Blocks done</span></div>'+
+    '<div class="hstat"><span class="v">'+streak+'</span><span class="k">Current streak</span></div>'+
+    '<div class="hstat"><span class="v">'+rate+'<small>%</small></span><span class="k">Of days elapsed</span></div>'+
+    '<div class="hstat"><span class="v">'+Math.max(0,20-done)+'</span><span class="k">Still needed for 20</span></div>';
+
+  var v=document.getElementById("verdict"),left=wd.length-elapsed;
+  if(done>=20){v.className="verdict pass";v.innerHTML="<strong>Phase 0 passed.</strong> The block exists. Phase 1 can safely double the content in October.";}
+  else if(done+left>=20){v.className="verdict";v.innerHTML="<strong>Still on track.</strong> "+(20-done)+" more needed and "+left+" weekdays left. Miss a day, never miss two — one is noise, two is how a habit dies.";}
+  else{v.className="verdict warn";v.innerHTML="<strong>Twenty is out of reach this cycle.</strong> That is information, not failure — it means the schedule was wrong, not you. Do not add material in October; repeat the ramp and fix the wake-up first, because every later phase sits on top of this block existing.";}
+}
+
+/* ---------------- today ---------------- */
+function renderToday(){
+  var tk=todayKey(),tu=todayUTC(),s=SCHED[tk],h="";
+  var target=parse("2027-04-11"),days=Math.round((target-tu)/MS);
+  h+='<div class="today"><div class="today-top"><h2>'+(s?"Today":"Between phases")+'</h2><span class="today-date">'+fmt(tk).toUpperCase()+'</span></div>';
+  if(MILE[tk]){h+='<div class="milestone"><div class="l">'+esc(MILE[tk][0])+'</div><div class="m">'+esc(MILE[tk][1])+'</div></div>';}
+  if(s){
+    var isRest=/rest/i.test(s[2]);
+    h+='<div class="blocks">'+
+      '<div class="block"><span class="t">Deep · 5:30am</span><span class="c">'+esc(s[0])+'</span></div>'+
+      '<div class="block'+(/^PSI/.test(s[1])?" psi":"")+'"><span class="t">Light · 10:15pm</span><span class="c">'+esc(s[1])+'</span></div>'+
+      '<div class="block'+(isRest?" rest":"")+'"><span class="t">Training</span><span class="c">'+esc(s[2])+'</span></div>'+
+      '</div>';
+  } else if(tu<parse("2026-08-27")){
+    h+='<div class="prose"><p>The scheduled month begins <strong>27 August</strong>. Until then: read the strategy below, and get the SSC CGL application confirmed.</p></div>';
+  } else {
+    h+='<div class="prose"><p>Past the scheduled month. Follow the weekly pattern: <strong>Maths on Mon/Wed/Fri mornings, English Tue/Thu.</strong> Nights are GK and current affairs on Mon/Wed/Fri, PSI on Tue/Thu. Sunday morning is a full mock at real timing.</p><p>Which topics depends on the phase &mdash; see the route below, and let the error log pick the weak ones.</p></div>';
+  }
+  var dk=state.days[tk];
+  var wdn=new Date(parse(tk)).getUTCDay();
+  if(s&&parse(tk)>=parse("2026-08-31")&&parse(tk)<=parse("2026-10-02")&&wdn!==0&&wdn!==6){
+    h+='<div><button class="btn'+(dk?" ghost":"")+'" id="marktoday">'+(dk?"✓ Morning block done — undo":"Mark this morning's block done")+'</button></div>';
+  }
+  h+='</div>';
+  document.getElementById("todaycard").innerHTML=h;
+
+  var mt=document.getElementById("marktoday");
+  if(mt)mt.addEventListener("click",function(){state.days[tk]=!state.days[tk];if(!state.days[tk])delete state.days[tk];touch();});
+
+  document.getElementById("navcd").textContent=days>0?days+" days to CDS":(days===0?"CDS today":"CDS was "+(-days)+"d ago");
+}
+
+function renderCounters(){
+  var tu=todayUTC();
+  function c(date,label,when,cls){
+    var d=Math.round((parse(date)-tu)/MS);
+    var n=d>0?d:(d===0?"":-d), u=d>0?(d===1?" day":" days"):(d===0?"today":(d===-1?" day ago":" days ago"));
+    return '<div class="counter '+(cls||"")+'"><span class="num">'+n+'<span class="unit">'+u+'</span></span><span class="what">'+label+'</span><span class="when">'+when+'</span></div>';
+  }
+  var done=0,wd=weekdays();for(var i=0;i<wd.length;i++)if(state.days[wd[i]])done++;
+  document.getElementById("counters").innerHTML=
+    c("2027-04-11","CDS I 2027 written","11 Apr 2027")+
+    c("2026-12-02","Notification drops","2 Dec 2026","is-brass")+
+    c("2026-12-22","Application closes","22 Dec 2026","is-brass")+
+    '<div class="counter is-good"><span class="num">'+done+'<span class="unit"> / 25</span></span><span class="what">Morning blocks done</span><span class="when">Phase 0 target: 20</span></div>';
+}
+
+/* ---------------- month table ---------------- */
+function renderMonth(){
+  var tk=todayKey(),h='<table><thead><tr><th>Date</th><th>Deep · 5:30</th><th>Light · 10:15</th><th>Training</th></tr></thead><tbody>';
+  for(var k in SCHED){if(!SCHED.hasOwnProperty(k))continue;
+    var s=SCHED[k];
+    h+='<tr'+(k===tk?' class="isnow"':'')+'><td class="d">'+fmt(k)+'</td><td>'+esc(s[0])+'</td><td>'+esc(s[1])+'</td><td class="d">'+esc(s[2])+'</td></tr>';
+  }
+  document.getElementById("monthtable").innerHTML=h+'</tbody></table>';
+}
+
+function renderPhases(){
+  var h="";
+  for(var i=0;i<PHASES.length;i++){var p=PHASES[i];
+    h+='<div class="phase"><div class="phase-n"><span class="n">'+p[0]+'</span><span class="wk">'+p[1]+'</span></div><div class="phase-body">'+
+       '<span class="span">'+p[2]+'</span><h3>'+p[3]+'</h3>'+(p[4]?'<p>'+p[4]+'</p>':'')+'<ul>';
+    for(var j=0;j<p[5].length;j++)h+='<li>'+p[5][j]+'</li>';
+    h+='</ul>'+(p[6]?'<p class="exit"><b>EXIT:</b> '+p[6]+'</p>':'')+'</div></div>';
+  }
+  document.getElementById("phaselist").innerHTML=h;
+}
+
+/* ---------------- logs ---------------- */
+function renderLogs(){
+  var m=state.mocks.slice().sort(function(a,b){return a.d<b.d?-1:1});
+  var h="";
+  if(!m.length)h='<div class="empty">No mocks yet. The 13 September diagnostic is the first.</div>';
+  else for(var i=0;i<m.length;i++){
+    var d="";
+    if(i>0){var diff=m[i].v-m[0].v;if(diff)d='<span class="delta '+(diff>0?"up":"down")+'">'+(diff>0?"+":"")+diff+' vs base</span>';}
+    h+='<div class="entry"><span class="d">'+fmt(m[i].d)+'</span><span style="display:flex;gap:8px;align-items:center">'+d+'<span class="v">'+m[i].v+' / 300</span><button data-del="m" data-i="'+i+'" aria-label="Delete">×</button></span></div>';
+  }
+  document.getElementById("mlist").innerHTML=h;
+
+  var r=state.runs.slice().sort(function(a,b){return a.d<b.d?-1:1});
+  h="";
+  if(!r.length)h='<div class="empty">No 5 km times yet. First trial is 27 September.</div>';
+  else for(var j=0;j<r.length;j++){
+    var sec=r[j].v, ok=sec<=1500, near=sec<=1380;
+    var tag=near?'<span class="delta up">under 23:00</span>':(ok?'<span class="delta up">PET pass</span>':'<span class="delta down">over 25:00</span>');
+    h+='<div class="entry"><span class="d">'+fmt(r[j].d)+'</span><span style="display:flex;gap:8px;align-items:center">'+tag+'<span class="v">'+Math.floor(sec/60)+":"+pad(sec%60)+'</span><button data-del="r" data-i="'+j+'" aria-label="Delete">×</button></span></div>';
+  }
+  document.getElementById("rlist").innerHTML=h;
+}
+
+/* ---------------- save ---------------- */
+function touch(){dirty=true;saveLocal();renderAll();setStatus();}
+function setStatus(msg,good){
+  var el=document.getElementById("savest");
+  if(msg){el.innerHTML=good?"<b>"+msg+"</b>":msg;return;}
+  el.innerHTML=dirty?"Unsaved changes — saved on this device":(CAP?"Synced":"Saved on this device only");
+}
+document.getElementById("savebtn").addEventListener("click",async function(){
+  saveLocal();
+  if(!CAP){setStatus("Saved on this device",true);dirty=false;return;}
+  setStatus("Saving…");
+  try{
+    await CAP.publish({"state.json":JSON.stringify(state)});
+    dirty=false;setStatus("Saved and synced to your other devices",true);
+  }catch(e){
+    var c=(e&&e.code)||"error";
+    if(c==="conflict")setStatus("Someone saved first — this page is reloading to their version");
+    else setStatus("Saved here, but syncing is unavailable ("+c+")");
+    dirty=false;
+  }
+});
+
+document.addEventListener("click",function(e){
+  var d=e.target.closest?e.target.closest("[data-day]"):null;
+  if(d){var k=d.getAttribute("data-day");state.days[k]=!state.days[k];if(!state.days[k])delete state.days[k];touch();return;}
+  var del=e.target.closest?e.target.closest("[data-del]"):null;
+  if(del){var i=+del.getAttribute("data-i");
+    if(del.getAttribute("data-del")==="m"){var m=state.mocks.slice().sort(function(a,b){return a.d<b.d?-1:1});state.mocks.splice(state.mocks.indexOf(m[i]),1);}
+    else{var r=state.runs.slice().sort(function(a,b){return a.d<b.d?-1:1});state.runs.splice(state.runs.indexOf(r[i]),1);}
+    touch();}
+});
+document.getElementById("maddbtn").addEventListener("click",function(){
+  var d=document.getElementById("mdate").value,v=parseInt(document.getElementById("mscore").value,10);
+  if(!d||isNaN(v))return;state.mocks.push({d:d,v:Math.max(0,Math.min(300,v))});
+  document.getElementById("mscore").value="";touch();
+});
+document.getElementById("raddbtn").addEventListener("click",function(){
+  var d=document.getElementById("rdate").value,t=document.getElementById("rtime").value.trim();
+  var m=/^(\d{1,2}):(\d{2})$/.exec(t);if(!d||!m)return;
+  state.runs.push({d:d,v:(+m[1])*60+(+m[2])});
+  document.getElementById("rtime").value="";touch();
+});
+
+function renderAll(){renderToday();renderCounters();renderGrid();renderLogs();}
+
+/* ---------------- boot ---------------- */
+loadLocal();
+document.getElementById("mdate").value=todayKey();
+document.getElementById("rdate").value=todayKey();
+renderMonth();renderPhases();renderAll();setStatus();
+
+fetch("state.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(remote){
+  if(remote&&typeof remote==="object"&&(remote.updatedAt||0)>(state.updatedAt||0)){
+    state=remote;state.days=state.days||{};state.mocks=state.mocks||[];state.runs=state.runs||[];
+    saveLocal();dirty=false;renderAll();setStatus();
+  }
+}).catch(function(){});
+
+if(window.claude&&window.claude.use){
+  window.claude.use("artifact").then(function(a){CAP=a;setStatus();}).catch(function(){});
+}
+})();
+</script>
+
+<!-- Gujarat Police PSI Preparation Engine Modules (non-blocking deferred load) -->
+<script defer src="data/psi/index.js"></script>
+<script defer src="data/psi/pyq-2021.js"></script>
+<script defer src="data/psi/gujarat-gk.js"></script>
+<script defer src="data/psi/law.js"></script>
+<script defer src="data/psi/ai-practice.js"></script>
+<script defer src="data/psi/lessons.js"></script>
+<script defer src="psi/psi-config.js"></script>
+<script defer src="psi/psi-storage.js"></script>
+<script defer src="psi/psi-srs.js"></script>
+<script defer src="psi/psi-question-engine.js"></script>
+<script defer src="psi/psi-ui.js"></script>
+<script defer src="psi/psi-app.js"></script>
+
+</body>
+</html>
