@@ -1,0 +1,664 @@
+================================================================================
+                    GOAL OS — ULTIMATE DISCOVERY, AUDIT & SYSTEM ARCHITECTURE
+                                  COMPLETE SPECIFICATION REPORT
+================================================================================
+Candidate: Vishv
+Target Exams: UPSC CDS I 2027 (IMA) & Gujarat Police Armed PSI (GPRB)
+Active Workspace: /home/addweb/4students-open/goal
+Repository: vishv3010/exam-prep-2027
+Date: 23 September 2026
+Status: Comprehensive Discovery & System Audit Complete
+
+================================================================================
+1. CURRENT SYSTEM AUDIT
+================================================================================
+
+A thorough inspection of the repository (/home/addweb/4students-open/goal) reveals
+that the system currently consists of two independent subsystems that share a directory
+and visual CSS styling, but have ZERO integration in data, storage, or study workflow:
+
+                     REPOSITORY ARCHITECTURE REALITY
+                                    │
+        ┌───────────────────────────┴───────────────────────────┐
+        ▼                                                       ▼
+ SUBSYSTEM 1: CDS DASHBOARD                              SUBSYSTEM 2: PSI ENGINE
+ File: site/index.html                                   Folder: site/psi/ & site/data/psi/
+ Storage Key: cds2027.v1                                 Storage Key: psi_trainer.v1
+ Type: Static Timetable + Habit Checkbox                 Type: Client-side JS MCQ / Quiz App
+ Active Testing: NONE (Text only)                       Active Testing: 45 MCQs (PSI only)
+
+--------------------------------------------------------------------------------
+A. FEATURE STATUS MATRIX
+--------------------------------------------------------------------------------
+
+1. CDS Command Dashboard (site/index.html)
+   - Status: WORKING
+   - Technical Reality: Displays daily prescribed topics based on calendar date
+     SCHED[todayKey()]. Purely static text rendering.
+
+2. CDS Habit Tracker Grid (site/index.html:510-545)
+   - Status: WORKING
+   - Technical Reality: Tracks 25 weekdays (2026-08-31 to 2026-10-02). Toggles
+     state in localStorage['cds2027.v1'].
+
+3. Artifact State Publishing (CAP) (site/index.html:705)
+   - Status: BROKEN / DEAD CODE
+   - Technical Reality: Attempts calling window.claude.use("artifact"). Fails
+     silently in standard browsers and GitHub Pages; cloud sync does not work.
+
+4. Bilingual Language Switcher (site/psi/psi-ui.js:64-73)
+   - Status: WORKING
+   - Technical Reality: Toggles question stem, options, and explanations between
+     Gujarati ('gu') and English ('en') without resetting active session state.
+
+5. 5-Option OMR Scoring (site/psi/psi-config.js:17-25)
+   - Status: WORKING
+   - Technical Reality: Correct: +1.0, Wrong: -0.25, Blank: -0.25, Option E: 0.0.
+     Accurately implements Gujarat GPRB penalty rules.
+
+6. Spaced Repetition (SRS) (site/psi/psi-srs.js:14-56)
+   - Status: PARTIALLY WORKING
+   - Technical Reality: Discrepancy between code and documentation. Documented
+     as SuperMemo SM-2; actually implemented as a basic 5-box Leitner model
+     ([1, 3, 7, 14, 30] days). Contains no ease factors (EF) and no 0-5 quality scale.
+
+7. Question Engine / Practice Modes (site/psi/psi-question-engine.js)
+   - Status: PARTIALLY WORKING
+   - Technical Reality: Builds session arrays for Metro 40, Due revision, and
+     Mistakes. However, it cannot deliver a meaningful 40-question session without
+     immediate duplication due to the small question bank size.
+
+8. Diagnostic Test (site/psi/psi-question-engine.js:89-115)
+   - Status: BROKEN / INEFFECTIVE
+   - Technical Reality: Fixed query pulling up to 3 questions per subject. Tests
+     only 10 questions total (1 in reasoning, 0 in math, 0 in English). Does not
+     diagnose baseline capability.
+
+9. Foundation Lesson Cards (site/data/psi/lessons.js)
+   - Status: WORKING
+   - Technical Reality: 5 active structured lessons. 3 modules in psi-config.js
+     (General Science, Reasoning, Current Affairs) remain placeholders (lessonId: null).
+
+10. IndexedDB Offline Layer (Claimed in documentation)
+    - Status: MISSING
+    - Technical Reality: Code relies 100% on window.localStorage. IndexedDB is
+      never called anywhere in the codebase.
+
+11. CDS Interactive Drills / Testing (Repository-wide)
+    - Status: MISSING
+    - Technical Reality: There are zero questions, formulas, or active drills for
+      CDS Elementary Mathematics, English, or General Science.
+
+12. Markdown Logs (log/daily.md, log/errors.md, log/mocks.md)
+    - Status: PLACEHOLDER
+    - Technical Reality: All markdown files in log/ are completely blank templates.
+
+--------------------------------------------------------------------------------
+B. EXISTING DATA INVENTORY
+--------------------------------------------------------------------------------
+
+- Total Question Bank Size: 45 questions
+- Subject Breakdown:
+    * Gujarat General Knowledge (gujarat_gk): 23 questions
+    * Constitution & Criminal Law (law_constitution): 18 questions
+    * General Studies (general_studies): 3 questions
+    * Reasoning (reasoning): 1 question
+    * Mathematics: 0 questions
+    * English: 0 questions
+    * Current Affairs: 0 questions
+
+- Provenance / Source Metadata:
+    * Official GPRB PYQ (PYQ_OFFICIAL): 11
+    * Reproduced GPRB PYQ (PYQ_REPRODUCED): 3
+    * Reference Questions (REFERENCE): 28
+    * AI-Generated Practice (AI_GENERATED): 3
+
+- Difficulty Metadata:
+    * Easy: 27
+    * Medium: 17
+    * Hard: 1
+
+- Data Quality & Integrity:
+    * Bilingual Stems & Options: 100% complete.
+    * Bilingual Explanations: 100% complete.
+    * CRITICAL BUG FOUND: Duplicate question ID 'ref_gk_adm_02' exists in
+      site/data/psi/gujarat-gk.js at line 255 (Vidhan Sabha seats) and line 465
+      (Panchayati Raj women reservation). Any attempt to record stats or SRS data
+      on one question overwrites the other.
+
+--------------------------------------------------------------------------------
+C. SYSTEM ARCHITECTURE & REAL BEHAVIOR
+--------------------------------------------------------------------------------
+
+1. Application Flow:
+   User opens site/index.html. The dashboard checks Date(), displays static task
+   strings from SCHED, and renders the 25-day habit tracker from localStorage['cds2027.v1'].
+   Clicking the 'PSI Engine' tab hides the dashboard container (display: none)
+   and mounts the PSI UI (#psi-root).
+
+2. Data & Storage Flow:
+   The two subsystems maintain independent lifecycles. If you score 100% in a
+   PSI Constitution drill, the CDS Dashboard does not register that Polity was studied.
+
+3. Question-Selection Flow:
+   QuestionEngine.prototype.buildMetro40Session requests 40 questions (25% due,
+   20% mistakes, 25% weak, 30% unseen). Because the entire database has only 45
+   questions, the selector immediately exhausts unseen items and falls back to
+   dumping the entire database in random order.
+
+4. Scoring & SRS Flow:
+   Answers are evaluated instantly against question.answer (0-4 index). Incorrect
+   attempts write a record to mistakes[q.id] and reset the Leitner card to Box 1
+   (due = now + 1 day). Correct attempts advance the card to Box 2 (due = now + 3 days).
+
+
+================================================================================
+2. EXAM REQUIREMENTS (VERIFIED OFFICIAL)
+================================================================================
+
+--------------------------------------------------------------------------------
+A. UPSC CDS I 2027 — INDIAN MILITARY ACADEMY (IMA)
+Source: Official UPSC CDS Examination Notifications & Regulations
+--------------------------------------------------------------------------------
+
+- Notification Status: Expected December 2026 (UPSC Annual Calendar). Exam Date: 11 April 2027.
+- Eligibility (IMA): Unmarried male; Age 19 to 24 years at course commencement (January 2028).
+  B.Tech degree is fully qualifying.
+- Selection Scheme: Written Examination (300 Marks) + SSB Interview (300 Marks).
+
+- Written Examination Structure (All 3 papers conducted on a single Sunday):
+    1. Paper 1: English (120 Questions · 100 Marks · 2 Hours). Objective MCQ.
+    2. Paper 2: General Knowledge (120 Questions · 100 Marks · 2 Hours). Objective MCQ.
+       Science ~30%, Polity ~15-20%, History ~15-20%, Geography ~15-20%, Current Affairs ~15%.
+    3. Paper 3: Elementary Mathematics (100 Questions · 100 Marks · 2 Hours). Objective MCQ.
+       Arithmetic, Algebra, Trigonometry, Geometry, Mensuration, Statistics. Class 9-10
+       standard, but demanding high calculation speed.
+
+- Negative Marking: 1/3rd (0.333 marks) deducted per incorrect answer. Blank questions
+  receive 0 penalty. No Option E.
+- Qualifying Cutoffs: Minimum 20% qualifying marks in each paper independently
+  (20/100 each in English, GK, Maths). Aggregate written cutoff for IMA is
+  typically 130-145 / 300 marks.
+- SSB Interview (300 Marks):
+    * Stage 1 (Screening): Officer Intelligence Rating (OIR) test + Picture Perception
+      & Discussion Test (PPDT). ~60-70% screened out on Day 1.
+    * Stage 2 (4 Days): Psychology Battery (TAT, WAT, SRT, Self-Description),
+      GTO Obstacles/Ground Tasks, Personal Interview, Board Conference.
+
+--------------------------------------------------------------------------------
+B. GUJARAT POLICE ARMED PSI (GPRB)
+Source: Official Gujarat Police Cadre (Class III) Recruitment Rules (Notification GPRB/202324/1)
+--------------------------------------------------------------------------------
+
+- Recruitment Status: Next notification expected late 2026/2027. Governed by the
+  2024 Revised Recruitment Rules.
+- Cadre Distinction: Armed PSI (હથિયારી પીએસઆઈ - SRPF / Armed Reserve) and
+  Unarmed PSI (બિન-હથિયારી) take the EXACT SAME examination. Preferences are
+  submitted during application.
+
+- Stage 1: Physical (PET/PST):
+  Qualifying Only (Pass/Fail) under 2024 rules. Male PET: 5,000 meters in 25:00 minutes.
+  No graded marks awarded for faster times; clearing within 25 min qualifies candidate
+  for written examinations.
+
+- Stage 2: Main Written Examination (Total: 300 Marks across Two Papers):
+    1. Paper 1: General Studies (MCQ) — 200 Marks · 3 Hours. Divided into two mandatory parts:
+       * Part A (100 Marks): Reasoning & Data Interpretation (50 Marks) + Quantitative
+         Aptitude (50 Marks). Must score MINIMUM 40% (40/100) independently.
+       * Part B (100 Marks): Constitution of India (25 Marks) + Public Administration,
+         History, Geography, Cultural Heritage, Current Affairs (75 Marks). Must score
+         MINIMUM 40% (40/100) independently.
+    2. Paper 2: Language Skills (Descriptive) — 100 Marks · 3 Hours · Handwritten Descriptive:
+       * Gujarati Skills (70 Marks): Essay Writing, Precis Writing, Comprehension,
+         Formal Report/Letter. Must score MINIMUM 40% (28/70).
+       * English Skills (30 Marks): English-to-Gujarati Translation, Precis Writing,
+         Comprehension. Must score MINIMUM 40% (12/30).
+
+- Negative Marking & Option E:
+  0.25 marks deducted for incorrect answers. 0.25 marks deducted for leaving a
+  question blank. Option E ('(E) પ્રયાસ કરેલ નથી') carries 0 penalty.
+
+- Law Status (Critical Finding):
+  In the 2024 GPRB revised scheme, detailed standalone Law papers (IPC, CrPC, IEA)
+  were REMOVED from the written exam and moved to Police Academy post-selection
+  training. Core constitutional law, police powers, and basic legal principles
+  remain tested under Paper 1 Part B.
+
+
+================================================================================
+3. USER PROFILE SUMMARY
+================================================================================
+
+- Academic Foundation: B.Tech Computer Engineering, English medium. Logical thinking
+  and basic algebra are native, but competitive government exam GK, NCERT history/geography,
+  and competitive arithmetic speed are currently weak.
+- Language Dynamics: Mother tongue is Gujarati (fluent speaking, native listening).
+  Reading speed in Gujarati is normal, but formal academic/administrative vocabulary
+  (પારિભાષિક શબ્દો) and formal handwritten Gujarati syntax are major liabilities for Paper 2.
+- Time Budget:
+    * Working Days (Mon-Fri): Exactly 2 hours of serious desktop/sitting study at home.
+    * Commute Window: 60+ minutes standing in metro. One hand free, smartphone, earphones,
+      intermittent balance adjustments, zero desk/writing ability.
+    * Weekends (Sat-Sun): 3 to 4+ hours/day dedicated study window. Competes directly
+      with football, content creation/social media production, and startup initiatives.
+- Learning Modality: Practice-first / active recall. Passive video lectures (>20 min)
+  lead to cognitive drop-off. Needs instant feedback and drill mechanics.
+
+
+================================================================================
+4. MISSING INFORMATION
+================================================================================
+
+To build an adaptive engine without making arbitrary assumptions, the system must
+collect baseline data across 6 functional parameters:
+
+MISSING DATA POINTS REQUIRED FROM USER:
+├── [P1] Quantitative Aptitude Baseline (Mental vs Paper calculations)
+├── [P2] English Grammar & Vocabulary Register (CDS error types)
+├── [P3] Gujarati Administrative Lexicon (Comprehension thresholds)
+├── [P4] General Science Recall (Physics/Chem/Bio Class 9-10 retention)
+├── [P5] Running Metric (Current 5 km baseline pace)
+└── [P6] Physical Vision / Medical Status (Acuity & corrective status)
+
+
+================================================================================
+5. CURRENT SYSTEM WEAKNESSES
+================================================================================
+
+1. The 'CDS Engine' Does Not Exist:
+   The platform is advertised as a preparation engine for CDS and PSI. In reality,
+   the engine only tests Gujarat PSI. CDS preparation is purely a static text calendar
+   in HTML. There is no testing module for CDS Maths, English, or Science.
+
+2. Severe Question Scarcity (45 Questions Total):
+   An adaptive spaced repetition system requires at least 800-1,500 questions per exam
+   stream to function. Attempting a 40-question 'Metro Session' on day two exposes the
+   user to the same questions they solved on day one.
+
+3. Data Siloing (cds2027.v1 vs psi_trainer.v1):
+   The habit dashboard and the quiz engine operate in separate storage keys. Completing
+   a quiz does not mark habit progress, and habit progress does not inform quiz selection.
+
+4. Algorithm Misrepresentation:
+   The code uses a rigid 5-box Leitner system, not SuperMemo SM-2. Cards reset to
+   Box 1 immediately on failure, creating frustration loops rather than calculating
+   variable memory decay (EF).
+
+5. Rigid Calendar Scheduling:
+   The schedule uses hardcoded date keys (SCHED['2026-09-23']). If you miss Monday,
+   Tuesday does not adapt—it moves ahead to Tuesday's topic, leaving unaddressed
+   knowledge gaps and breaking continuity.
+
+6. Zero Math / Quantitative Module:
+   Despite Quantitative Aptitude being 100 marks in CDS (33% of written) and 50 marks
+   in Gujarat PSI Paper 1 Part A (mandatory 40% cutoff), the app does not contain
+   a single math problem or formula trainer.
+
+7. No Support for PSI Paper 2 (100 Marks Descriptive):
+   Paper 2 determines the final merit list and carries a strict 40% cutoff. The app
+   provides zero guidance, translation exercises, or precis structural templates.
+
+8. Statistically Meaningless Diagnostic:
+   The built-in diagnostic test pulls 10 questions across 4 subjects. A 10-question
+   test has a +/-35% margin of error and provides zero actionable data on a candidate's
+   actual baseline.
+
+9. Data Corruption Bug:
+   Line 255 and line 465 in site/data/psi/gujarat-gk.js share the identical ID 'ref_gk_adm_02'.
+
+10. Metro Mode is Not Real-World Metro Optimized:
+    The UI requires vertical scrolling, reading long feedback paragraphs, and tapping
+    small buttons. True standing metro mode requires high-contrast, thumb-zone tap
+    targets, zero vertical scrolling during questions, and audio options.
+
+
+================================================================================
+6. TARGET SYSTEM ARCHITECTURE
+================================================================================
+
+                               GOAL OS (TARGET ARCHITECTURE)
+                                             │
+      ┌──────────────────────────────────────┼──────────────────────────────────────┐
+      ▼                                      ▼                                      ▼
+HOME STUDY ENGINE                      METRO ENGINE                        UNIFIED DATA CORE
+(Sitting / Desk / Writing)            (Standing / 1-Hand / Phone)         (IndexedDB + LocalStorage)
+• CDS Elementary Maths Drills         • Rapid Terminology Flashcards      • Single Unified State Schema
+• Quantitative Aptitude & Steps       • Error Autopsy Re-tests            • True SM-2 Algorithm State
+• PSI Descriptive Outlines            • Rapid-fire 20s GK MCQs            • Topic Mastery Tree
+• Full-length Sectional Mocks         • Audio Concept Bites               • Interruption-safe Storage
+• Deep Error Log Analysis             • Zero-writing interactions         • Export / Backup System
+
+GOAL OS must become an offline-first, zero-decision training engine. When opened, it
+should present exactly one primary action:
+[RESUME METRO SESSION] or [START MORNING DEEP BLOCK], with the subject and time
+pre-calculated based on weakest retention and highest exam yield.
+
+
+================================================================================
+7. LEARNING ENGINE DESIGN
+================================================================================
+
+The learning cycle must move through 5 operational states:
+1. DIAGNOSE ──► 2. SCAFFOLD ──► 3. PRACTICE ──► 4. ERROR AUTOPSY ──► 5. SRS RETENTION ──► (Cycle)
+
+TIME-BLOCK MAPPING:
+
+A. Weekday Schedule (2 Hours Home + 60 Min Metro):
+   - 05:30 - 07:15 [Desk Deep Block - 105 Min]:
+     * Mon/Wed/Fri: CDS Elementary Maths / Quantitative Aptitude (Pen + Paper required)
+     * Tue/Thu: CDS English Grammar Syntax & Error Spotting / Vocab Roots
+   - Commute (Metro) [Standing Active Block - 60 Min]:
+     * Morning Metro (30 min): SRS Due Reviews + Gujarati Administrative Lexicon
+     * Evening Metro (30 min): High-Yield Static GK / Current Affairs Drills
+   - 22:15 - 22:45 [Light Home Block - 30 Min]:
+     * Daily Error Autopsy (Reviewing questions failed during the day) + Bedtime sleep protection
+
+B. Weekend Schedule (3.5 Hours/Day Home):
+   - Saturday (3.5 Hours):
+     * 06:30 - 08:30 (2h): Timed Full Sectional Test (Maths or English)
+     * 08:30 - 09:30 (1h): Complete Error Autopsy & Notebook logging
+     * 09:30 - 10:00 (30m): Gujarat GK / Polity High-Yield Topic Drill
+     * Late Afternoon: Football / Physical Training
+   - Sunday (3.5 Hours):
+     * 07:00 - 09:00 (2h): Full Mock Test (Alternate weeks: CDS Paper / PSI Paper 1 OMR)
+     * 09:00 - 10:00 (1h): PSI Paper 2 Descriptive Writing (1 Gujarati Essay/Precis on paper)
+     * 10:00 - 10:30 (30m): Weekly System Review & Priority Recalculation
+
+
+================================================================================
+8. METRO ENGINE SPECIFICATIONS
+================================================================================
+
+                 METRO MODE: ERGONOMIC VIEWPORT SPECIFICATION
+┌──────────────────────────────────────────────────────────┐
+│ TOP BAR: Progress Dot Matrix (08 / 20)      Timer: 00:18 │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  QUESTION STEM (Large 17px, Maximum 3 Lines)             │
+│  "કઈ કલમ હેઠળ ધરપકડ કરાયેલ વ્યક્તિને ૨૪ કલાકમાં મેજિસ્ટ્રેટ  │
+│   સમક્ષ રજૂ કરવો ફરજિયાત છે?"                            │
+│                                                          │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  THUMB-ZONE TOUCH TARGETS (Bottom 55% of Screen)         │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ [A] કલમ ૨૧ (Article 21)                            │  │
+│  ├────────────────────────────────────────────────────┤  │
+│  │ [B] કલમ ૨૨ (Article 22)                            │  │
+│  ├────────────────────────────────────────────────────┤  │
+│  │ [C] કલમ ૨૪ (Article 24)                            │  │
+│  ├────────────────────────────────────────────────────┤  │
+│  │ [D] કલમ ૩૨ (Article 32)                            │  │
+│  ├────────────────────────────────────────────────────┤  │
+│  │ [E] પ્રયાસ કરેલ નથી (Option E)                     │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+│  [ SWIPE UP: NEXT ]                 [ TAP: HEAR AUDIO ]  │
+└──────────────────────────────────────────────────────────┘
+
+- Permitted in Metro Mode:
+  1. Flash-Recall MCQs: Max 25 seconds per question. Pure static recall (GK, Articles, Vocab).
+  2. Lexicon Pairs: English term <-> Gujarati administrative equivalent.
+  3. Error Autopsy Cards: Re-testing questions marked wrong within the last 48 hours.
+  4. Audio Concept Bites: 60-second synthesized audio recaps of key articles and formulas.
+
+- Prohibited in Metro Mode:
+  1. Multi-step calculation problems (Maths/Reasoning).
+  2. 300-word reading comprehension passages.
+  3. Lengthy analytical explanations requiring heavy scrolling.
+  4. Descriptive writing or typing inputs.
+
+
+================================================================================
+9. CDS + PSI KNOWLEDGE OVERLAP MATRIX
+================================================================================
+
+                     SYLLABUS CONVERGENCE MAP
+    CDS IMA (UPSC)                              GUJARAT ARMED PSI (GPRB)
+┌───────────────────────────┐                 ┌───────────────────────────┐
+│ • Advanced Trigonometry   │                 │ • Gujarat State History   │
+│ • Coordinate Geometry     │                 │ • Gujarat Geography/Ports │
+│ • Geometric Proofs        │   CONVERGENCE   │ • Gujarat Panchayati Raj  │
+│ • Military & Defence GK   │   ZONE (70%)    │ • Gujarati Descriptive P2 │
+│ • SSB Psychology & OIR    │◄───────────────►│ • Admin Terminology       │
+└───────────────────────────┘                 └───────────────────────────┘
+              ▲                                             ▲
+              │         ┌─────────────────────────┐         │
+              └─────────┤ • Quantitative Aptitude ├─────────┘
+                        │ • Reasoning / Logic     │
+                        │ • Indian Constitution   │
+                        │ • Modern Indian History │
+                        │ • Physical Geography    │
+                        │ • General Science 9-10  │
+                        │ • English Grammar/Vocab │
+                        │ • 5 km Running Base     │
+                        └─────────────────────────┘
+
+- Quantitative Aptitude (100% Core Overlap): Master CDS Elementary Arithmetic.
+  It completely covers Gujarat PSI Paper 1 Part A (Quantitative section).
+- Reasoning Ability (100% Core Overlap): Serves PSI Paper 1 Part A (50 Marks)
+  and CDS SSB Stage 1 OIR test.
+- Indian Constitution (100% Core Overlap): Serves CDS GK (15-20 Questions) and
+  PSI Paper 1 Part B (25 Marks minimum independent cutoff).
+- General Science (100% Core Overlap): Class 9 & 10 NCERT Physics, Chemistry, Biology
+  serves 30-35% of CDS GK and PSI General Science.
+- Modern History (1857-1947) (85% Overlap): National freedom movement identical;
+  PSI adds Gujarat local movements (Dandi, Bardoli, Kheda, Maha Gujarat).
+- English Language (80% Overlap): CDS objective grammar directly builds accuracy
+  for Gujarat PSI Paper 2 English (30 Marks).
+- Gujarat GK & Culture (0% Overlap - PSI Exclusive): Confined strictly to 30 minutes
+  of Metro study and Saturday dedicated slots.
+- Advanced Higher Maths (0% Overlap - CDS Exclusive): Trigonometry, Geometry,
+  Mensuration reserved strictly for morning deep desk blocks.
+
+
+================================================================================
+10. UNIFIED DATA ARCHITECTURE
+================================================================================
+
+// Database Schema: GoalOS_DB (v1)
+
+// Store 1: questions
+{
+  id: "math_ari_001",
+  examCategory: ["CDS", "PSI"],
+  subject: "mathematics",
+  topic: "percentages",
+  subtopic: "successive_discount",
+  language: "bilingual",
+  stem: {
+    en: "A single discount equivalent to two successive discounts of 20% and 10% is:",
+    gu: "૨૦% અને ૧૦% ના સતત બે વળતર (ડિસ્કાઉન્ટ) બરાબર એકમાત્ર સમકક્ષ વળતર કેટલું થાય?"
+  },
+  options: {
+    en: ["28%", "30%", "32%", "25%", "(E) Not Attempted"],
+    gu: ["૨૮%", "૩૦%", "૩૨%", "૨૫%", "(E) પ્રયાસ કરેલ નથી"]
+  },
+  correctAnswer: 0,
+  explanation: {
+    en: "Formula: Effective Discount = D1 + D2 - (D1*D2)/100 = 20 + 10 - (200/100) = 28%.",
+    gu: "સૂત્ર: અસરકારક વળતર = D1 + D2 - (D1*D2)/100 = ૨૦ + ૧૦ - ૨ = ૨૮%."
+  },
+  difficulty: "easy",
+  provenance: {
+    type: "PYQ_OFFICIAL",
+    exam: "UPSC_CDS",
+    year: 2021,
+    paper: 3
+  },
+  tags: ["maths", "percentages", "discount"],
+  estimatedSeconds: 45,
+  metroSuitable: false
+}
+
+// Store 2: srs_cards (True SM-2 Spaced Repetition State)
+{
+  questionId: "math_ari_001",
+  repetitionNumber: 3,
+  easinessFactor: 2.36,
+  intervalDays: 6,
+  lastAttemptAt: 1790184000000,
+  nextDueAt: 1790702400000,
+  totalAttempts: 4,
+  lapseCount: 1,
+  history: [
+    { timestamp: 1789500000000, quality: 5, timeSpentSec: 38, selectedOption: 0 },
+    { timestamp: 1790184000000, quality: 2, timeSpentSec: 52, selectedOption: 1, errorType: "calculation" }
+  ]
+}
+
+// Store 3: topic_mastery
+{
+  topicKey: "mathematics::percentages",
+  totalQuestionsAttempted: 42,
+  accuracyRate: 0.785,
+  averageSpeedSec: 46.2,
+  masteryLevel: "PRACTICING",
+  lastRevisedAt: 1790184000000,
+  decayScore: 0.85
+}
+
+// Store 4: daily_logs
+{
+  date: "2026-09-23",
+  morningBlockMinutes: 105,
+  metroBlockMinutes: 65,
+  eveningBlockMinutes: 30,
+  questionsAnswered: 48,
+  overallAccuracy: 0.812,
+  completedTargets: ["percentages_drill", "constitution_articles"],
+  physicalLog: { runDistanceKm: 5.0, runTimeMinutes: 26.2, gymDone: true }
+}
+
+
+================================================================================
+11. ANALYTICS SPECIFICATION (NON-VANITY)
+================================================================================
+
+                         REAL-TIME DASHBOARD READOUT
+┌───────────────────────────────┬───────────────────────────────┐
+│ CDS IMA READINESS INDEX: 58%  │ GUJARAT PSI CUTOFF PROBABILITY│
+│ Target: 135 / 300 Marks       │ Part A: 54/100 (Safe >40)     │
+│ Current Simulated: 112 / 300  │ Part B: 48/100 (Warning >40)  │
+├───────────────────────────────┴───────────────────────────────┤
+│ MEMORY VELOCITY & DECAY TRACKER                               │
+│ Cards Due Today: 18 · Lapsed Retention: 8.4% (Healthy <10%)   │
+│ Top Decay Risk: Modern History - 1857 Acts (Unseen 14 days)   │
+├───────────────────────────────────────────────────────────────┤
+│ ERROR REASON DISTRIBUTION (Last 7 Days)                       │
+│ [████████████░░░░░░░] 60% Knowledge Gap (Need Foundation)     │
+│ [████░░░░░░░░░░░░░░░] 25% Time-Pressure Calculation Slip     │
+│ [██░░░░░░░░░░░░░░░░░] 15% Misread Question Stem               │
+└───────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+12. FEATURE PRIORITY MATRIX
+================================================================================
+
++-----------------------------------------------------------------------------+
+|                                FEATURE TRIAGE                               |
++-----------------------------------------------------------------------------+
+| MUST BUILD (IMMEDIATE)         | SHOULD BUILD (NEXT)                        |
+| • Fix duplicate question ID bug| • True SM-2 spaced repetition algorithm    |
+| • Unified IndexedDB storage    | • Gujarat Administrative Lexicon Trainer   |
+| • 1-Handed Metro Viewport      | • Weekly Sunday Audit generator            |
+| • CDS Elementary Maths Engine  | • PSI Paper 2 Descriptive Prompts & Guides |
+| • Dynamic Adaptive Scheduler   | • Voice audio concept recaps for commute   |
++--------------------------------+--------------------------------------------+
+| NICE TO HAVE (LATER)           | DO NOT BUILD (DISTRACTIONS)                |
+| • Cloud backup export/import   | ❌ Social feeds, forums, or leaderboards   |
+| • Printable weekly PDF summary | ❌ AI chatbots that generate unchecked Qs |
+| • Dark/OLED battery optimizer  | ❌ Video players and streaming libraries   |
+| • OMR Scanner via mobile cam   | ❌ Complex multi-tier UI frameworks/builds |
++--------------------------------+--------------------------------------------+
+
+
+================================================================================
+13. DEVELOPMENT ROADMAP
+================================================================================
+
+Phase 1: Data & Platform Stabilization
+- Fix duplicate question ID 'ref_gk_adm_02'.
+- Unify storage under single IndexedDB store with localStorage sync.
+- Remove dead CAP / window.claude artifact code.
+- Implement true SM-2 algorithm.
+
+Phase 2: Academic Repertoire Expansion
+- Ingest 500+ verified CDS Elementary Mathematics & Quantitative Aptitude MCQs.
+- Ingest 500+ verified General Science & Indian Polity questions.
+- Add remaining 3 foundation lesson modules.
+
+Phase 3: Metro Engine & Bilingual Lexicon
+- Implement one-handed, thumb-zone standing viewport.
+- Launch Gujarat Administrative Lexicon Trainer (English <-> Gujarati terminology).
+- Add audio recap player for key articles and formulas.
+
+Phase 4: Exam Drill & Mock Marathon
+- Full 3-hour CDS mock test simulator with negative marking analytics.
+- Full 3-hour Gujarat PSI Paper 1 OMR simulator with Option E penalty engine.
+- PSI Paper 2 descriptive writing grading rubrics and structural templates.
+
+
+================================================================================
+14. BIGGEST SYSTEMIC RISKS
+================================================================================
+
+1. The Software Feature Trap: Spending 40 hours perfecting CSS layouts, animations,
+   or database migrations while solving zero math equations on paper. The software
+   exists only to enforce study velocity; it cannot substitute for cognitive effort.
+2. Unrealistic Energy Expectations: Assuming an engineer working an 11.5-hour day
+   can sustain 3.5 hours of high-intensity study every night without cognitive burnout.
+   The system must degrade gracefully: if tired, fall back to low-friction flashcards
+   rather than skipping entirely.
+3. SSB Interview Blindness: Focusing 100% on written cutoffs while ignoring physical
+   fitness, English conversational fluency, and situational judgment. Day 1 SSB
+   screening eliminates 65% of candidates.
+4. Unauthentic Question Ingestion: Ingesting generic AI-generated MCQs that lack
+   the distinct distractor patterns and testing style of UPSC and GPRB.
+
+
+================================================================================
+15. QUESTIONS FOR VISHV
+================================================================================
+
+1. Mathematics & Calculation Foundation:
+   When working through basic arithmetic (percentages, ratios, time & work), do you
+   calculate mostly in your head, or do you require rough scratchpad paper for simple
+   two-digit multiplications and divisions?
+   > Why this matters: Determines whether the morning math engine starts with
+     arithmetic speed shortcuts (Vedic/mental math) or directly with conceptual drills.
+
+2. General Science Recall (Class 9 & 10):
+   If asked questions right now on basic Physics (Newton's laws, optics, circuits)
+   and Chemistry (acids/bases, periodic table, reactions), is your recall completely
+   blank, or do you remember the general concepts from school?
+   > Why this matters: General Science represents ~30% of the CDS GK paper. If you
+     retain basic concepts, we can rely entirely on rapid MCQ retrieval rather than
+     re-reading textbooks.
+
+3. Gujarati Administrative Reading Comfort:
+   When you read this official sentence: 'અધિકારક્ષેત્ર ધરાવતા મેજિસ્ટ્રેટ સમક્ષ કાયદેસરની
+   પ્રક્રિયા અનુસાર અટકાયત કરેલ વ્યક્તિને રજૂ કરવાની જોગવાઈ છે.' — did you understand it
+   immediately, or did you have to pause to translate words like 'અધિકારક્ષેત્ર' or 'અટકાયત'?
+   > Why this matters: Establishes whether the Lexicon Trainer needs foundational
+     word-by-word drills or can jump directly into contextual sentence comprehension.
+
+4. Actual Commute Internet Reliability:
+   Does your daily metro route maintain stable 4G/5G mobile internet connectivity,
+   or does the signal frequently drop underground?
+   > Why this matters: Decides whether Metro Mode must be 100% bundled locally in
+     memory/service workers or can pull dynamic data.
+
+5. Running & Physical Baseline:
+   What is your current running distance without stopping? Can you currently run
+   5 kilometers continuously, and have you ever timed it?
+   > Why this matters: The Gujarat PSI physical test requires a 5,000m run in
+     25:00 minutes (pass/fail). If your baseline is zero, running must enter the
+     weekly habit tracker immediately to prevent injury.
+
+6. Primary Device for Metro Study:
+   What exact smartphone (screen size / operating system) do you use during your metro commute?
+   > Why this matters: Calibrates the thumb-reach zone, viewport heights, and
+     touch target sizes for the one-handed Metro Mode.
+================================================================================
