@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#2563EB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Preparation plan and tracker for CDS I 2027, Gujarat PSI and SSC CGL.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
 <style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img,svg{max-width:100%}</style>
 <title>Road to CDS I 2027</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -737,6 +743,19 @@ renderMonth();renderPhases();renderAll();setStatus();
 <script defer src="psi/psi-scheduler.js?v=20260923d"></script>
 <script defer src="psi/psi-ui.js?v=20260923b"></script>
 <script defer src="psi/psi-app.js?v=20260923b"></script>
+
+<!-- Service Worker Registration for Underground Metro Offline PWA -->
+<script>
+if ('serviceWorker' in navigator && window.location.protocol.indexOf('http') === 0) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      console.log('[GOAL OS] Service Worker registered for offline PWA operation:', reg.scope);
+    }).catch(function(err) {
+      console.warn('[GOAL OS] Service Worker registration failed:', err);
+    });
+  });
+}
+</script>
 
 </body>
 </html>

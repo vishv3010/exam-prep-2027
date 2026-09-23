@@ -689,6 +689,83 @@
         '</div>' +
       '</div>' +
 
+      // Dual-Target Preparation Balance (CDS IMA vs Gujarat PSI)
+      '<div style="border-top:1px solid var(--line-soft);padding-top:14px;margin-top:14px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+          '<h4 style="margin:0;font-size:15px;color:var(--ink);">' +
+            (this.lang === 'gu' ? 'દ્વિ-લક્ષ્ય તૈયારી સંતુલન (૫૦/૫૦ વ્યૂહરચના)' : 'Dual-Target Synergy Balance (50/50 Strategy)') +
+          '</h4>' +
+        '</div>' +
+        '<div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;">' +
+          '<div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;">' +
+              '<span style="font-weight:600;color:var(--ink);">CDS I 2027 (IMA) &middot; Maths, English, Science</span>' +
+              '<span class="mono" style="color:var(--accent);font-weight:700;">' + this.bank.filterByExam('CDS').length + ' Qs</span>' +
+            '</div>' +
+            '<div style="height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;">' +
+              '<div style="width:' + Math.min(100, Math.round((this.bank.filterByExam('CDS').length / all.length) * 100)) + '%;height:100%;background:var(--accent);"></div>' +
+            '</div>' +
+          '</div>' +
+          '<div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;">' +
+              '<span style="font-weight:600;color:var(--ink);">Gujarat Armed PSI &middot; Constitution, Gujarat GK, Lexicon</span>' +
+              '<span class="mono" style="color:var(--brass);font-weight:700;">' + this.bank.filterByExam('PSI').length + ' Qs</span>' +
+            '</div>' +
+            '<div style="height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;">' +
+              '<div style="width:' + Math.min(100, Math.round((this.bank.filterByExam('PSI').length / all.length) * 100)) + '%;height:100%;background:var(--brass);"></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      // Physical Fitness (5 km PET Run Tracker)
+      (function(self) {
+        var cdsData = self.storage.getCDSHabits();
+        var runs = (cdsData && Array.isArray(cdsData.runs)) ? cdsData.runs.slice().sort(function(a, b) { return a.d < b.d ? -1 : 1; }) : [];
+        var latestRun = runs.length > 0 ? runs[runs.length - 1] : null;
+        var latestSec = latestRun ? latestRun.v : 0;
+        var isPetPass = latestSec > 0 && latestSec <= 1500;
+        var petTag = latestRun
+          ? (latestSec <= 1380
+            ? '<span style="color:var(--good);font-weight:700;">Sub-23:00 (Comfortable Margin)</span>'
+            : (isPetPass
+              ? '<span style="color:var(--good);font-weight:700;">PET Qualifying Pass (&le; 25:00)</span>'
+              : '<span style="color:var(--alert);font-weight:700;">Over 25:00 (Needs Aerobic Work)</span>'))
+          : '<span style="color:var(--ink-faint);">No runs recorded yet</span>';
+
+        return '<div style="border-top:1px solid var(--line-soft);padding-top:14px;margin-top:14px;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<h4 style="margin:0;font-size:15px;color:var(--ink);">' +
+              (self.lang === 'gu' ? 'શારીરિક દોડ (૫ કિમી PET ટ્રેકર)' : 'Physical Fitness (5 km PET Tracker)') +
+            '</h4>' +
+            '<span class="psi-badge" style="background:var(--brass-soft);color:var(--brass);border:1px solid var(--brass-border);">25:00 QUALIFYING</span>' +
+          '</div>' +
+          '<p class="hint" style="margin:4px 0 10px;">' +
+            (self.lang === 'gu'
+              ? 'ગુજરાત પોલીસ PSI PET ધોરણ: ૫૦૦૦ મીટર ૨૫:૦૦ મિનિટમાં. SSB માટે પણ જરૂરી.'
+              : 'Gujarat Armed PSI PET Standard: 5000 m in 25:00 (5:00/km pace). Aerobic base builds SSB endurance.') +
+          '</p>' +
+          '<div style="padding:12px;background:var(--ground);border:1px solid var(--line);border-radius:var(--radius);">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">' +
+              '<span style="font-weight:600;">' + (self.lang === 'gu' ? 'છેલ્લો ૫ કિમી સમય:' : 'Latest 5 km Trial:') + '</span>' +
+              '<span class="mono" style="font-weight:700;font-size:15px;color:var(--ink);">' +
+                (latestRun ? (Math.floor(latestSec / 60) + ':' + (latestSec % 60 < 10 ? '0' : '') + (latestSec % 60) + ' (' + latestRun.d + ')') : '--:--') +
+              '</span>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;margin-top:6px;">' +
+              '<span style="color:var(--ink-soft);">' + (self.lang === 'gu' ? 'PET સ્ટેટસ:' : 'PET Status:') + '</span>' +
+              petTag +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:8px;margin-top:10px;align-items:center;">' +
+            '<input type="text" id="psi-run-time-input" placeholder="mm:ss (e.g. 24:30)" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-family:var(--f-mono);font-size:13px;background:var(--surface);color:var(--ink);">' +
+            '<button class="btn" id="psi-add-run-btn" style="padding:8px 14px;font-size:13px;white-space:nowrap;">' +
+              (self.lang === 'gu' ? 'દોડ નોંધો' : 'Log 5 km Run') +
+            '</button>' +
+          '</div>' +
+        '</div>';
+      })(this) +
+
       '<div style="border-top:1px solid var(--line-soft);padding-top:14px;margin-top:14px;">' +
         '<h4>' + (this.lang === 'gu' ? 'ડેટા બેકઅપ અને ઇમ્પોર્ટ' : 'Data Management & Backup') + '</h4>' +
         '<p class="hint">' + (this.lang === 'gu' ? 'તમારો અભ્યાસ ડેટા સુરક્ષિત ડાઉનલોડ અથવા રિસ્ટોર કરો.' : 'Export or import your personal study progress as sanitized JSON.') + '</p>' +
@@ -1844,6 +1921,33 @@
             alert('Import failed: ' + escapeHtml(res.error));
           }
         }
+        return;
+      }
+
+      // 26. Log 5 km Run Time
+      if (e.target.closest('#psi-add-run-btn')) {
+        var runInput = document.getElementById('psi-run-time-input');
+        if (!runInput) return;
+        var val = runInput.value.trim();
+        var match = /^(\d{1,2}):(\d{2})$/.exec(val);
+        if (!match) {
+          alert('Please enter run time in mm:ss format (e.g. 24:30)');
+          return;
+        }
+        var totalSec = (+match[1]) * 60 + (+match[2]);
+        var todayKey = new Date().toISOString().slice(0, 10);
+        if (!self.storage.state.cdsHabitData) {
+          self.storage.state.cdsHabitData = { days: {}, mocks: [], runs: [] };
+        }
+        if (!Array.isArray(self.storage.state.cdsHabitData.runs)) {
+          self.storage.state.cdsHabitData.runs = [];
+        }
+        self.storage.state.cdsHabitData.runs.push({ d: todayKey, v: totalSec });
+        self.storage.save();
+        if (typeof root.touch === 'function') root.touch();
+        triggerHaptic('correct');
+        soundFx.playCorrect();
+        self.render();
         return;
       }
     });
