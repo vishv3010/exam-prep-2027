@@ -85,8 +85,10 @@
       var dashboardWrap = document.querySelector('.wrap');
       var psiRoot = document.getElementById('psi-root');
       var navPsiBtn = document.getElementById('nav-psi-tab');
+      var savebar = document.querySelector('.savebar');
 
       if (dashboardWrap) dashboardWrap.style.display = 'none';
+      if (savebar) savebar.style.display = 'none';
       if (psiRoot) psiRoot.style.display = 'block';
       if (navPsiBtn) {
         navPsiBtn.classList.add('active');
@@ -103,8 +105,10 @@
       var dashboardWrap = document.querySelector('.wrap');
       var psiRoot = document.getElementById('psi-root');
       var navPsiBtn = document.getElementById('nav-psi-tab');
+      var savebar = document.querySelector('.savebar');
 
       if (dashboardWrap) dashboardWrap.style.display = 'block';
+      if (savebar) savebar.style.display = '';
       if (psiRoot) psiRoot.style.display = 'none';
       if (navPsiBtn) {
         navPsiBtn.classList.remove('active');
