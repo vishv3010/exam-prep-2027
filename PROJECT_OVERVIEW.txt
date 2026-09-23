@@ -1,0 +1,166 @@
+================================================================================
+                    ROAD TO CDS I 2027 & GUJARAT POLICE PSI PREPARATION ENGINE
+                                  COMPLETE PROJECT SPECIFICATION
+================================================================================
+Owner: Vishv
+Repository: vishv3010/exam-prep-2027
+Active Workspace: /home/addweb/4students-open/goal
+Date: September 2026
+Status: Production-Ready, Deployed & Verified
+
+--------------------------------------------------------------------------------
+1. EXECUTIVE SUMMARY & CORE GOAL
+--------------------------------------------------------------------------------
+This project is an end-to-end, distraction-free preparation system engineered 
+for Vishv (B.E. graduate, working a demanding 11.5-hour workday from 8:30am to 
+8:10pm, maintaining daily fitness/gym training).
+
+The strategic objective is to secure a Government Field/Officer appointment by 
+leveraging a 7.5-month clean preparation runway with two primary targets:
+
+A. PRIMARY ANCHOR: Combined Defence Services (CDS I 2027 - UPSC)
+   - Date: 11 April 2027 (Fixed UPSC Calendar).
+   - Post: Officer (Indian Military Academy / Indian Naval Academy / Air Force 
+     Academy / Officers Training Academy).
+   - Why Anchor: Engineering degree opens shallower competition pools (INA and 
+     AFA). Elementary Mathematics is class-10 standard. The age window closes 
+     in ~4 attempts (2028-2029), demanding immediate sequencing.
+   - Habit Block: Protected 5:30am deep morning block (105 minutes).
+
+B. CO-ANCHOR: Gujarat Police Sub-Inspector (GPRB PSI Cadre)
+   - Post: Police Sub-Inspector (Unarmed / Armed / Intelligence).
+   - Why Co-Equal: Field job in home state, larger vacancy pool (850+ PSI posts), 
+     no SSB interview hurdle (purely written examination + physical endurance run). 
+     Open until age 35.
+   - Standing Allocation: 5-6 hours/week (light evening 10:15pm blocks + dedicated 
+     Saturday morning OMR drills).
+
+C. SECONDARY SPRINT: SSC CGL 2026
+   - Target: CBI Sub-Inspector / Ministry posts.
+   - Immediate baseline measurement.
+
+--------------------------------------------------------------------------------
+2. WHAT WE HAVE BUILT
+--------------------------------------------------------------------------------
+We built a dual-system web application with zero bloat and instant loading:
+
+SYSTEM 1: MISSION CDS 2027 COMMAND DASHBOARD (site/index.html)
+--------------------------------------------------------------
+- Dynamic Today Widget: Automatically detects the current date and presents the 
+  exact prescribed study items:
+    * 5:30am Deep Morning Block (Maths / Core English)
+    * 10:15pm Light Evening Block (Polity / Gujarat PSI / General Knowledge)
+    * Physical Training Block (Running / Intervals / Gym / Rest)
+- 25-Weekday Phase 0 Habit Tracker Grid: Interactive daily logging system covering 
+  Weeks 1 to 5 (31 Aug 2026 to 04 Oct 2026) with automated streak and completion 
+  rates, verifying the 20/25 morning block threshold before Phase 1 volume doubling.
+- Master 4-Phase Strategy Navigator:
+    * Phase 0 (Wk 1-5): Baseline & Habit Proof (Sept 2026)
+    * Phase 1 (Wk 6-13): Core Syllabus Build (Oct-Nov 2026)
+    * Phase 2 (Wk 14-21): Consolidate & Notification Application (Dec 2026 - Jan 2027)
+    * Phase 3 (Wk 22-30): Test-Heavy Revision & SSB Prep (Feb-Mar 2027)
+    * Phase 4 (Wk 31-32): Taper & Logistics (April 2027)
+- Curated Book Shelf & Strategy Guides: Precise book lists, avoiding decision fatigue.
+- View Switcher: Seamless one-click switching between the CDS Roadmap and the PSI Quiz Engine.
+
+SYSTEM 2: GUJARAT POLICE PSI DRILL & SRS EXAM ENGINE (site/psi/)
+----------------------------------------------------------------
+- Bilingual Dual-Language Toggle: Instant toggling between Gujarati (ગુજરાતી) 
+  and English for questions, options, detailed explanations, and glossary terms.
+- Official 5-Option OMR Compliance: Supports options (A, B, C, D) plus official 
+  "(E) પ્રયાસ કરેલ નથી / (E) Not Attempted" with Gujarat GPRB penalty rules 
+  (+1.00 mark for correct, -0.25 penalty for wrong, 0.00 for Option E).
+- SuperMemo SM-2 Spaced Repetition (SRS): An algorithmic memory engine that calculates 
+  intervals, repetition counts, and ease factors (EF) to resurface weak questions 
+  on optimal review days.
+- Concept Scaffolding Cards (Foundation Lessons): 7 structured micro-learning lessons 
+  featuring Concept, Key Facts, Memory Hooks, Exam Traps, and Quick Checks.
+- Timed Mock Tests & Analytics: Real-time timer countdown, question triage tagging 
+  (Knowledge Gap, Reading Slip, Calculation Error), and breakdown by difficulty and subject.
+- 45 Authentically Sourced Questions:
+    * Official GPRB PYQ 2021-2022 examination papers
+    * Gujarat History, Heritage (Solanki Era, Rani ki Vav), and Geography (Narmada, Velavadar)
+    * Indian Constitution & Polity (Articles 14-32, Writs, DPSP Art 40/44, Emergency Art 356)
+    * New Criminal Laws 2024: Bharatiya Nyaya Sanhita (BNS) & Bharatiya Nagarik 
+      Suraksha Sanhita (BNSS) (Arrest under Sec 35, Zero FIR under Sec 173, Private Defence).
+
+--------------------------------------------------------------------------------
+3. TECH STACK & ARCHITECTURAL PHILOSOPHY
+--------------------------------------------------------------------------------
+- Core Stack: Pure Vanilla HTML5, CSS3, Modern ES6 JavaScript.
+- Design System: Custom CSS variable architecture, modern typography (Inter, 
+  Archivo display, and IBM Plex Mono), responsive flexbox and grid layouts, 
+  shadow elevations, and dark/light adaptive color tokens.
+- Zero-Build Architecture: No Webpack, No Vite, No Babel, No npm dependencies. 
+  The codebase runs immediately in any browser and can be served on any device.
+- Storage Architecture: Client-side persistence combining localStorage with 
+  IndexedDB abstraction (PSIStorage) for offline-first data safety.
+- Cache Management: Explicit asset query hashing (?v=20260923b) ensuring instant, 
+  deterministic cache invalidation across mobile Safari, Android Chrome, and CDNs.
+- Continuous Deployment: Automated GitHub Actions pipeline delivering zero-touch 
+  static compilation directly to GitHub Pages over HTTPS.
+
+--------------------------------------------------------------------------------
+4. COMPLETE REPOSITORY FILE MAP
+--------------------------------------------------------------------------------
+/home/addweb/4students-open/goal/
+│
+├── index.html                  --> Root redirector to site/index.html (preserves hashes)
+├── README.md                   --> Candidate profile, target exam rankings, and sequencing rationale
+├── daily-schedule.md           --> Exact 24-hour hour-by-hour operational breakdown
+├── week-01-04.md               --> Day-by-day study schedule and ramp guidance for Phase 0
+├── phases.md                   --> 32-week roadmap milestones from baseline to April 2027
+├── books.md                    --> Strict audit of essential vs superfluous textbooks
+├── psi.md                      --> Gujarat PSI syllabus structure, rules, and scoring targets
+├── gujarat-gk.md               --> Gujarat GK high-yield syllabus syllabus breakdown
+├── gujarati.md                 --> Language study strategy (grammar, vocabulary, comprehension)
+├── physical.md                 --> Medical requirements, running ramp, and physical standards
+├── ssc-cgl-2026-sprint.md      --> Tier 1 sprint preparation notes
+├── masterprompt.txt            --> Foundational requirements and candidate constraints
+│
+├── site/                       --> Complete web application root
+│   ├── index.html              --> Main CDS 2027 Dashboard, habit tracker, and layout
+│   │
+│   ├── data/psi/               --> Question datasets & educational lesson content
+│   │   ├── index.js            --> PSI Data Registry & subject catalog manager
+│   │   ├── pyq-2021.js         --> Official 2021 GPRB PSI examination paper questions
+│   │   ├── gujarat-gk.js       --> Verified Gujarat History, Geography & Culture questions
+│   │   ├── law.js              --> Indian Constitution, BNS, BNSS & Police Powers questions
+│   │   ├── ai-practice.js      --> High-yield simulated practice questions
+│   │   └── lessons.js          --> Foundation Lesson concept scaffolding cards
+│   │
+│   └── psi/                    --> Gujarat PSI interactive quiz engine modules
+│       ├── psi.css             --> Standalone modern stylesheet for the quiz engine
+│       ├── psi-config.js       --> Configuration, marking schemes, and subject metadata
+│       ├── psi-storage.js      --> LocalStorage and IndexedDB persistence layer
+│       ├── psi-srs.js          --> SuperMemo SM-2 Spaced Repetition engine
+│       ├── psi-question-engine.js -> Question filtering, randomizing, and state management
+│       ├── psi-ui.js           --> Complete UI rendering engine (cards, timer, OMR feedback)
+│       └── psi-app.js          --> Main application controller and tab coordinator
+│
+└── skills/
+    └── frontend-design/        --> Custom styling guidelines and design heuristics
+
+--------------------------------------------------------------------------------
+5. LIVE URLS & HOW TO RUN
+--------------------------------------------------------------------------------
+A. Public Web (Mobile Phone / Anywhere in the World):
+   - Dashboard: https://vishv3010.github.io/exam-prep-2027/site/index.html
+   - Direct Gujarat PSI Engine: https://vishv3010.github.io/exam-prep-2027/site/index.html#psi
+
+B. Local Network (Computer & Phone on same Wi-Fi):
+   - Dashboard: http://192.168.1.106:8080/site/index.html
+   - Direct Gujarat PSI Engine: http://192.168.1.106:8080/site/index.html#psi
+
+C. Local Host Command:
+   python3 -m http.server 8080
+
+--------------------------------------------------------------------------------
+6. NON-NEGOTIABLE OPERATIONAL RULES
+--------------------------------------------------------------------------------
+1. Miss a day, never miss two: One day missed is noise; two days is a broken habit.
+2. The morning block is non-negotiable: 5:30am deep work holds priority over evening work.
+3. The evening block never receives new complex concepts: Only revision, vocab, and quizzes.
+4. Option E discipline: In Gujarat exams, never guess blindly. Use Option E to protect marks.
+5. No project crossover: Work in 'goal' stays strictly confined to this repository.
+================================================================================
