@@ -196,6 +196,48 @@
       '</div>';
     }
 
+    // Diagnostic baseline banner
+    var diag = this.storage.getDiagnosticResult();
+    var diagBannerHtml = '';
+    if (diag) {
+      var pScore = (typeof diag.overallPreparednessScore === 'number') ? diag.overallPreparednessScore : (diag.accuracy || 0);
+      var bClass = pScore >= 75 ? 'mastered' : (pScore >= 45 ? 'practicing' : 'foundation');
+      var bTitle = (this.lang === 'gu' && diag.overallLevelGu) ? diag.overallLevelGu : (diag.overallLevel || (pScore >= 75 ? 'Exam Ready' : (pScore >= 45 ? 'Developing' : 'Foundation')));
+      diagBannerHtml = '<div class="psi-card" style="margin-bottom:14px;border-left:4px solid var(--accent);background:var(--surface);">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+          '<div>' +
+            '<span class="eyebrow" style="color:var(--accent);background:var(--accent-soft);border-color:var(--accent-border);">DIAGNOSTIC BASELINE</span>' +
+            '<div style="font-size:15px;font-weight:700;color:var(--ink);margin-top:2px;">' +
+              (this.lang === 'gu' ? 'તૈયારી સ્કોર: ' : 'Preparedness Score: ') +
+              '<span style="color:var(--accent);">' + pScore + ' / 100</span> &middot; ' +
+              '<span class="psi-badge ' + bClass + '">' + escapeHtml(bTitle) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:8px;">' +
+            '<button class="psi-pill-btn" data-tab="diagnostic_summary">' + (this.lang === 'gu' ? 'ઑડિટ રિપોર્ટ &rarr;' : 'View Audit &rarr;') + '</button>' +
+            '<button class="psi-pill-btn" id="psi-check-level-btn">' + (this.lang === 'gu' ? 'રી-ટેસ્ટ' : 'Retake') + '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    } else {
+      diagBannerHtml = '<div class="psi-card" style="margin-bottom:14px;border-left:4px solid var(--brass);background:var(--surface);">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">' +
+          '<div>' +
+            '<span class="eyebrow" style="color:var(--brass);border-color:var(--brass-border);background:var(--brass-soft);">RECOMMENDED FIRST STEP</span>' +
+            '<div style="font-size:15px;font-weight:700;color:var(--ink);margin-top:2px;">' +
+              (this.lang === 'gu' ? 'પ્રારંભિક ડાયગ્નોસ્ટિક એસેસમેન્ટ (૨૫ પ્રશ્નો)' : 'Baseline Diagnostic Assessment (25 Questions)') +
+            '</div>' +
+            '<div style="font-size:12.5px;color:var(--ink-soft);margin-top:2px;">' +
+              (this.lang === 'gu' ? 'ગણિત, રીઝનિંગ, અંગ્રેજી, સામાન્ય જ્ઞાન અને ગુજરાત GK નું સચોટ કેલિબ્રેશન' : 'Calibrate your preparation baseline across Maths, Reasoning, English, Constitution & Gujarat GK') +
+            '</div>' +
+          '</div>' +
+          '<button class="btn" id="psi-check-level-btn" style="padding:6px 14px;font-size:13px;white-space:nowrap;">' +
+            (this.lang === 'gu' ? 'ટેસ્ટ શરૂ કરો &rarr;' : 'Start Test &rarr;') +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    }
+
     // 2. Determine user profile state: Beginner vs Progressed
     var isBeginner = (stats.attempted === 0 && foundationProgress.completedCount === 0) ||
       (this.storage.getUserProfile().level === 'foundation' && stats.attempted < 10);
@@ -235,7 +277,7 @@
             (this.lang === 'gu' ? 'ટોપિક MCQs પ્રેક્ટિસ (૫-૧૦)' : 'Practice Topic MCQs') +
           '</button>' +
           '<button class="btn ghost" id="psi-check-level-btn" style="flex:1;">' +
-            (this.lang === 'gu' ? 'લેવલ ટેસ્ટ (૧૦ પ્રશ્નો)' : 'Diagnostic Test (10 Q)') +
+            (this.lang === 'gu' ? 'ડાયગ્નોસ્ટિક ટેસ્ટ (૨૫ પ્રશ્નો)' : 'Diagnostic Assessment (25 Q)') +
           '</button>' +
         '</div>' +
         '<div class="psi-progress-subtext" style="margin-top:12px;font-family:var(--f-mono);font-size:12px;color:var(--ink-faint);">' +
@@ -302,7 +344,7 @@
     // Daily Mission Card
     var missionHtml = this.renderDailyMissionCard(mission);
 
-    return resumeHtml + mainCardHtml + missionHtml;
+    return resumeHtml + diagBannerHtml + mainCardHtml + missionHtml;
   };
 
   /**
@@ -368,7 +410,7 @@
             '<span class="sub">' + all.length + ' ' + (this.lang === 'gu' ? 'પ્રશ્નો ઉપલબ્ધ &middot; ૪૦ મિનિટ' : 'questions available &middot; 40 min timer') + '</span>' +
           '</button>' +
           '<button class="btn ghost" id="psi-check-level-btn" style="text-align:center;">' +
-            (this.lang === 'gu' ? 'લેવલ ડાયગ્નોસ્ટિક ટેસ્ટ (૧૦ પ્રશ્નો)' : 'Diagnostic Assessment (10 Questions)') +
+            (this.lang === 'gu' ? 'લેવલ ડાયગ્નોસ્ટિક ટેસ્ટ (૨૫ પ્રશ્નો)' : 'Diagnostic Assessment (25 Questions)') +
           '</button>' +
         '</div>' +
       '</div>' +
@@ -724,11 +766,13 @@
           '<button class="psi-pill-btn' + (ans.confidence === 'unsure' ? ' active' : '') + '" data-conf="unsure">Unsure</button>' +
         '</div>';
       } else if (!ans.isOptionE) {
-        triageHtml = '<div class="psi-triage-row">' +
+        triageHtml = '<div class="psi-triage-row" style="flex-wrap:wrap;gap:4px;">' +
           '<span class="psi-triage-lbl">' + (this.lang === 'gu' ? 'કારણ:' : 'Reason:') + '</span>' +
           '<button class="psi-pill-btn alert' + (ans.errorType === 'gap' ? ' active' : '') + '" data-err="gap">Gap (Didn\'t Know)</button>' +
+          '<button class="psi-pill-btn alert' + (ans.errorType === 'slip' ? ' active' : '') + '" data-err="slip">Calculation Slip</button>' +
           '<button class="psi-pill-btn alert' + (ans.errorType === 'misread' ? ' active' : '') + '" data-err="misread">Misread</button>' +
-          '<button class="psi-pill-btn alert' + (ans.errorType === 'slip' ? ' active' : '') + '" data-err="slip">Slip</button>' +
+          '<button class="psi-pill-btn alert' + (ans.errorType === 'time' ? ' active' : '') + '" data-err="time">Time Pressure</button>' +
+          '<button class="psi-pill-btn alert' + (ans.errorType === 'guess' ? ' active' : '') + '" data-err="guess">Guessing</button>' +
         '</div>';
       }
 
@@ -755,11 +799,21 @@
       ? 'METRO 40'
       : (session.mode === 'pyq'
         ? 'PYQ DRILL'
-        : (session.mode === 'lesson_practice' ? 'LESSON PRACTICE' : 'PRACTICE'));
+        : (session.mode === 'lesson_practice'
+          ? 'LESSON PRACTICE'
+          : (session.mode === 'diagnostic' ? 'DIAGNOSTIC ASSESSMENT' : 'PRACTICE')));
 
     var timerDisplay = (session.mode === 'metro40')
       ? '<span class="psi-timer-badge" id="psi-timer-val">' + this.formatTime(session.timeRemainingSec || 2400) + '</span>'
       : '';
+
+    var diagSectionHtml = '';
+    if (session.mode === 'diagnostic' && q.diagnosticSection) {
+      diagSectionHtml = '<div style="background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:6px;padding:6px 10px;margin:8px 0 10px;display:flex;justify-content:space-between;align-items:center;font-size:12px;">' +
+        '<span style="font-weight:700;color:var(--accent);">SECTION ' + q.diagnosticSection + ' OF 5: ' + escapeHtml(q.diagnosticSectionName || '') + '</span>' +
+        '<span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">' + (q.exams ? q.exams.join(' & ') : 'CDS & PSI') + '</span>' +
+      '</div>';
+    }
 
     var sourceTagText = this.getSourceBadgeText(q);
     var questionText = (this.lang === 'gu') ? q.question_gu : q.question_en;
@@ -770,6 +824,7 @@
         '<span class="psi-prog-label">' + modeLabel + ' &middot; Question ' + (session.currentIndex + 1) + ' / ' + session.questionIds.length + '</span>' +
         timerDisplay +
       '</div>' +
+      diagSectionHtml +
       '<span class="psi-source-tag">' + escapeHtml(sourceTagText) + '</span>' +
       '<div class="psi-question-text">' + escapeHtml(questionText) + '</div>' +
       glossaryHtml +
@@ -962,24 +1017,197 @@
 
   PSIUI.prototype.renderDiagnosticSummaryScreen = function() {
     var diag = this.storage.getDiagnosticResult();
-    if (!diag) return '<div class="psi-hero-card"><p>No diagnostic completed.</p><button class="btn" data-tab="practice">Back to Practice</button></div>';
-
-    return '<div class="psi-summary-card">' +
-      '<span class="eyebrow" style="color:var(--accent);">DIAGNOSTIC ASSESSMENT</span>' +
-      '<h2>' + (this.lang === 'gu' ? 'પરિણામ: ' : 'Baseline Score: ') + diag.score + ' / ' + diag.total + ' (' + diag.accuracy + '%)</h2>' +
-      '<div class="psi-summary-grid" style="margin-top:10px;">' +
-        '<div class="psi-stat-box"><span class="num">' + diag.score + '</span><span class="lbl">Correct</span></div>' +
-        '<div class="psi-stat-box alert"><span class="num">' + (diag.total - diag.score) + '</span><span class="lbl">Gaps</span></div>' +
-      '</div>' +
-      '<div class="psi-rec-card" style="margin-top:12px;">' +
-        '<span class="eyebrow">Recommended Starting Point</span>' +
-        '<span class="rec-title">' + escapeHtml(diag.recommendedTopic || '01 Constitution basics') + '</span>' +
-        '<button class="psi-btn-metro" data-tab="practice" style="margin-top:8px;">' +
-          '<span>START FOUNDATION &rarr;</span>' +
+    if (!diag) {
+      return '<div class="psi-hero-card">' +
+        '<span class="eyebrow" style="color:var(--brass);">BASELINE REQUIRED</span>' +
+        '<h2>' + (this.lang === 'gu' ? 'ડાયગ્નોસ્ટિક ટેસ્ટ પૂર્ણ થયેલ નથી' : 'No Diagnostic Completed Yet') + '</h2>' +
+        '<p style="font-size:14px;color:var(--ink-soft);margin-top:6px;">' +
+          (this.lang === 'gu' ? 'તમારો સાચો પ્રારંભિક લેવલ નક્કી કરવા માટે ૨૫ પ્રશ્નોનો કેલિબ્રેટેડ ટેસ્ટ આપો.' : 'Take the 25-question calibrated assessment to measure your baseline level across all 5 syllabus domains.') +
+        '</p>' +
+        '<button class="psi-btn-metro" id="psi-check-level-btn" style="margin-top:14px;">' +
+          '<span>' + (this.lang === 'gu' ? 'ડાયગ્નોસ્ટિક ટેસ્ટ શરૂ કરો &rarr;' : 'START DIAGNOSTIC ASSESSMENT &rarr;') + '</span>' +
+          '<span class="sub">25 Calibrated Questions &middot; Quant, Reasoning, English, GK, Gujarat</span>' +
         '</button>' +
+      '</div>';
+    }
+
+    var prepScore = (typeof diag.overallPreparednessScore === 'number') ? diag.overallPreparednessScore : (diag.accuracy || 0);
+    var levelColor = prepScore >= 75 ? 'var(--good)' : (prepScore >= 45 ? 'var(--accent)' : 'var(--brass)');
+    var levelTitle = (this.lang === 'gu' && diag.overallLevelGu) ? diag.overallLevelGu : (diag.overallLevel || (prepScore >= 75 ? 'Exam Ready' : (prepScore >= 45 ? 'Developing' : 'Foundation')));
+    var netScore = (typeof diag.netScore === 'number') ? diag.netScore : (diag.score || 0);
+    var totalQs = diag.totalQuestions || diag.total || 25;
+
+    // 1. Overall Hero Card with Preparedness Index (0-100)
+    var html = '<div class="psi-summary-card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+        '<span class="eyebrow" style="color:var(--accent);background:var(--accent-soft);border-color:var(--accent-border);">DIAGNOSTIC AUDIT & READINESS REPORT</span>' +
+        '<span class="psi-time-badge" style="font-family:var(--f-mono);font-size:12px;color:var(--ink-faint);">' + escapeHtml(diag.date || '') + '</span>' +
       '</div>' +
-      '<button class="btn ghost" data-tab="home" style="margin-top:10px;">Return to Home</button>' +
+      '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:14px;flex-wrap:wrap;gap:12px;">' +
+        '<div>' +
+          '<h2 style="font-size:26px;font-weight:800;color:var(--ink);">' +
+            (this.lang === 'gu' ? 'તૈયારી સ્કોર: ' : 'Preparedness Score: ') +
+            '<span style="color:' + levelColor + ';">' + prepScore + ' / 100</span>' +
+          '</h2>' +
+          '<div style="margin-top:6px;display:flex;align-items:center;gap:10px;">' +
+            '<span class="psi-badge ' + (prepScore >= 75 ? 'mastered' : (prepScore >= 45 ? 'practicing' : 'foundation')) + '" style="font-size:12px;padding:3px 10px;">' +
+              escapeHtml(levelTitle) +
+            '</span>' +
+            '<span style="font-size:13px;color:var(--ink-soft);">' +
+              (this.lang === 'gu' ? 'ચોખ્ખા ગુણ: ' : 'Net Marks: ') + netScore + ' / ' + totalQs +
+            '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:10px;">' +
+          '<button class="btn" id="psi-check-level-btn" style="font-size:12.5px;padding:6px 14px;">Retake Test</button>' +
+          '<button class="btn ghost" data-tab="home" style="font-size:12.5px;padding:6px 14px;">Home</button>' +
+        '</div>' +
+      '</div>' +
+
+      // Quick Stats Bar
+      '<div class="psi-summary-grid" style="margin-top:16px;">' +
+        '<div class="psi-stat-box"><span class="num">' + (diag.correct || 0) + '</span><span class="lbl">' + (this.lang === 'gu' ? 'સાચા (+૧.૦)' : 'Correct (+1.0)') + '</span></div>' +
+        '<div class="psi-stat-box alert"><span class="num">' + (diag.wrong || 0) + '</span><span class="lbl">' + (this.lang === 'gu' ? 'ખોટા (-૦.૨૫)' : 'Wrong (-0.25)') + '</span></div>' +
+        '<div class="psi-stat-box"><span class="num">' + (diag.optionE || 0) + '</span><span class="lbl">' + (this.lang === 'gu' ? 'Option E (૦)' : 'Option E (0)') + '</span></div>' +
+        '<div class="psi-stat-box"><span class="num">' + (diag.blank || 0) + '</span><span class="lbl">' + (this.lang === 'gu' ? 'છોડેલ (Blank)' : 'Blank') + '</span></div>' +
+      '</div>' +
     '</div>';
+
+    // 2. Section Performance Breakdown (Table/Cards)
+    html += '<div class="psi-card" style="margin-top:16px;">' +
+      '<h3 style="font-size:17px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;">' +
+        '<span>📊 1. Multi-Domain Level Breakdown</span>' +
+      '</h3>' +
+      '<p style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;">' +
+        (this.lang === 'gu' ? 'દરેક વિષય અનુસાર ઉમેદવારનું પાયાનું સ્તર અને સંબંધિત પરીક્ષા:' : 'Sectional performance mapped against CDS IMA & Gujarat Armed PSI requirements:') +
+      '</p>' +
+      '<div style="display:flex;flex-direction:column;gap:12px;">';
+
+    if (Array.isArray(diag.sections)) {
+      diag.sections.forEach(function(sec) {
+        var secName = (this.lang === 'gu' && sec.nameGu) ? sec.nameGu : sec.name;
+        var secBadgeClass = sec.accuracy >= 75 ? 'mastered' : (sec.accuracy >= 45 ? 'practicing' : 'foundation');
+        var secBadgeText = (this.lang === 'gu' && sec.levelGu) ? sec.levelGu : sec.level;
+
+        html += '<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">' +
+            '<div>' +
+              '<span style="font-family:var(--f-mono);font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;">Section ' + sec.sectionIndex + '</span>' +
+              '<h4 style="font-size:15px;font-weight:700;color:var(--ink);margin:2px 0;">' + escapeHtml(secName) + '</h4>' +
+              '<span style="font-size:12px;color:var(--ink-faint);">' + escapeHtml(sec.relevance || '') + '</span>' +
+            '</div>' +
+            '<div style="text-align:right;">' +
+              '<span class="psi-badge ' + secBadgeClass + '">' + escapeHtml(secBadgeText) + '</span>' +
+              '<div style="font-family:var(--f-mono);font-size:13px;font-weight:700;color:var(--ink);margin-top:4px;">' +
+                sec.correct + ' / ' + sec.total + ' (' + sec.accuracy + '%)' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          // Accuracy mini progress bar
+          '<div style="height:6px;background:var(--ground);border-radius:3px;overflow:hidden;margin:10px 0 8px;">' +
+            '<div style="height:100%;width:' + sec.accuracy + '%;background:' + (sec.accuracy >= 75 ? 'var(--good)' : (sec.accuracy >= 45 ? 'var(--accent)' : 'var(--alert)')) + ';border-radius:3px;"></div>' +
+          '</div>' +
+          (sec.advice ? '<div style="font-size:12.5px;color:var(--ink-soft);line-height:1.45;background:var(--surface);padding:8px 10px;border-radius:6px;border-left:3px solid var(--accent);">' + escapeHtml(sec.advice) + '</div>' : '') +
+        '</div>';
+      }, this);
+    }
+    html += '</div></div>';
+
+    // 3. Critical Weaknesses Card
+    if (Array.isArray(diag.criticalWeaknesses) && diag.criticalWeaknesses.length > 0) {
+      html += '<div class="psi-card alert-border" style="margin-top:16px;border-left:4px solid var(--alert);">' +
+        '<h3 style="font-size:17px;font-weight:700;color:var(--alert);margin-bottom:8px;display:flex;align-items:center;gap:8px;">' +
+          '<span>⚠️ 2. Critical Weaknesses & Remediation</span>' +
+        '</h3>' +
+        '<div style="display:flex;flex-direction:column;gap:10px;">';
+
+      diag.criticalWeaknesses.forEach(function(w) {
+        html += '<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<strong style="color:var(--ink);font-size:14.5px;">' + escapeHtml(w.sectionName) + '</strong>' +
+            '<span class="mono" style="font-size:12.5px;color:var(--alert);font-weight:700;">' + w.accuracy + '% accuracy (' + w.wrongCount + ' wrong)</span>' +
+          '</div>' +
+          (w.weakTopics && w.weakTopics.length > 0 ? '<div style="font-size:12px;color:var(--ink-faint);margin:4px 0;">Weak topics: ' + escapeHtml(w.weakTopics.join(', ')) + '</div>' : '') +
+          '<p style="font-size:13px;color:var(--ink-soft);margin-top:6px;line-height:1.45;">' + escapeHtml(w.advice) + '</p>' +
+        '</div>';
+      });
+      html += '</div></div>';
+    }
+
+    // 4. High-Return Synergistic Topics Card
+    if (Array.isArray(diag.highReturnTopics) && diag.highReturnTopics.length > 0) {
+      html += '<div class="psi-card" style="margin-top:16px;border-left:4px solid var(--brass);">' +
+        '<h3 style="font-size:17px;font-weight:700;color:var(--brass);margin-bottom:8px;display:flex;align-items:center;gap:8px;">' +
+          '<span>🎯 3. High-Return Synergistic Topics (CDS IMA + Gujarat PSI)</span>' +
+        '</h3>' +
+        '<p style="font-size:13px;color:var(--ink-soft);margin-bottom:10px;">' +
+          'Topics that yield simultaneous marks across both CDS IMA and Gujarat PSI papers with zero syllabus waste:' +
+        '</p>' +
+        '<div style="display:flex;flex-direction:column;gap:8px;">';
+
+      diag.highReturnTopics.forEach(function(t) {
+        html += '<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;">' +
+          '<div style="font-weight:700;color:var(--ink);font-size:14px;">' + escapeHtml(t.topic) + '</div>' +
+          '<div style="font-size:12.5px;color:var(--brass);margin-top:3px;">' + escapeHtml(t.synergy) + '</div>' +
+        '</div>';
+      });
+      html += '</div></div>';
+    }
+
+    // 5. Unknown Areas Card (Option E / Blanks / Knowledge Gap)
+    if (Array.isArray(diag.unknownAreas) && diag.unknownAreas.length > 0) {
+      html += '<div class="psi-card" style="margin-top:16px;">' +
+        '<h3 style="font-size:17px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:8px;">' +
+          '<span>🔍 4. Unknown Areas (Option E / Blanks / Unseen Concepts)</span>' +
+        '</h3>' +
+        '<p style="font-size:13px;color:var(--ink-soft);margin-bottom:10px;">' +
+          'Specific areas where questions were intentionally skipped or flagged as knowledge gaps:' +
+        '</p>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+
+      diag.unknownAreas.forEach(function(topic) {
+        html += '<span style="font-family:var(--f-mono);font-size:12px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);padding:5px 11px;border-radius:20px;">' +
+          escapeHtml(topic) +
+        '</span>';
+      });
+      html += '</div></div>';
+    }
+
+    // 6. Actionable 7-Day Training Plan
+    if (Array.isArray(diag.sevenDayPlan) && diag.sevenDayPlan.length > 0) {
+      html += '<div class="psi-card" style="margin-top:16px;border-left:4px solid var(--good);">' +
+        '<h3 style="font-size:17px;font-weight:700;color:var(--good);margin-bottom:6px;display:flex;align-items:center;gap:8px;">' +
+          '<span>🚀 5. Immediate 7-Day Action Plan</span>' +
+        '</h3>' +
+        '<p style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;">' +
+          'Generated dynamically to target your diagnosed weaknesses first, working within your 2-hour desk study + 60-min metro commute constraint:' +
+        '</p>' +
+        '<div style="display:flex;flex-direction:column;gap:10px;">';
+
+      diag.sevenDayPlan.forEach(function(p) {
+        html += '<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">' +
+            '<strong style="color:var(--ink);font-size:14.5px;">' + escapeHtml(p.title) + '</strong>' +
+            '<span class="mono" style="font-size:12px;color:var(--good);background:var(--good-soft);padding:2px 8px;border-radius:12px;">Focus: ' + escapeHtml(p.focus) + '</span>' +
+          '</div>' +
+          '<ul style="margin:8px 0 0 18px;padding:0;font-size:13px;color:var(--ink-soft);line-height:1.5;">' +
+            p.tasks.map(function(t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') +
+          '</ul>' +
+        '</div>';
+      });
+      html += '</div></div>';
+    }
+
+    // Bottom action buttons
+    html += '<div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;">' +
+      '<button class="psi-btn-metro" data-tab="practice" style="flex:1;">' +
+        '<span>START DAY 1 TRAINING &rarr;</span>' +
+        '<span class="sub">Open practice bank calibrated to weak topics</span>' +
+      '</button>' +
+      '<button class="btn ghost" id="psi-check-level-btn" style="flex:1;text-align:center;">Retake Diagnostic Assessment</button>' +
+    '</div>';
+
+    return html;
   };
 
   /**
@@ -1143,7 +1371,11 @@
           } else {
             self.stopMetroTimer();
             var summ = self.engine.finishSession();
-            self.switchTab('summary');
+            if (curSess.mode === 'diagnostic') {
+              self.switchTab('diagnostic_summary');
+            } else {
+              self.switchTab('summary');
+            }
           }
         }
         return;
@@ -1162,14 +1394,6 @@
             self.stopMetroTimer();
             var summary = self.engine.finishSession();
             if (s.mode === 'diagnostic') {
-              var diagRes = {
-                completedAt: Date.now(),
-                score: summary.correct,
-                total: summary.totalQuestions,
-                accuracy: Math.round((summary.correct / summary.totalQuestions) * 100),
-                recommendedTopic: summary.score >= 7 ? '04 Criminal Law basics (BNS)' : '01 Constitution basics'
-              };
-              self.storage.saveDiagnosticResult(diagRes);
               self.switchTab('diagnostic_summary');
             } else {
               self.switchTab('summary');

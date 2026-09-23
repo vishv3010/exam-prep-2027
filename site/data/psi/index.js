@@ -112,6 +112,10 @@
         this.register(root.__PENDING_AI_PRACTICE_DATA);
         delete root.__PENDING_AI_PRACTICE_DATA;
       }
+      if (root.__PENDING_DIAGNOSTIC_DATA) {
+        this.register(root.__PENDING_DIAGNOSTIC_DATA);
+        delete root.__PENDING_DIAGNOSTIC_DATA;
+      }
     }
   };
 

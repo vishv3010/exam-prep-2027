@@ -32,6 +32,7 @@ try {
   loadScript('gujarat-gk.js');
   loadScript('law.js');
   loadScript('ai-practice.js');
+  loadScript('diagnostic-bank.js');
   loadScript('lessons.js');
 } catch (e) {
   console.error('FATAL: Error loading data files:', e.message);
@@ -42,7 +43,8 @@ const allQuestions = [
   ...(ctx.window.__PENDING_PYQ_DATA || []),
   ...(ctx.window.__PENDING_GUJARAT_GK_DATA || []),
   ...(ctx.window.__PENDING_LAW_DATA || []),
-  ...(ctx.window.__PENDING_AI_PRACTICE_DATA || [])
+  ...(ctx.window.__PENDING_AI_PRACTICE_DATA || []),
+  ...(ctx.window.__PENDING_DIAGNOSTIC_DATA || [])
 ];
 
 const lessons = (ctx.window.PSI_LESSON_BANK && ctx.window.PSI_LESSON_BANK.lessons) || [];

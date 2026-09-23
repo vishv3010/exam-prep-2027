@@ -306,6 +306,15 @@
     this.save();
   };
 
+  // Diagnostic result accessors
+  GoalStorage.prototype.getDiagnosticResult = function() {
+    return this.state.diagnosticResult || null;
+  };
+  GoalStorage.prototype.saveDiagnosticResult = function(diagObj) {
+    this.state.diagnosticResult = diagObj;
+    this.save();
+  };
+
   // SRS card operations
   GoalStorage.prototype.getCard = function(qId) { return this.state.cards[qId] || null; };
   GoalStorage.prototype.saveCard = function(qId, cardObj) {
