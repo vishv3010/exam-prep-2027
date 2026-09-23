@@ -1,62 +1,120 @@
 /**
- * Gujarat Police PSI Spaced Repetition System (SRS) & Mistake Classifier
- * Implements a lightweight Leitner 5-box model and 3-category error diagnosis:
- * 1. GAP: Didn't know concept/fact
- * 2. MISREAD: Misread question stem/distractor
- * 3. SLIP: Careless calculation or process error
+ * GOAL OS SuperMemo SM-2 Spaced Repetition System (SRS) & Adaptive Memory Engine
+ * Implements authentic SuperMemo SM-2 algorithm:
+ * - Easiness Factor (EF) initialized to 2.5 (min 1.3)
+ * - Intervals: I(1) = 1 day, I(2) = 6 days, I(n) = I(n-1) * EF
+ * - Quality Rating scale: 0 to 5
+ * - Error classification (GAP, MISREAD, SLIP, TIME_PRESSURE, GUESS)
+ * - Backward-compatible with legacy Leitner cards (box 1-5)
  */
 (function(root) {
   'use strict';
 
   var MS_PER_DAY = 86400000;
+  var MIN_EF = 1.3;
+  var DEFAULT_EF = 2.5;
 
-  var PSISRS = {
-    // Leitner intervals in days: [Box 1, Box 2, Box 3, Box 4, Box 5]
-    intervals: [1, 3, 7, 14, 30],
+  var GoalSRS = {
+    /**
+     * Map attempt parameters to SM-2 Quality score (0-5)
+     */
+    calculateQuality: function(isCorrect, confidence, errorType, timeSeconds, expectedSeconds) {
+      if (!isCorrect) {
+        if (errorType === 'misread' || errorType === 'slip') return 2; // Near miss
+        if (errorType === 'gap') return 1;                            // Conceptual blackout
+        return 1;
+      }
+
+      // Answer was correct
+      if (confidence === 'unsure') return 3; // Correct with difficulty/guessing
+      if (expectedSeconds && timeSeconds && timeSeconds > (expectedSeconds * 1.5)) {
+        return 4; // Correct but sluggish
+      }
+      return 5; // Fast, confident, correct
+    },
 
     /**
-     * Calculates updated card state after an attempt
+     * Processes an attempt using true SuperMemo SM-2 algorithm
      */
-    processAttempt: function(existingCard, isCorrect, confidence) {
+    processAttempt: function(existingCard, isCorrect, confidence, errorType, timeSeconds, expectedSeconds) {
       var now = Date.now();
+      var q = typeof confidence === 'number' 
+        ? confidence 
+        : this.calculateQuality(isCorrect, confidence, errorType, timeSeconds, expectedSeconds);
+
+      // Normalize existing card or initialize new SM-2 card
       var card = existingCard ? Object.assign({}, existingCard) : {
-        box: 1,
+        repetition: 0,
+        ef: DEFAULT_EF,
+        intervalDays: 0,
         lapses: 0,
         attempts: 0,
         correct: 0,
         wrong: 0,
+        box: 1, // legacy support
         due: now,
-        lastSeen: now
+        lastSeen: now,
+        history: []
       };
+
+      // Ensure proper defaults if card was migrated from legacy Leitner
+      if (typeof card.ef !== 'number' || isNaN(card.ef)) card.ef = DEFAULT_EF;
+      if (typeof card.repetition !== 'number') card.repetition = card.box ? Math.max(0, card.box - 1) : 0;
+      if (typeof card.intervalDays !== 'number') card.intervalDays = 1;
+      if (!Array.isArray(card.history)) card.history = [];
 
       card.attempts += 1;
       card.lastSeen = now;
 
-      if (isCorrect) {
+      // Update Easiness Factor (EF):
+      // EF' = EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
+      var newEf = card.ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
+      card.ef = Math.max(MIN_EF, Math.round(newEf * 100) / 100);
+
+      if (q >= 3) {
+        // Successful recall (SM-2 progression)
         card.correct += 1;
-        if (confidence === 'unsure') {
-          // Keep in current box or halve interval for unsure answers
-          var currentDays = this.intervals[card.box - 1] || 1;
-          card.due = now + Math.max(1, Math.round(currentDays * 0.5)) * MS_PER_DAY;
+        if (card.repetition === 0) {
+          card.intervalDays = 1;
+        } else if (card.repetition === 1) {
+          card.intervalDays = 6;
         } else {
-          // Confident correct advances to next box
-          card.box = Math.min(5, card.box + 1);
-          var nextDays = this.intervals[card.box - 1] || 1;
-          card.due = now + nextDays * MS_PER_DAY;
+          card.intervalDays = Math.round(card.intervalDays * card.ef);
         }
+        card.repetition += 1;
+        card.due = now + (card.intervalDays * MS_PER_DAY);
       } else {
-        // Incorrect reset to Box 1
+        // Failed recall (Reset cycle, record lapse)
         card.wrong += 1;
         card.lapses += 1;
-        card.box = 1;
-        card.due = now + this.intervals[0] * MS_PER_DAY;
+        card.repetition = 0;
+        card.intervalDays = 1;
+        card.due = now + MS_PER_DAY; // Due tomorrow
+      }
+
+      // Maintain legacy box index (1 to 5) for backward compatibility
+      if (card.intervalDays <= 1) card.box = 1;
+      else if (card.intervalDays <= 3) card.box = 2;
+      else if (card.intervalDays <= 7) card.box = 3;
+      else if (card.intervalDays <= 16) card.box = 4;
+      else card.box = 5;
+
+      // Append compact history log (keep last 10 entries)
+      card.history.push({
+        t: now,
+        q: q,
+        sec: timeSeconds || null,
+        err: !isCorrect ? (errorType || 'unclassified') : null
+      });
+      if (card.history.length > 10) {
+        card.history.shift();
       }
 
       return card;
     },
 
     isDue: function(card) {
-      if (!card) return true; // Unseen questions are ready
+      if (!card) return true; // Unseen cards are eligible
       return Date.now() >= (card.due || 0);
     },
 
@@ -64,7 +122,6 @@
       var self = this;
       return questions.filter(function(q) {
         var card = storage.getCard(q.id);
-        // Only return if it has been attempted before and is now due
         return card && self.isDue(card);
       });
     },
@@ -108,20 +165,22 @@
 
         // Subject aggregation
         if (!subjectStats[q.subject]) {
-          subjectStats[q.subject] = { attempted: 0, correct: 0, wrong: 0 };
+          subjectStats[q.subject] = { attempted: 0, correct: 0, wrong: 0, lapses: 0 };
         }
         subjectStats[q.subject].attempted += card.attempts;
         subjectStats[q.subject].correct += card.correct;
         subjectStats[q.subject].wrong += card.wrong;
+        subjectStats[q.subject].lapses += (card.lapses || 0);
 
         // Topic aggregation
         var tKey = q.subject + '::' + q.topic;
         if (!topicStats[tKey]) {
-          topicStats[tKey] = { subject: q.subject, topic: q.topic, attempted: 0, correct: 0, wrong: 0 };
+          topicStats[tKey] = { subject: q.subject, topic: q.topic, attempted: 0, correct: 0, wrong: 0, lapses: 0 };
         }
         topicStats[tKey].attempted += card.attempts;
         topicStats[tKey].correct += card.correct;
         topicStats[tKey].wrong += card.wrong;
+        topicStats[tKey].lapses += (card.lapses || 0);
       });
 
       var weakestSubject = null;
@@ -155,5 +214,7 @@
     }
   };
 
-  root.PSISRS = PSISRS;
+  // Expose as both GoalSRS and legacy PSISRS alias
+  root.GoalSRS = GoalSRS;
+  root.PSISRS = GoalSRS;
 })(typeof window !== 'undefined' ? window : this);

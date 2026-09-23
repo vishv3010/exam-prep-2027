@@ -1,15 +1,21 @@
 /**
- * Gujarat Police PSI LocalStorage Layer (Version 2)
- * Completely isolates PSI state under key 'psi_trainer.v1'.
- * Supports beginner learning progression, lesson tracking, topic mastery,
- * daily mission tracking, and diagnostic assessments.
- * Backward-compatible with version 1 state.
+ * GOAL OS Unified Storage Architecture (Version 3)
+ * Combines in-memory instant synchronous access with:
+ * - IndexedDB persistence ('GoalOS_DB') for durable long-term storage
+ * - localStorage write-through mirroring for zero-latency fallback
+ * - Unified state bridging CDS habit data ('cds2027.v1') and PSI trainer state ('psi_trainer.v1')
+ * - Automatic migration from legacy schemas
+ * - Export, import, and session crash-recovery
  */
 (function(root) {
   'use strict';
 
-  var STORAGE_KEY = 'psi_trainer.v1';
-  var CURRENT_VERSION = 2;
+  var STORAGE_KEY = 'goal_os.v3';
+  var LEGACY_PSI_KEY = 'psi_trainer.v1';
+  var LEGACY_CDS_KEY = 'cds2027.v1';
+  var CURRENT_VERSION = 3;
+  var DB_NAME = 'GoalOS_DB';
+  var DB_VERSION = 1;
 
   function todayStr() {
     var d = new Date();
@@ -19,15 +25,21 @@
   var defaultState = {
     version: CURRENT_VERSION,
     preferences: {
-      language: 'gu',       // 'gu' or 'en'
-      defaultMode: 'metro40',
+      language: 'gu',         // 'gu' or 'en'
+      defaultMode: 'metro',   // 'metro' | 'desk' | 'diagnostic'
       ttsEnabled: false,
-      useOptionE: true
+      useOptionE: true,
+      activeExamFocus: '50_50' // '50_50' | 'cds_focus' | 'psi_focus'
     },
     userProfile: {
-      hasStudiedBefore: 'not_yet', // 'not_yet' | 'little' | 'yes'
-      dailyStudyTimeMin: 60,       // 30 | 60 | 120 | 180
-      level: 'foundation',         // 'foundation' | 'practice' | 'exam'
+      candidateName: 'Vishv',
+      education: 'B.Tech Computer Engineering',
+      level: 'foundation',
+      targetExams: ['CDS_IMA', 'GUJARAT_ARMED_PSI'],
+      dailyDeskTargetMin: 120,
+      dailyMetroTargetMin: 60,
+      runningBaselineKm: 5.0,
+      runningBaselineMin: 30.0,
       onboardingComplete: false
     },
     stats: {
@@ -38,32 +50,104 @@
       blank: 0,
       sessionsCompleted: 0
     },
-    cards: {},              // questionId -> SRS card state
-    mistakes: {},           // questionId -> { type: 'gap'|'misread'|'slip'|'unclassified', count, lastWrong }
-    marked: [],             // array of bookmarked questionIds
-    history: [],            // list of completed session summaries
-    learnedLessons: {},     // lessonId -> { completedAt, score, status }
-    topicProgress: {},      // subject::topic -> { status: 'NOT STARTED'|'FOUNDATION'|'PRACTICING'|'MASTERED', level: 1..3 }
+    cards: {},                // questionId -> SM-2 card { repetition, ef, intervalDays, due, lapses, history }
+    mistakes: {},             // questionId -> { count, type, lastWrong }
+    marked: [],               // array of bookmarked questionIds
+    history: [],              // completed session summaries
+    learnedLessons: {},       // lessonId -> { completedAt, score, status }
+    topicProgress: {},        // subject::topic -> { status, level, accuracy, updatedAt }
     dailyMission: {
       date: '',
+      deskMinutesDone: 0,
+      metroMinutesDone: 0,
       topicsLearned: 0,
       questionsDone: 0,
       mistakesReviewed: 0,
       srsDone: 0
     },
-    diagnosticResult: null, // { completedAt, score, total, accuracy, subjectBreakdown, recommendedStep }
-    savedWords: [],         // array of { word, simple_gu, en, example, timestamp }
-    reports: [],            // array of { qId, reason, timestamp }
-    activeSession: null,    // in-flight session state for interruption recovery
+    cdsHabitData: {
+      days: {},               // YYYY-MM-DD -> true
+      mocks: [],              // array of mock score records
+      runs: []                // array of run logs
+    },
+    diagnosticResult: null,   // baseline test record
+    savedWords: [],           // array of { word, simple_gu, en, example, timestamp }
+    reports: [],              // question reports
+    activeSession: null,      // interruption recovery state
     updatedAt: 0
   };
 
-  function PSIStorage() {
-    this.state = this.load();
+  function GoalStorage() {
+    this.db = null;
+    this.state = this.loadInitial();
+    this.initIndexedDB();
   }
 
-  PSIStorage.prototype.load = function() {
+  /**
+   * Initializes IndexedDB in background without blocking synchronous startup
+   */
+  GoalStorage.prototype.initIndexedDB = function() {
+    var self = this;
+    if (typeof window === 'undefined' || !window.indexedDB) return;
+
     try {
+      var request = window.indexedDB.open(DB_NAME, DB_VERSION);
+
+      request.onupgradeneeded = function(event) {
+        var db = event.target.result;
+        if (!db.objectStoreNames.contains('app_state')) {
+          db.createObjectStore('app_state', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('srs_cards')) {
+          db.createObjectStore('srs_cards', { keyPath: 'questionId' });
+        }
+        if (!db.objectStoreNames.contains('daily_logs')) {
+          db.createObjectStore('daily_logs', { keyPath: 'date' });
+        }
+      };
+
+      request.onsuccess = function(event) {
+        self.db = event.target.result;
+        // Sync current state to IndexedDB
+        self.persistToIndexedDB();
+      };
+
+      request.onerror = function(event) {
+        console.warn('[GoalStorage] IndexedDB open error, falling back to localStorage:', event);
+      };
+    } catch (e) {
+      console.warn('[GoalStorage] IndexedDB unavailable:', e);
+    }
+  };
+
+  /**
+   * Persists state snapshot to IndexedDB asynchronously
+   */
+  GoalStorage.prototype.persistToIndexedDB = function() {
+    if (!this.db) return;
+    try {
+      var tx = this.db.transaction(['app_state', 'srs_cards'], 'readwrite');
+      var stateStore = tx.objectStore('app_state');
+      stateStore.put({ id: 'current_state', state: this.state, updatedAt: Date.now() });
+
+      var cardStore = tx.objectStore('srs_cards');
+      var cards = this.state.cards;
+      Object.keys(cards).forEach(function(qId) {
+        var card = cards[qId];
+        card.questionId = qId;
+        cardStore.put(card);
+      });
+    } catch (e) {
+      console.warn('[GoalStorage] IndexedDB write failed:', e);
+    }
+  };
+
+  /**
+   * Loads initial state synchronously from localStorage with automatic migration
+   */
+  GoalStorage.prototype.loadInitial = function() {
+    try {
+      // 1. Try unified v3 key
       var raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         var parsed = JSON.parse(raw);
@@ -71,26 +155,50 @@
           return this.migrate(parsed);
         }
       }
+
+      // 2. Fall back to legacy PSI key and merge legacy CDS key
+      var legacyPsi = null;
+      var rawPsi = localStorage.getItem(LEGACY_PSI_KEY);
+      if (rawPsi) {
+        try { legacyPsi = JSON.parse(rawPsi); } catch (e) {}
+      }
+
+      var legacyCds = null;
+      var rawCds = localStorage.getItem(LEGACY_CDS_KEY);
+      if (rawCds) {
+        try { legacyCds = JSON.parse(rawCds); } catch (e) {}
+      }
+
+      var merged = Object.assign({}, defaultState);
+      if (legacyPsi && typeof legacyPsi === 'object') {
+        merged = this.migrate(legacyPsi);
+      }
+      if (legacyCds && typeof legacyCds === 'object') {
+        merged.cdsHabitData.days = Object.assign({}, merged.cdsHabitData.days, legacyCds.days || {});
+        merged.cdsHabitData.mocks = Array.isArray(legacyCds.mocks) ? legacyCds.mocks : merged.cdsHabitData.mocks;
+        merged.cdsHabitData.runs = Array.isArray(legacyCds.runs) ? legacyCds.runs : merged.cdsHabitData.runs;
+      }
+
+      return merged;
     } catch (e) {
-      console.warn('[PSI Storage] Failed to load state:', e);
+      console.warn('[GoalStorage] Failed to load state, initializing default:', e);
     }
     return JSON.parse(JSON.stringify(defaultState));
   };
 
-  PSIStorage.prototype.migrate = function(data) {
+  GoalStorage.prototype.migrate = function(data) {
     if (!data || typeof data !== 'object') data = {};
     var state = Object.assign({}, defaultState);
+
+    // Preferences
     if (data.preferences && typeof data.preferences === 'object') {
       state.preferences = Object.assign({}, defaultState.preferences, data.preferences);
-      if (['gu', 'en'].indexOf(state.preferences.language) === -1) state.preferences.language = 'gu';
     }
+    // Profile
     if (data.userProfile && typeof data.userProfile === 'object') {
       state.userProfile = Object.assign({}, defaultState.userProfile, data.userProfile);
-      if (['not_yet', 'little', 'yes'].indexOf(state.userProfile.hasStudiedBefore) === -1) state.userProfile.hasStudiedBefore = 'not_yet';
-      if (typeof state.userProfile.dailyStudyTimeMin !== 'number') state.userProfile.dailyStudyTimeMin = 60;
-      if (['foundation', 'practice', 'exam'].indexOf(state.userProfile.level) === -1) state.userProfile.level = 'foundation';
-      state.userProfile.onboardingComplete = Boolean(state.userProfile.onboardingComplete);
     }
+    // Stats
     if (data.stats && typeof data.stats === 'object') {
       state.stats = {
         attempted: Number(data.stats.attempted) || 0,
@@ -101,24 +209,58 @@
         sessionsCompleted: Number(data.stats.sessionsCompleted) || 0
       };
     }
-    state.dailyMission = Object.assign({}, defaultState.dailyMission, (data.dailyMission && typeof data.dailyMission === 'object') ? data.dailyMission : {});
-    state.learnedLessons = (data.learnedLessons && typeof data.learnedLessons === 'object' && !Array.isArray(data.learnedLessons)) ? data.learnedLessons : {};
-    state.topicProgress = (data.topicProgress && typeof data.topicProgress === 'object' && !Array.isArray(data.topicProgress)) ? data.topicProgress : {};
-    state.diagnosticResult = (data.diagnosticResult && typeof data.diagnosticResult === 'object') ? data.diagnosticResult : null;
-    state.cards = (data.cards && typeof data.cards === 'object' && !Array.isArray(data.cards)) ? data.cards : {};
-    state.mistakes = (data.mistakes && typeof data.mistakes === 'object' && !Array.isArray(data.mistakes)) ? data.mistakes : {};
-    state.marked = Array.isArray(data.marked) ? data.marked.filter(function(x) { return typeof x === 'string'; }) : [];
-    state.history = Array.isArray(data.history) ? data.history.filter(function(h) { return h && typeof h === 'object'; }) : [];
-    state.savedWords = Array.isArray(data.savedWords) ? data.savedWords.filter(function(w) { return w && typeof w === 'object'; }) : [];
-    state.reports = Array.isArray(data.reports) ? data.reports.filter(function(r) { return r && typeof r === 'object'; }) : [];
-    state.activeSession = (data.activeSession && typeof data.activeSession === 'object') ? data.activeSession : null;
-    state.version = CURRENT_VERSION;
+    // Cards (Migrate legacy Leitner to SM-2 format)
+    state.cards = {};
+    if (data.cards && typeof data.cards === 'object') {
+      Object.keys(data.cards).forEach(function(qId) {
+        var c = data.cards[qId];
+        if (c && typeof c === 'object') {
+          state.cards[qId] = {
+            repetition: typeof c.repetition === 'number' ? c.repetition : (c.box ? Math.max(0, c.box - 1) : 0),
+            ef: typeof c.ef === 'number' ? c.ef : 2.5,
+            intervalDays: typeof c.intervalDays === 'number' ? c.intervalDays : (c.box ? Math.pow(2, c.box - 1) : 1),
+            lapses: Number(c.lapses) || 0,
+            attempts: Number(c.attempts) || 0,
+            correct: Number(c.correct) || 0,
+            wrong: Number(c.wrong) || 0,
+            box: Number(c.box) || 1,
+            due: Number(c.due) || Date.now(),
+            lastSeen: Number(c.lastSeen) || Date.now(),
+            history: Array.isArray(c.history) ? c.history : []
+          };
+        }
+      });
+    }
 
-    // Reset daily mission if date changed
+    // Mistakes
+    state.mistakes = (data.mistakes && typeof data.mistakes === 'object') ? data.mistakes : {};
+    // Marked questions
+    state.marked = Array.isArray(data.marked) ? data.marked.filter(function(x) { return typeof x === 'string'; }) : [];
+    // History
+    state.history = Array.isArray(data.history) ? data.history.filter(function(h) { return h && typeof h === 'object'; }) : [];
+    // Lessons
+    state.learnedLessons = (data.learnedLessons && typeof data.learnedLessons === 'object') ? data.learnedLessons : {};
+    // Topic progress
+    state.topicProgress = (data.topicProgress && typeof data.topicProgress === 'object') ? data.topicProgress : {};
+    // Saved vocabulary
+    state.savedWords = Array.isArray(data.savedWords) ? data.savedWords : [];
+    // Reports
+    state.reports = Array.isArray(data.reports) ? data.reports : [];
+    // Active session
+    state.activeSession = (data.activeSession && typeof data.activeSession === 'object') ? data.activeSession : null;
+    // CDS habit data
+    state.cdsHabitData = (data.cdsHabitData && typeof data.cdsHabitData === 'object') ? data.cdsHabitData : { days: {}, mocks: [], runs: [] };
+    // Diagnostic result
+    state.diagnosticResult = (data.diagnosticResult && typeof data.diagnosticResult === 'object') ? data.diagnosticResult : null;
+
+    // Daily Mission
+    state.dailyMission = Object.assign({}, defaultState.dailyMission, (data.dailyMission && typeof data.dailyMission === 'object') ? data.dailyMission : {});
     var today = todayStr();
     if (state.dailyMission.date !== today) {
       state.dailyMission = {
         date: today,
+        deskMinutesDone: 0,
+        metroMinutesDone: 0,
         topicsLearned: 0,
         questionsDone: 0,
         mistakesReviewed: 0,
@@ -126,67 +268,64 @@
       };
     }
 
+    state.version = CURRENT_VERSION;
     return state;
   };
 
-  PSIStorage.prototype.save = function() {
+  /**
+   * Synchronous save to in-memory + localStorage, then async to IndexedDB
+   */
+  GoalStorage.prototype.save = function() {
     this.state.updatedAt = Date.now();
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
-      return true;
+      var serialized = JSON.stringify(this.state);
+      localStorage.setItem(STORAGE_KEY, serialized);
+      // Keep legacy keys in sync for backward compatibility
+      localStorage.setItem(LEGACY_PSI_KEY, serialized);
+      if (this.state.cdsHabitData) {
+        localStorage.setItem(LEGACY_CDS_KEY, JSON.stringify(this.state.cdsHabitData));
+      }
     } catch (e) {
-      console.error('[PSI Storage] Quota exceeded or error saving:', e);
-      return false;
+      console.warn('[GoalStorage] localStorage quota error:', e);
     }
+    this.persistToIndexedDB();
+    return true;
   };
 
-  PSIStorage.prototype.getPreferences = function() {
-    return this.state.preferences;
-  };
-
-  PSIStorage.prototype.setPreference = function(key, value) {
-    this.state.preferences[key] = value;
+  // Preference accessors
+  GoalStorage.prototype.getPreferences = function() { return this.state.preferences; };
+  GoalStorage.prototype.setPreference = function(key, val) {
+    this.state.preferences[key] = val;
     this.save();
   };
 
-  PSIStorage.prototype.getUserProfile = function() {
-    return this.state.userProfile;
-  };
-
-  PSIStorage.prototype.saveUserProfile = function(profile) {
-    this.state.userProfile = Object.assign(this.state.userProfile, profile);
+  // Profile accessors
+  GoalStorage.prototype.getUserProfile = function() { return this.state.userProfile; };
+  GoalStorage.prototype.saveUserProfile = function(prof) {
+    this.state.userProfile = Object.assign(this.state.userProfile, prof);
     this.save();
   };
 
-  PSIStorage.prototype.getCard = function(qId) {
-    return this.state.cards[qId] || null;
-  };
-
-  PSIStorage.prototype.saveCard = function(qId, cardObj) {
+  // SRS card operations
+  GoalStorage.prototype.getCard = function(qId) { return this.state.cards[qId] || null; };
+  GoalStorage.prototype.saveCard = function(qId, cardObj) {
     this.state.cards[qId] = cardObj;
     this.save();
   };
 
-  PSIStorage.prototype.isMarked = function(qId) {
-    return this.state.marked.indexOf(qId) !== -1;
-  };
-
-  PSIStorage.prototype.toggleMark = function(qId) {
+  // Marked / Bookmark operations
+  GoalStorage.prototype.isMarked = function(qId) { return this.state.marked.indexOf(qId) !== -1; };
+  GoalStorage.prototype.toggleMark = function(qId) {
     var idx = this.state.marked.indexOf(qId);
-    if (idx === -1) {
-      this.state.marked.push(qId);
-    } else {
-      this.state.marked.splice(idx, 1);
-    }
+    if (idx === -1) this.state.marked.push(qId);
+    else this.state.marked.splice(idx, 1);
     this.save();
     return this.isMarked(qId);
   };
 
-  PSIStorage.prototype.getMistake = function(qId) {
-    return this.state.mistakes[qId] || null;
-  };
-
-  PSIStorage.prototype.recordMistake = function(qId, errorType) {
+  // Mistake & Error classification operations
+  GoalStorage.prototype.getMistake = function(qId) { return this.state.mistakes[qId] || null; };
+  GoalStorage.prototype.recordMistake = function(qId, errorType) {
     var existing = this.state.mistakes[qId] || { count: 0, type: 'unclassified' };
     existing.count += 1;
     existing.type = errorType || existing.type || 'unclassified';
@@ -194,15 +333,15 @@
     this.state.mistakes[qId] = existing;
     this.save();
   };
-
-  PSIStorage.prototype.updateMistakeType = function(qId, errorType) {
+  GoalStorage.prototype.updateMistakeType = function(qId, errorType) {
     if (this.state.mistakes[qId]) {
       this.state.mistakes[qId].type = errorType;
       this.save();
     }
   };
 
-  PSIStorage.prototype.recordLessonComplete = function(lessonId, score) {
+  // Lesson progress
+  GoalStorage.prototype.recordLessonComplete = function(lessonId, score) {
     this.state.learnedLessons[lessonId] = {
       completedAt: Date.now(),
       score: score || 0,
@@ -211,34 +350,34 @@
     this.incrementDailyMission('topicsLearned', 1);
     this.save();
   };
-
-  PSIStorage.prototype.isLessonCompleted = function(lessonId) {
+  GoalStorage.prototype.isLessonCompleted = function(lessonId) {
     return !!(this.state.learnedLessons && this.state.learnedLessons[lessonId]);
   };
 
-  PSIStorage.prototype.getTopicProgress = function(subject, topic) {
+  // Topic mastery tracking
+  GoalStorage.prototype.getTopicProgress = function(subject, topic) {
     var key = subject + '::' + topic;
-    return this.state.topicProgress[key] || {
-      status: 'NOT STARTED',
-      level: 1
-    };
+    return this.state.topicProgress[key] || { status: 'UNSEEN', level: 1, accuracy: 0 };
   };
-
-  PSIStorage.prototype.updateTopicProgress = function(subject, topic, status, level) {
+  GoalStorage.prototype.updateTopicProgress = function(subject, topic, status, level, accuracy) {
     var key = subject + '::' + topic;
     this.state.topicProgress[key] = {
       status: status,
       level: level || 1,
+      accuracy: typeof accuracy === 'number' ? accuracy : 0,
       updatedAt: Date.now()
     };
     this.save();
   };
 
-  PSIStorage.prototype.getDailyMission = function() {
+  // Daily mission tracking
+  GoalStorage.prototype.getDailyMission = function() {
     var today = todayStr();
     if (this.state.dailyMission.date !== today) {
       this.state.dailyMission = {
         date: today,
+        deskMinutesDone: 0,
+        metroMinutesDone: 0,
         topicsLearned: 0,
         questionsDone: 0,
         mistakesReviewed: 0,
@@ -248,43 +387,40 @@
     }
     return this.state.dailyMission;
   };
-
-  PSIStorage.prototype.incrementDailyMission = function(field, by) {
-    this.getDailyMission(); // Ensures date check
+  GoalStorage.prototype.incrementDailyMission = function(field, by) {
+    this.getDailyMission();
     if (typeof this.state.dailyMission[field] !== 'undefined') {
       this.state.dailyMission[field] += (by || 1);
       this.save();
     }
   };
 
-  PSIStorage.prototype.saveDiagnosticResult = function(result) {
-    this.state.diagnosticResult = result;
+  // CDS Habit tracker integration
+  GoalStorage.prototype.getCDSHabits = function() { return this.state.cdsHabitData; };
+  GoalStorage.prototype.toggleCDSHabitDay = function(dateKey) {
+    if (!this.state.cdsHabitData) this.state.cdsHabitData = { days: {}, mocks: [], runs: [] };
+    if (this.state.cdsHabitData.days[dateKey]) {
+      delete this.state.cdsHabitData.days[dateKey];
+    } else {
+      this.state.cdsHabitData.days[dateKey] = true;
+    }
+    this.save();
+    return !!this.state.cdsHabitData.days[dateKey];
+  };
+
+  // Session & interruption recovery
+  GoalStorage.prototype.getActiveSession = function() { return this.state.activeSession; };
+  GoalStorage.prototype.saveActiveSession = function(sess) {
+    this.state.activeSession = sess;
     this.save();
   };
-
-  PSIStorage.prototype.getDiagnosticResult = function() {
-    return this.state.diagnosticResult;
-  };
-
-  PSIStorage.prototype.getActiveSession = function() {
-    return this.state.activeSession;
-  };
-
-  PSIStorage.prototype.saveActiveSession = function(sessionData) {
-    this.state.activeSession = sessionData;
-    this.save();
-  };
-
-  PSIStorage.prototype.clearActiveSession = function() {
+  GoalStorage.prototype.clearActiveSession = function() {
     this.state.activeSession = null;
     this.save();
   };
-
-  PSIStorage.prototype.recordSessionComplete = function(summary) {
+  GoalStorage.prototype.recordSessionComplete = function(summary) {
     this.state.history.unshift(summary);
-    if (this.state.history.length > 50) {
-      this.state.history.pop();
-    }
+    if (this.state.history.length > 50) this.state.history.pop();
     this.state.stats.sessionsCompleted += 1;
     this.state.stats.attempted += summary.attempted || 0;
     this.state.stats.correct += summary.correct || 0;
@@ -297,7 +433,8 @@
     this.save();
   };
 
-  PSIStorage.prototype.saveVocabWord = function(wordObj) {
+  // Vocabulary & report operations
+  GoalStorage.prototype.saveVocabWord = function(wordObj) {
     var exists = this.state.savedWords.some(function(w) { return w.word === wordObj.word; });
     if (!exists) {
       wordObj.timestamp = Date.now();
@@ -305,21 +442,16 @@
       this.save();
     }
   };
-
-  PSIStorage.prototype.reportQuestion = function(qId, reason) {
-    this.state.reports.push({
-      qId: qId,
-      reason: reason,
-      timestamp: Date.now()
-    });
+  GoalStorage.prototype.reportQuestion = function(qId, reason) {
+    this.state.reports.push({ qId: qId, reason: reason, timestamp: Date.now() });
     this.save();
   };
 
-  PSIStorage.prototype.exportBackup = function() {
+  // Export & Import
+  GoalStorage.prototype.exportBackup = function() {
     return JSON.stringify(this.state, null, 2);
   };
-
-  PSIStorage.prototype.importBackup = function(jsonString) {
+  GoalStorage.prototype.importBackup = function(jsonString) {
     try {
       var data = JSON.parse(jsonString);
       if (!data || typeof data !== 'object') throw new Error('Invalid JSON format');
@@ -331,5 +463,8 @@
     }
   };
 
-  root.PSIStorage = new PSIStorage();
+  // Expose singleton instances
+  var storageInstance = new GoalStorage();
+  root.GoalStorage = storageInstance;
+  root.PSIStorage = storageInstance; // Legacy alias for zero-breakage backwards compatibility
 })(typeof window !== 'undefined' ? window : this);

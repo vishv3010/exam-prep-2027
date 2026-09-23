@@ -462,7 +462,7 @@
       ]
     },
     {
-      id: "ref_gk_adm_02",
+      id: "ref_gk_adm_03",
       subject: "gujarat_gk",
       topic: "admin_police",
       question_gu: "ગુજરાત પંચાયત અધિનિયમ મુજબ સ્થાનિક સ્વરાજ્યની સંસ્થાઓમાં મહિલાઓ માટે કેટલી ટકા અનામત (Reservation for Women) ની જોગવાઈ છે?",
