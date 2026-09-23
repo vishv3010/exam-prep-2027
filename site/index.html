@@ -579,6 +579,13 @@ function renderGrid(){
 function renderToday(){
   var tk=todayKey(),tu=todayUTC(),s=SCHED[tk],h="";
   var target=parse("2027-04-11"),days=Math.round((target-tu)/MS);
+  document.getElementById("navcd").textContent=days>0?days+" days to CDS":(days===0?"CDS today":"CDS was "+(-days)+"d ago");
+
+  if(window.PSI_APP && window.PSI_APP.scheduler){
+    window.PSI_APP.scheduler.renderTodayCard(document.getElementById("todaycard"));
+    return;
+  }
+
   h+='<div class="today"><div class="today-top"><h2>'+(s?"Today":"Between phases")+'</h2><span class="today-date">'+fmt(tk).toUpperCase()+'</span></div>';
   if(MILE[tk]){h+='<div class="milestone"><div class="l">'+esc(MILE[tk][0])+'</div><div class="m">'+esc(MILE[tk][1])+'</div></div>';}
   if(s){
@@ -718,11 +725,16 @@ renderMonth();renderPhases();renderAll();setStatus();
 <script defer src="data/psi/law.js?v=20260923b"></script>
 <script defer src="data/psi/ai-practice.js?v=20260923c"></script>
 <script defer src="data/psi/diagnostic-bank.js?v=20260923c"></script>
-<script defer src="data/psi/lessons.js?v=20260923c"></script>
+<script defer src="data/psi/math-drills.js?v=20260923d"></script>
+<script defer src="data/psi/english-drills.js?v=20260923d"></script>
+<script defer src="data/psi/science-drills.js?v=20260923d"></script>
+<script defer src="data/psi/lexicon.js?v=20260923d"></script>
+<script defer src="data/psi/lessons.js?v=20260923d"></script>
 <script defer src="psi/psi-config.js?v=20260923b"></script>
 <script defer src="psi/psi-storage.js?v=20260923b"></script>
 <script defer src="psi/psi-srs.js?v=20260923b"></script>
 <script defer src="psi/psi-question-engine.js?v=20260923b"></script>
+<script defer src="psi/psi-scheduler.js?v=20260923d"></script>
 <script defer src="psi/psi-ui.js?v=20260923b"></script>
 <script defer src="psi/psi-app.js?v=20260923b"></script>
 

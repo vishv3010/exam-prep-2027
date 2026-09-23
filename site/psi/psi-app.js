@@ -35,6 +35,14 @@
       this.engine = new root.PSIQuestionEngine(this.bank, this.storage, this.srs, this.config);
       this.ui = new root.PSIUI(mountPoint, this.engine, this.storage, this.bank, this.srs, this.config);
 
+      if (root.GoalScheduler) {
+        this.scheduler = new root.GoalScheduler(this.storage, this.bank, this.srs, this.engine);
+        var todayEl = document.getElementById('todaycard');
+        if (todayEl) {
+          this.scheduler.renderTodayCard(todayEl);
+        }
+      }
+
       this.setupViewRouting();
       this.renderDashboardDiagnosticCTA();
       this.isInitialized = true;
@@ -117,6 +125,10 @@
         navPsiBtn.style.background = '';
       }
       this.renderDashboardDiagnosticCTA();
+      if (this.scheduler) {
+        var todayEl = document.getElementById('todaycard');
+        if (todayEl) this.scheduler.renderTodayCard(todayEl);
+      }
     },
 
     renderDashboardDiagnosticCTA: function() {

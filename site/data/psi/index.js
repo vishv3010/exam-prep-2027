@@ -116,6 +116,22 @@
         this.register(root.__PENDING_DIAGNOSTIC_DATA);
         delete root.__PENDING_DIAGNOSTIC_DATA;
       }
+      if (root.__PENDING_MATH_DATA) {
+        this.register(root.__PENDING_MATH_DATA);
+        delete root.__PENDING_MATH_DATA;
+      }
+      if (root.__PENDING_ENGLISH_DATA) {
+        this.register(root.__PENDING_ENGLISH_DATA);
+        delete root.__PENDING_ENGLISH_DATA;
+      }
+      if (root.__PENDING_SCIENCE_DATA) {
+        this.register(root.__PENDING_SCIENCE_DATA);
+        delete root.__PENDING_SCIENCE_DATA;
+      }
+      if (root.__PENDING_LEXICON_DATA) {
+        this.register(root.__PENDING_LEXICON_DATA);
+        delete root.__PENDING_LEXICON_DATA;
+      }
     }
   };
 
