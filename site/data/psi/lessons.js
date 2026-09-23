@@ -162,6 +162,72 @@
       exam_trap_gu: "જિલ્લાઓમાં DySP હોય છે, જ્યારે કમિશનરેટ શહેરોમાં એ જ દરજ્જાના અધિકારીને ACP (સહાયક પોલીસ કમિશનર) કહેવાય છે.",
       quick_check_en: "Who commands the police force of an entire district?",
       quick_check_gu: "આખા જિલ્લાના પોલીસ તંત્રના વડા કોણ હોય છે? (જવાબ: SP - પોલીસ અધિક્ષક)"
+    },
+    {
+      id: "lesson_polity_fundamental_rights",
+      subject: "law_constitution",
+      topic: "constitution",
+      title_en: "Fundamental Rights & Constitutional Writs",
+      title_gu: "મૂળભૂત અધિકારો અને ૫ બંધારણીય રિટ",
+      estMinutes: 20,
+      practiceQuestionIds: ["law_const_01", "law_const_03", "law_const_04"],
+      concept_en: "Part III of the Constitution (Articles 12-35) forms the bedrock of Indian democracy. For police officers, understanding civil liberties (Articles 14, 19, 20, 21, 22) and judicial remedies (Article 32 & 226) prevents unlawful detention and procedure violations.",
+      concept_gu: "બંધારણનો ભાગ ૩ (કલમ ૧૨ થી ૩૫) નાગરિકોના મૂળભૂત અધિકારોનું રક્ષણ કરે છે. પોલીસ અધિકારી તરીકે કલમ ૧૪, ૧૯, ૨૧ અને ૨૨ (ધરપકડ સામે રક્ષણ) તેમજ કલમ ૩૨/૨૨૬ ની રિટની સચોટ સમજ હોવી અનિવાર્ય છે.",
+      key_facts_en: [
+        "Part III is called the Magna Carta of India; inspired by the US Bill of Rights.",
+        "Article 14: Equality before law and equal protection of laws.",
+        "Article 19: Six basic freedoms (speech, assembly, association, movement, residence, profession).",
+        "Article 20 & 21: Cannot be suspended even during a National Emergency (Article 359).",
+        "Article 21: Right to Life & Personal Liberty; includes right to privacy, speedy trial, and clean environment.",
+        "5 Writs under Article 32 (Supreme Court) & Article 226 (High Court): Habeas Corpus, Mandamus, Prohibition, Certiorari, and Quo Warranto."
+      ],
+      key_facts_gu: [
+        "ભાગ ૩ ને ભારતનો 'મેગ્ના કાર્ટા' કહેવાય છે (અમેરિકાના બિલ ઓફ રાઇટ્સ પરથી પ્રેરિત).",
+        "કલમ ૧૪: કાયદા સમક્ષ સમાનતા અને કાયદાનું સમાન રક્ષણ.",
+        "કલમ ૧૯: ૬ મૂળભૂત સ્વતંત્રતાઓ (વાણી, સભા, મંડળ, હલનચલન, રહેઠાણ, વ્યવસાય).",
+        "કલમ ૨૦ અને ૨૧: રાષ્ટ્રીય કટોકટીમાં પણ ક્યારેય મોકૂફ રાખી શકાતા નથી.",
+        "કલમ ૨૧: જીવન અને અંગત સ્વાતંત્ર્ય (ગોપનીયતા, ઝડપી ટ્રાયલ અને સ્વચ્છ પર્યાવરણનો અધિકાર).",
+        "૫ રિટ (કલમ ૩૨ / ૨૨૬): બંદી પ્રત્યક્ષીકરણ (Habeas Corpus), પરમાદેશ (Mandamus), પ્રતિષેધ (Prohibition), ઉત્પ્રેષણ (Certiorari), અધિકાર પૃચ્છા (Quo Warranto)."
+      ],
+      remember_en: "Habeas Corpus = Produce the body (illegal arrest). Mandamus = We command (public duty). Quo Warranto = By what authority (public office).",
+      remember_gu: "યાદ રાખો: હેબિયસ કોર્પસ = શરીર હાજર કરો (ગેરકાયદે ધરપકડ સામે), પરમાદેશ = ફરજ પાલનનો આદેશ, ક્વા વોરંટો = કયા અધિકારથી હોદ્દો ધારણ કર્યો.",
+      exam_trap_en: "High Court's writ jurisdiction under Article 226 is wider than Supreme Court's Article 32, as High Courts can issue writs for legal rights in addition to fundamental rights.",
+      exam_trap_gu: "પરીક્ષામાં ધ્યાન રાખો: હાઈકોર્ટનો રિટ અધિકાર (કલમ ૨૨૬) સુપ્રીમ કોર્ટ (કલમ ૩૨) કરતાં વ્યાપક છે, કારણ કે હાઈકોર્ટ સામાન્ય કાનૂની અધિકાર માટે પણ રિટ કાઢી શકે છે.",
+      quick_check_en: "Which two Fundamental Rights cannot be suspended even during a National Emergency?",
+      quick_check_gu: "રાષ્ટ્રીય કટોકટીમાં પણ કયા બે મૂળભૂત અધિકારો રદ થઈ શકતા નથી? (જવાબ: કલમ ૨૦ અને ૨૧)"
+    },
+    {
+      id: "lesson_hist_solanki_era",
+      subject: "gujarat_gk",
+      topic: "history",
+      title_en: "Solanki Dynasty — Golden Age of Gujarat",
+      title_gu: "સોલંકી વંશ — ગુજરાતનો સુવર્ણકાળ",
+      estMinutes: 20,
+      practiceQuestionIds: ["ref_gk_hist_03", "ref_gk_hist_04"],
+      concept_en: "The Solanki (Chaulukya) period (942–1244 CE) is celebrated as the Golden Era of Gujarat's art, literature, architecture, and maritime prosperity. Patan (Anhilwad Patan) was the grand capital.",
+      concept_gu: "સોલંકી કાળ (ઈ.સ. ૯૪૨-૧૨૪૪) ગુજરાતના ઇતિહાસનો 'સુવર્ણ યુગ' ગણાય છે. અણહિલવાડ પાટણ આ સમયની રાજધાની હતી અને કલા, સાહિત્ય તથા સ્થાપત્યનો અભૂતપૂર્વ વિકાસ થયો હતો.",
+      key_facts_en: [
+        "Founder: Mulraj I (942 CE).",
+        "Bhima I: Ruled during Mahmud Ghaznavi's raid on Somnath (1026 CE); later rebuilt Somnath temple in stone; built Sun Temple at Modhera (1026-27 CE).",
+        "Queen Udayamati: Commissioned the 7-storey Rani ki Vav (UNESCO World Heritage) in Patan.",
+        "Siddharaj Jaisinh: Greatest ruler; conquered Junagadh (Ra Khengar) and Malwa; assumed titles 'Siddhachakravarti', 'Barbarakjishnu', and 'Tribhuvanganda'; excavated Sahasralinga Lake; patronized Hemchandracharya.",
+        "Kumarapala: Known as 'Ashoka of Gujarat' for promoting non-violence (Ahimsa) and Jainism under Hemchandracharya's guidance.",
+        "Architecture: Distinctive Maru-Gurjara style."
+      ],
+      key_facts_gu: [
+        "સ્થાપક: મૂળરાજ પહેલો (ઈ.સ. ૯૪૨).",
+        "ભીમદેવ પહેલો: મહમૂદ ગઝનવીનું સોમનાથ પર આક્રમણ (૧૦૨૬); મોઢેરાનું વિશ્વપ્રસિદ્ધ સૂર્યમંદિર બંધાવ્યું.",
+        "રાણી ઉદયમતિ: પાટણમાં ૭ માળની અદ્ભુત રાણકી વાવ (UNESCO) બંધાવી.",
+        "સિદ્ધરાજ જયસિંહ: સોલંકી વંશનો સૌથી પ્રતાપી રાજા; 'સિદ્ધચક્રવર્તી' બિરુદ; પાટણમાં સહસ્રલિંગ તળાવ; સિદ્ધહેમ વ્યાકરણ ગ્રંથ રચાવ્યો.",
+        "કુમારપાળ: હેમચંદ્રાચાર્યના પ્રભાવથી અહિંસા અને મદ્યપાનબંધી લાદી; 'ગુજરાતના અશોક' તરીકે ઓળખાય છે.",
+        "સ્થાપત્ય શૈલી: મારુ-ગુર્જર સ્થાપત્ય શૈલી."
+      ],
+      remember_en: "Modhera Sun Temple = Bhima I. Rani ki Vav = Queen Udayamati. Siddha-Hema treatise = Siddharaj Jaisinh & Hemchandracharya.",
+      remember_gu: "યાદ રાખો: મોઢેરા સૂર્યમંદિર = ભીમદેવ ૧, રાણકી વાવ = રાણી ઉદયમતિ, સિદ્ધહેમ ગ્રંથ = સિદ્ધરાજ જયસિંહ.",
+      exam_trap_en: "Do not confuse Mulraj I (Solanki founder) with Mulraj II (who defeated Muhammad Ghori in the Battle of Kasahrada/Kayadara in 1178 CE).",
+      exam_trap_gu: "પરીક્ષામાં ભૂલ ન કરો: મૂળરાજ પહેલાએ વંશ સ્થાપ્યો હતો, જ્યારે બાળરાજા મૂળરાજ બીજાએ ૧૧૭૮ માં કયાદરાના યુદ્ધમાં મોહમ્મદ ઘોરીને હરાવ્યો હતો.",
+      quick_check_en: "Which Solanki king is known as the 'Ashoka of Gujarat'?",
+      quick_check_gu: "'ગુજરાતના અશોક' તરીકે કયા સોલંકી રાજા ઓળખાય છે? (જવાબ: કુમારપાળ)"
     }
   ];
 

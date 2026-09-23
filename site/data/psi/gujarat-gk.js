@@ -285,6 +285,216 @@
       glossary: [
         {"term":"ધારાસભા","simple_gu":"કાયદા ઘડનારી રાજ્ય વિધાનસભા","en":"Legislative Assembly"}
       ]
+    },
+    {
+      id: "ref_gk_hist_03",
+      subject: "gujarat_gk",
+      topic: "history",
+      question_gu: "ગુજરાતમાં 'સિદ્ધહેમ શબ્દાનુશાસન' નામના સુપ્રસિદ્ધ વ્યાકરણ ગ્રંથની રચના કલિકાલસર્વજ્ઞ હેમચંદ્રાચાર્ય દ્વારા કોના શાસનકાળ દરમિયાન કરવામાં આવી હતી?",
+      question_en: "During whose reign was the celebrated Sanskrit/Prakrit grammar treatise 'Siddha-Hema-Shabdanushasana' authored by Kalikala-Sarvajna Hemchandracharya?",
+      options_gu: [
+        "વનરાજ ચાવડા",
+        "મૂળરાજ સોલંકી",
+        "સિદ્ધરાજ જયસિંહ",
+        "કર્ણદેવ વાઘેલા",
+        "(E) પ્રયાસ કરેલ નથી"
+      ],
+      options_en: [
+        "Vanraj Chavda",
+        "Mulraj Solanki",
+        "Siddharaj Jaisinh",
+        "Karandev Vaghela",
+        "(E) Not Attempted"
+      ],
+      answer: 2,
+      explanation_gu: "સોલંકી વંશના મહાન શાસક સિદ્ધરાજ જયસિંહની પ્રેરણાથી આચાર્ય હેમચંદ્રાચાર્યે 'સિદ્ધહેમ શબ્દાનુશાસન' વ્યાકરણ ગ્રંથ રચ્યો હતો. પાટણમાં આ ગ્રંથની હાથી ('શ્રીકર') ની અંબાડી પર મૂકી ઐતિહાસિક શોભાયાત્રા કાઢવામાં આવી હતી.",
+      explanation_en: "Under the patronage of Solanki ruler Siddharaj Jaisinh, polymath scholar Hemchandracharya composed 'Siddha-Hema-Shabdanushasana'. It was taken out in a ceremonial royal procession atop the royal elephant 'Shrikar' through Patan.",
+      sourceType: "REFERENCE",
+      sourceName: "Gujarat History & Solanki Era",
+      sourceYear: 2024,
+      sourceReference: "Solanki Golden Age Treatise",
+      verified: true,
+      verifiedAt: "2026-09-23",
+      difficulty: "easy",
+      tags: ["history","solanki_era","siddharaj_jaisinh","hemchandracharya"],
+      glossary: [
+        {"term":"સિદ્ધહેમ","simple_gu":"સિદ્ધરાજ જયસિંહ અને હેમચંદ્રાચાર્યના સંયુક્ત નામ પરથી","en":"Siddha-Hema"}
+      ]
+    },
+    {
+      id: "ref_gk_hist_04",
+      subject: "gujarat_gk",
+      topic: "history",
+      question_gu: "પાટણ સ્થિત 'રાણકી વાવ' (Rani ki Vav) ને કયા વર્ષમાં UNESCO દ્વારા વર્લ્ડ હેરિટેજ સાઇટ જાહેર કરવામાં આવી હતી અને તે કોણે બંધાવી હતી?",
+      question_en: "In which year was 'Rani ki Vav' (Patan) declared a UNESCO World Heritage Site, and who commissioned its construction?",
+      options_gu: [
+        "૨૦૧૪ માં, રાણી ઉદયમતિ દ્વારા (ભીમદેવ પહેલાની સ્મૃતિમાં)",
+        "૨૦૧૭ માં, મીનળદેવી દ્વારા",
+        "૨૦૨૧ માં, સિદ્ધરાજ જયસિંહ દ્વારા",
+        "૨૦૧૦ માં, કુમારપાળ દ્વારા",
+        "(E) પ્રયાસ કરેલ નથી"
+      ],
+      options_en: [
+        "In 2014, by Queen Udayamati (in memory of Bhima I)",
+        "In 2017, by Mayanalladevi",
+        "In 2021, by Siddharaj Jaisinh",
+        "In 2010, by Kumarapala",
+        "(E) Not Attempted"
+      ],
+      answer: 0,
+      explanation_gu: "રાણકી વાવ ૧૧મી સદીમાં રાણી ઉદયમતિએ પોતાના પતિ રાજા ભીમદેવ પહેલાની યાદમાં બંધાવી હતી. તે મારુ-ગુર્જર શૈલીની સાત માળની ઉત્કૃષ્ટ વાવ છે અને ૨૦૧૪ માં યુનેસ્કો વર્લ્ડ હેરિટેજ સાઇટ બની હતી (₹૧૦૦ ની નવી ચલણી નોટ પર તેનું ચિત્ર છે).",
+      explanation_en: "Rani ki Vav was built in the 11th century by Queen Udayamati in memory of King Bhima I (Solanki dynasty). It is a 7-tiered stepwell in Maru-Gurjara architectural style and was inscribed as a UNESCO World Heritage Site in 2014.",
+      sourceType: "REFERENCE",
+      sourceName: "UNESCO World Heritage & Gujarat Archaeology",
+      sourceYear: 2024,
+      sourceReference: "Archaeological Survey of India / UNESCO 2014",
+      verified: true,
+      verifiedAt: "2026-09-23",
+      difficulty: "easy",
+      tags: ["history","heritage","unesco","rani_ki_vav"],
+      glossary: [
+        {"term":"વાવ","simple_gu":"પગથિયાંવાળો પ્રાચીન કૂવો કે જળાશય","en":"Stepwell"}
+      ]
+    },
+    {
+      id: "ref_gk_hist_05",
+      subject: "gujarat_gk",
+      topic: "history",
+      question_gu: "૧ મે ૧૯૬૦ ના રોજ અલગ ગુજરાત રાજ્યની સ્થાપના પાછળ થયેલા 'મહાગુજરાત આંદોલન' ના મુખ્ય પ્રણેતા અને લોકપ્રિય નેતા કોણ હતા?",
+      question_en: "Who was the chief spearhead and beloved leader of the 'Maha Gujarat Movement' that led to the creation of Gujarat state on 1 May 1960?",
+      options_gu: [
+        "સરદાર વલ્લભભાઈ પટેલ",
+        "ઇન્દુલાલ યાજ્ઞિક (ઇન્દુચાચા)",
+        "જીવરાજ મહેતા",
+        "રવિશંકર મહારાજ",
+        "(E) પ્રયાસ કરેલ નથી"
+      ],
+      options_en: [
+        "Sardar Vallabhbhai Patel",
+        "Indulal Yagnik (Induchacha)",
+        "Jivraj Mehta",
+        "Ravishankar Maharaj",
+        "(E) Not Attempted"
+      ],
+      answer: 1,
+      explanation_gu: "ઇન્દુલાલ યાજ્ઞિક (ઇન્દુચાચા) એ મહાગુજરાત જનતા પરિષદના નેજા હેઠળ દ્વિભાષી મુંબઈ રાજ્યમાંથી ગુજરાતી ભાષી લોકો માટે અલગ રાજ્યનું નેતૃત્વ કર્યું હતું. ૧ મે ૧૯૬૦ ના રોજ રવિશંકર મહારાજના હસ્તે સાબરમતી આશ્રમ ખાતે નવા ગુજરાત રાજ્યનું ઉદ્ઘાટન થયું હતું.",
+      explanation_en: "Indulal Yagnik ('Induchacha') spearheaded the Maha Gujarat Movement under the Maha Gujarat Janata Parishad, leading to the peaceful bifurcation of bilingual Bombay State on 1 May 1960.",
+      sourceType: "REFERENCE",
+      sourceName: "Modern Gujarat Political History",
+      sourceYear: 2024,
+      sourceReference: "Maha Gujarat Movement 1956-1960",
+      verified: true,
+      verifiedAt: "2026-09-23",
+      difficulty: "easy",
+      tags: ["history","maha_gujarat","statehood","induchacha"],
+      glossary: [
+        {"term":"મહાગુજરાત આંદોલન","simple_gu":"અલગ ગુજરાતી રાજ્ય માટેનું ઐતિહાસિક જન આંદોલન","en":"Maha Gujarat Movement"}
+      ]
+    },
+    {
+      id: "ref_gk_geo_04",
+      subject: "gujarat_gk",
+      topic: "geography",
+      question_gu: "કાળિયાર (Blackbuck) ના સંરક્ષણ માટે જાણીતો 'વેળાવદર રાષ્ટ્રીય ઉદ્યાન' (Blackbuck National Park) ગુજરાતના કયા જિલ્લામાં આવેલો છે?",
+      question_en: "In which district of Gujarat is the famous 'Velavadar Blackbuck National Park' situated?",
+      options_gu: [
+        "જુનાગઢ",
+        "ભાવનગર",
+        "અમરેલી",
+        "સુરેન્દ્રનગર",
+        "(E) પ્રયાસ કરેલ નથી"
+      ],
+      options_en: [
+        "Junagadh",
+        "Bhavnagar",
+        "Amreli",
+        "Surendranagar",
+        "(E) Not Attempted"
+      ],
+      answer: 1,
+      explanation_gu: "વેળાવદર રાષ્ટ્રીય ઉદ્યાન ભાવનગર જિલ્લાના વલ્લભીપુર તાલુકામાં આવેલો છે. તે કાળિયાર (Blackbuck) અને ખડમોર (Lesser Florican) પક્ષીના સંરક્ષણ માટે વિશ્વભરમાં પ્રખ્યાત છે.",
+      explanation_en: "Velavadar Blackbuck National Park is situated in Bhavnagar district. Established in 1976 in the Bhal region, it is celebrated for preserving endangered blackbucks and the lesser florican bird.",
+      sourceType: "REFERENCE",
+      sourceName: "Gujarat Wildlife & Forest Dept",
+      sourceYear: 2024,
+      sourceReference: "National Parks of Gujarat",
+      verified: true,
+      verifiedAt: "2026-09-23",
+      difficulty: "easy",
+      tags: ["geography","wildlife","national_parks","velavadar"],
+      glossary: [
+        {"term":"કાળિયાર","simple_gu":"કાળા અને સફેદ રંગનું વન્ય હરણ","en":"Blackbuck"}
+      ]
+    },
+    {
+      id: "ref_gk_geo_05",
+      subject: "gujarat_gk",
+      topic: "geography",
+      question_gu: "ગુજરાતની જીવાદોરી ગણાતી 'નર્મદા' નદીનું ઉદ્ગમસ્થાન ક્યાં આવેલું છે અને તેના પર ગુજરાતમાં કયો મુખ્ય બંધ બાંધવામાં આવ્યો છે?",
+      question_en: "Where does the 'Narmada' river (Lifeline of Gujarat) originate, and which major dam is built across it in Gujarat?",
+      options_gu: [
+        "મધ્યપ્રદેશના અમરકંટક ખાતેથી; સરદાર સરોવર બંધ",
+        "મહારાષ્ટ્રના ત્ર્યંબકેશ્વર ખાતેથી; ઉકાઈ બંધ",
+        "રાજસ્થાનની અરવલ્લી પર્વતમાળામાંથી; ધરોઈ બંધ",
+        "મધ્યપ્રદેશના મહાદેવ ડુંગરમાંથી; કડાણા બંધ",
+        "(E) પ્રયાસ કરેલ નથી"
+      ],
+      options_en: [
+        "Amarkantak (Madhya Pradesh); Sardar Sarovar Dam",
+        "Trimbakeshwar (Maharashtra); Ukai Dam",
+        "Aravalli Hills (Rajasthan); Dharoi Dam",
+        "Mahadev Hills (Madhya Pradesh); Kadana Dam",
+        "(E) Not Attempted"
+      ],
+      answer: 0,
+      explanation_gu: "નર્મદા નદી મધ્યપ્રદેશના અનૂપપુર જિલ્લાના અમરકંટક પર્વતમાંથી નીકળે છે. તે પૂર્વથી પશ્ચિમ વહેતી ભારતની સૌથી મોટી નદી છે અને ગુજરાતના કેવડિયા (એકતા નગર, નર્મદા જિલ્લો) ખાતે સરદાર સરોવર બંધ આવેલો છે.",
+      explanation_en: "The Narmada originates from Amarkantak plateau in Madhya Pradesh. It is India's largest west-flowing river, terminating in the Gulf of Khambhat. Gujarat's landmark Sardar Sarovar Dam is situated at Kevadia (Ekta Nagar).",
+      sourceType: "REFERENCE",
+      sourceName: "Gujarat Physical Geography & River Systems",
+      sourceYear: 2024,
+      sourceReference: "Narmada River & Sardar Sarovar Project",
+      verified: true,
+      verifiedAt: "2026-09-23",
+      difficulty: "easy",
+      tags: ["geography","rivers","narmada","sardar_sarovar"],
+      glossary: [
+        {"term":"જીવાદોરી","simple_gu":"જીવન અને અર્થતંત્રને ટકાવી રાખનારી મુખ્ય આધારરેખા","en":"Lifeline"}
+      ]
+    },
+    {
+      id: "ref_gk_adm_02",
+      subject: "gujarat_gk",
+      topic: "admin_police",
+      question_gu: "ગુજરાત પંચાયત અધિનિયમ મુજબ સ્થાનિક સ્વરાજ્યની સંસ્થાઓમાં મહિલાઓ માટે કેટલી ટકા અનામત (Reservation for Women) ની જોગવાઈ છે?",
+      question_en: "Under the Gujarat Panchayats Act, what percentage of reservation is allocated for women in local self-government bodies?",
+      options_gu: [
+        "૩૩ ટકા (33%)",
+        "૫૦ ટકા (50%)",
+        "૨૫ ટકા (25%)",
+        "૪૦ ટકા (40%)",
+        "(E) પ્રયાસ કરેલ નથી"
+      ],
+      options_en: [
+        "33%",
+        "50%",
+        "25%",
+        "40%",
+        "(E) Not Attempted"
+      ],
+      answer: 1,
+      explanation_gu: "બંધારણની કલમ ૨૪૩-D હેઠળ ઓછામાં ઓછી ૩૩% ની જોગવાઈ છે, પરંતુ ગુજરાતે ગુજરાત પંચાયત (સુધારા) અધિનિયમ દ્વારા ગ્રામ, તાલુકા અને જિલ્લા પંચાયતો તેમજ નગરપાલિકાઓમાં મહિલા અનામત વધારીને ૫૦% કરેલ છે.",
+      explanation_en: "While Article 243-D mandates a minimum of 33% reservation for women, Gujarat enacted legislative amendments raising women reservation to 50% across Gram, Taluka, and District Panchayats as well as Municipalities.",
+      sourceType: "REFERENCE",
+      sourceName: "Gujarat Panchayati Raj & Governance",
+      sourceYear: 2024,
+      sourceReference: "Gujarat Panchayats Act 1993 Amendments",
+      verified: true,
+      verifiedAt: "2026-09-23",
+      difficulty: "medium",
+      tags: ["admin_police","panchayati_raj","women_reservation","governance"],
+      glossary: [
+        {"term":"સ્થાનિક સ્વરાજ્ય","simple_gu":"ગામડા અને તાલુકા કક્ષાએ લોકો દ્વારા ચૂંટાયેલ વહીવટ","en":"Local Self-Government"}
+      ]
     }
   ];
 
