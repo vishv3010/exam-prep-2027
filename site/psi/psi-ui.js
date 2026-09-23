@@ -17,6 +17,93 @@
       .replace(/'/g, '&#39;');
   }
 
+  // Synthesized Web Audio API sound generator (Zero external files, 100% offline)
+  var soundFx = {
+    ctx: null,
+    muted: false,
+    init: function() {
+      if (!this.ctx && typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext)) {
+        try {
+          var AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+        } catch (e) {}
+      }
+    },
+    playCorrect: function() {
+      if (this.muted) return;
+      try {
+        this.init();
+        if (!this.ctx) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        var osc = this.ctx.createOscillator();
+        var gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, this.ctx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.08); // A5
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.12);
+      } catch (e) {}
+    },
+    playWrong: function() {
+      if (this.muted) return;
+      try {
+        this.init();
+        if (!this.ctx) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        var osc = this.ctx.createOscillator();
+        var gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(260, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(175, this.ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.14);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.14);
+      } catch (e) {}
+    },
+    playTap: function() {
+      if (this.muted) return;
+      try {
+        this.init();
+        if (!this.ctx) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        var osc = this.ctx.createOscillator();
+        var gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.04);
+      } catch (e) {}
+    }
+  };
+
+  // Tactile Haptic Vibration Feedback for one-handed standing transit
+  function triggerHaptic(type) {
+    if (typeof navigator !== 'undefined' && navigator && typeof navigator.vibrate === 'function') {
+      try {
+        if (type === 'correct') {
+          navigator.vibrate(20);
+        } else if (type === 'wrong') {
+          navigator.vibrate([35, 45, 35]);
+        } else if (type === 'opt_e' || type === 'skip') {
+          navigator.vibrate(12);
+        } else {
+          navigator.vibrate(8);
+        }
+      } catch (e) {}
+    }
+  }
+
   function PSIUI(container, engine, storage, bank, srs, config) {
     this.container = container;
     this.engine = engine;
@@ -25,12 +112,15 @@
     this.srs = srs;
     this.config = config || root.PSI_EXAM_CONFIG;
 
-    this.currentTab = 'home'; // 'home' | 'practice' | 'revision' | 'pyq' | 'progress' | 'quiz' | 'learn' | 'summary' | 'diagnostic_summary'
+    this.currentTab = 'home'; // 'home' | 'practice' | 'revision' | 'pyq' | 'progress' | 'quiz' | 'learn' | 'summary' | 'diagnostic_summary' | 'lexicon_flashcards'
     this.currentLessonId = null;
     this.showReflection = false;
     this.lang = (this.storage.getPreferences && this.storage.getPreferences().language) || 'gu';
     this.timerInterval = null;
     this.wakeLock = null;
+    this.soundEnabled = true;
+    this.flashcardIndex = 0;
+    this.flashcardFlipped = false;
 
     this.init();
   }
@@ -121,6 +211,9 @@
         break;
       case 'diagnostic_summary':
         bodyHtml = this.renderDiagnosticSummaryScreen();
+        break;
+      case 'lexicon_flashcards':
+        bodyHtml = this.renderLexiconFlashcardScreen();
         break;
       default:
         bodyHtml = this.renderHomeScreen();
@@ -402,6 +495,28 @@
           : 'Work through the 7 foundation modules sequentially, then test recall.') +
       '</p>' +
       '<div class="psi-syllabus-group">' + modulesHtml + '</div>' +
+      '<div style="border-top:1px solid var(--line-soft);padding-top:14px;margin-top:14px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+          '<span class="eyebrow" style="color:var(--accent);">' + (this.lang === 'gu' ? 'વહીવટી શબ્દાવલી &middot; ૧૫ શબ્દો' : 'ADMINISTRATIVE LEXICON &middot; 15 TERMS') + '</span>' +
+          '<span class="psi-badge" style="background:var(--accent-soft);color:var(--accent);">PAPER 2 SYNERGY</span>' +
+        '</div>' +
+        '<h4 style="margin:4px 0 2px;font-size:15px;color:var(--ink);">' +
+          (this.lang === 'gu' ? 'ગુજરાત વહીવટી અને કાયદાકીય પારિભાષિક શબ્દાવલી' : 'Gujarat Administrative & Legal Lexicon') +
+        '</h4>' +
+        '<p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.4;">' +
+          (this.lang === 'gu'
+            ? 'અધિકૃત દ્વિભાષી ભાષાંતરો (દા.ત. Cognizable Offence &rarr; પોલીસ અધિકારનો ગુનો, Charge sheet, Inquest, Remand).'
+            : 'Master official bilingual translations (e.g. Cognizable Offence &rarr; પોલીસ અધિકારનો ગુનો, Charge sheet, Inquest, Remand).') +
+        '</p>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          '<button class="btn" id="psi-open-lexicon-flashcards-btn" style="flex:1;min-width:140px;font-size:13px;padding:8px 12px;">' +
+            '🗂 ' + (this.lang === 'gu' ? 'ફ્લેશકાર્ડ્સ (યાદશક્તિ ચકાસો)' : 'Flashcards (Flip & Recall)') +
+          '</button>' +
+          '<button class="btn ghost" id="psi-start-lexicon-sprint-btn" style="flex:1;min-width:140px;font-size:13px;padding:8px 12px;">' +
+            '⚡ ' + (this.lang === 'gu' ? '૧૫ પ્રશ્નો ક્વિઝ' : '15-Q MCQ Sprint') +
+          '</button>' +
+        '</div>' +
+      '</div>' +
       '<div style="border-top:1px solid var(--line-soft);padding-top:14px;margin-top:14px;">' +
         '<span class="eyebrow" style="color:var(--accent);">' + (this.lang === 'gu' ? 'મેટ્રો સેશન' : 'METRO TRANSIT DRILLS') + '</span>' +
         '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
@@ -741,9 +856,16 @@
         }
       }
 
+      var optLabel = opts[i];
+      var optExtra = '';
+      if (isOptE) {
+        optExtra = ' <span class="psi-opt-badge-pill" style="font-size:10.5px;font-weight:700;color:var(--brass);background:var(--brass-soft);border:1px solid var(--brass-border);padding:2px 6px;border-radius:4px;margin-left:auto;">0 PENALTY</span>';
+      }
+
       optsHtml += '<button class="' + cls + '" data-opt-idx="' + i + '">' +
         '<span class="opt-key">' + letters[i] + '</span>' +
-        '<span>' + escapeHtml(opts[i]) + '</span>' +
+        '<span style="flex:1;">' + escapeHtml(optLabel) + '</span>' +
+        optExtra +
       '</button>';
     }
 
@@ -795,17 +917,24 @@
     }
 
     // Top metadata
+    var isMetro = (session.mode === 'metro40' || session.mode === 'lexicon');
     var modeLabel = (session.mode === 'metro40')
       ? 'METRO 40'
-      : (session.mode === 'pyq'
-        ? 'PYQ DRILL'
-        : (session.mode === 'lesson_practice'
-          ? 'LESSON PRACTICE'
-          : (session.mode === 'diagnostic' ? 'DIAGNOSTIC ASSESSMENT' : 'PRACTICE')));
+      : (session.mode === 'lexicon'
+        ? 'LEXICON SPRINT'
+        : (session.mode === 'pyq'
+          ? 'PYQ DRILL'
+          : (session.mode === 'lesson_practice'
+            ? 'LESSON PRACTICE'
+            : (session.mode === 'diagnostic' ? 'DIAGNOSTIC ASSESSMENT' : 'PRACTICE'))));
 
     var timerDisplay = (session.mode === 'metro40')
       ? '<span class="psi-timer-badge" id="psi-timer-val">' + this.formatTime(session.timeRemainingSec || 2400) + '</span>'
       : '';
+
+    var soundIcon = this.soundEnabled ? '🔊' : '🔇';
+    var soundBtn = '<button class="psi-sound-toggle-btn" id="psi-sound-toggle-btn" title="Toggle audio cues" style="background:transparent;border:none;cursor:pointer;font-size:14px;padding:2px 4px;">' + soundIcon + '</button>';
+    var offlineBadge = '<span class="psi-offline-pill" title="Local IndexedDB Active & Auto-Saved"><span class="psi-live-dot"></span> Offline Ready</span>';
 
     var diagSectionHtml = '';
     if (session.mode === 'diagnostic' && q.diagnosticSection) {
@@ -819,10 +948,16 @@
     var questionText = (this.lang === 'gu') ? q.question_gu : q.question_en;
     var isLastQuestion = (session.currentIndex === session.questionIds.length - 1);
 
-    mount.innerHTML = '<div class="psi-quiz-card">' +
+    mount.innerHTML = '<div class="psi-quiz-card' + (isMetro ? ' metro-mode-active' : '') + '">' +
       '<div class="psi-quiz-top">' +
-        '<span class="psi-prog-label">' + modeLabel + ' &middot; Question ' + (session.currentIndex + 1) + ' / ' + session.questionIds.length + '</span>' +
-        timerDisplay +
+        '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+          '<span class="psi-prog-label">' + modeLabel + ' &middot; Q ' + (session.currentIndex + 1) + '/' + session.questionIds.length + '</span>' +
+          offlineBadge +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;">' +
+          timerDisplay +
+          soundBtn +
+        '</div>' +
       '</div>' +
       diagSectionHtml +
       '<span class="psi-source-tag">' + escapeHtml(sourceTagText) + '</span>' +
@@ -1211,6 +1346,99 @@
   };
 
   /**
+   * Interactive Administrative Lexicon Flashcard Trainer (Phase 5)
+   */
+  PSIUI.prototype.renderLexiconFlashcardScreen = function() {
+    var lexQuestions = this.bank.filterByTopic('gujarat_gk', 'administrative_lexicon');
+    if (lexQuestions.length === 0) {
+      lexQuestions = this.bank.getAll().filter(function(q) {
+        return q.id && q.id.indexOf('lex_') === 0;
+      });
+    }
+
+    if (this.flashcardIndex >= lexQuestions.length) {
+      this.flashcardIndex = 0;
+    }
+    var cardCount = lexQuestions.length;
+    var currentCard = lexQuestions[this.flashcardIndex];
+
+    var enMatch = currentCard.question_en.match(/'([^']+)'/);
+    var enTerm = enMatch ? enMatch[1] : currentCard.question_en;
+    var guTerm = currentCard.options_gu[currentCard.answer];
+    var isFlipped = !!this.flashcardFlipped;
+
+    var srsCard = this.storage.getCard(currentCard.id);
+    var srsStatus = srsCard ? ('Interval: ' + (srsCard.intervalDays || 1) + 'd · Reps: ' + (srsCard.repetitions || 0)) : 'New Term';
+
+    var html = '<div class="psi-hero-card" style="max-width:560px;margin:0 auto;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
+        '<button class="psi-pill-btn" data-tab="practice">&larr; Practice Hub</button>' +
+        '<span style="font-family:var(--f-mono);font-size:12px;font-weight:700;color:var(--accent);">' +
+          'CARD ' + (this.flashcardIndex + 1) + ' / ' + cardCount +
+        '</span>' +
+        '<button class="psi-pill-btn" id="psi-lexicon-sprint-btn" title="Start 15-Q MCQ Sprint">MCQ Quiz &rarr;</button>' +
+      '</div>' +
+
+      // 3D Flip Card Container
+      '<div class="psi-flashcard-stage" id="psi-flashcard-card" style="cursor:pointer;min-height:280px;user-select:none;">' +
+        '<div class="psi-flashcard-inner' + (isFlipped ? ' is-flipped' : '') + '">' +
+          // Front Side
+          '<div class="psi-flashcard-face psi-flashcard-front">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+              '<span class="eyebrow" style="color:var(--accent);background:var(--accent-soft);">ADMINISTRATIVE & LEGAL LEXICON</span>' +
+              '<span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">' + srsStatus + '</span>' +
+            '</div>' +
+            '<div style="margin:auto 0;text-align:center;padding:24px 0;">' +
+              '<div style="font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;">' + escapeHtml(enTerm) + '</div>' +
+              '<div style="font-size:13px;color:var(--ink-soft);margin-top:8px;">English Administrative Term</div>' +
+              '<div class="psi-flip-hint" style="margin-top:20px;font-size:12px;color:var(--accent);font-weight:600;">' +
+                'Tap to flip card & reveal Gujarati translation ↺' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          // Back Side
+          '<div class="psi-flashcard-face psi-flashcard-back">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+              '<span class="eyebrow" style="color:var(--good);background:var(--good-soft);">OFFICIAL GUJARATI TRANSLATION</span>' +
+              '<span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">' + escapeHtml(enTerm) + '</span>' +
+            '</div>' +
+            '<div style="margin-top:14px;">' +
+              '<div style="font-size:22px;font-weight:700;color:var(--good);">' + escapeHtml(guTerm) + '</div>' +
+              '<div style="font-size:13px;color:var(--ink);line-height:1.5;margin-top:10px;background:var(--ground);padding:10px;border-radius:6px;border-left:3px solid var(--accent);">' +
+                '<strong>કાયદાકીય સંદર્ભ / Legal Reference:</strong><br>' +
+                escapeHtml(currentCard.explanation_gu) +
+              '</div>' +
+              '<div style="font-size:12px;color:var(--ink-soft);margin-top:8px;line-height:1.45;">' +
+                escapeHtml(currentCard.explanation_en) +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      // SM-2 Spaced Repetition Buttons & Navigation
+      '<div style="margin-top:16px;display:flex;gap:10px;flex-direction:column;">' +
+        '<div style="display:flex;gap:10px;">' +
+          '<button class="btn ghost alert" id="psi-card-still-learning-btn" style="flex:1;padding:10px;font-size:13px;font-weight:600;">' +
+            '✕ Still Learning (Review Soon)' +
+          '</button>' +
+          '<button class="btn" id="psi-card-mastered-btn" style="flex:1;padding:10px;font-size:13px;font-weight:600;background:var(--good);color:#fff;">' +
+            '✓ Mastered (Recall Fast)' +
+          '</button>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">' +
+          '<button class="psi-pill-btn" id="psi-card-prev-btn"' + (this.flashcardIndex === 0 ? ' disabled style="opacity:0.4;"' : '') + '>&larr; Previous</button>' +
+          '<button class="psi-pill-btn" id="psi-card-flip-btn">Flip Card ↺</button>' +
+          '<button class="psi-pill-btn" id="psi-card-next-btn"' + (this.flashcardIndex === cardCount - 1 ? ' disabled style="opacity:0.4;"' : '') + '>Next &rarr;</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    return html;
+  };
+
+  /**
    * Global Event Delegation
    */
   PSIUI.prototype.bindGlobalEvents = function() {
@@ -1350,8 +1578,125 @@
         var sess = self.engine.currentSession;
         if (sess) {
           var qId = sess.questionIds[sess.currentIndex];
-          self.engine.recordAnswer(qId, optIdx);
+          var ansRec = self.engine.recordAnswer(qId, optIdx);
+          if (ansRec) {
+            if (ansRec.isOptionE) {
+              triggerHaptic('opt_e');
+              soundFx.playTap();
+            } else if (ansRec.isCorrect) {
+              triggerHaptic('correct');
+              soundFx.playCorrect();
+            } else {
+              triggerHaptic('wrong');
+              soundFx.playWrong();
+            }
+          }
           self.renderQuizQuestion();
+        }
+        return;
+      }
+
+      // Audio cues toggle
+      if (e.target.closest('#psi-sound-toggle-btn')) {
+        self.soundEnabled = !self.soundEnabled;
+        soundFx.muted = !self.soundEnabled;
+        self.renderQuizQuestion();
+        return;
+      }
+
+      // Open Lexicon Flashcards
+      if (e.target.closest('#psi-open-lexicon-flashcards-btn')) {
+        self.switchTab('lexicon_flashcards');
+        return;
+      }
+
+      // Start Lexicon MCQ Sprint
+      if (e.target.closest('#psi-start-lexicon-sprint-btn') || e.target.closest('#psi-lexicon-sprint-btn')) {
+        self.startSession('lexicon', { count: 15 });
+        return;
+      }
+
+      // Flashcard Flip Click
+      if (e.target.closest('#psi-flashcard-card') || e.target.closest('#psi-card-flip-btn')) {
+        if (e.target.closest('button') && !e.target.closest('#psi-card-flip-btn')) {
+          // ignore clicks on nested buttons
+        } else {
+          self.flashcardFlipped = !self.flashcardFlipped;
+          soundFx.playTap();
+          triggerHaptic('tap');
+          var cardInner = document.querySelector('.psi-flashcard-inner');
+          if (cardInner) {
+            if (self.flashcardFlipped) cardInner.classList.add('is-flipped');
+            else cardInner.classList.remove('is-flipped');
+          } else {
+            self.render();
+          }
+          return;
+        }
+      }
+
+      // Flashcard Still Learning (hard/wrong)
+      if (e.target.closest('#psi-card-still-learning-btn')) {
+        var lexList = self.bank.filterByTopic('gujarat_gk', 'administrative_lexicon');
+        if (self.flashcardIndex < lexList.length) {
+          var cardId = lexList[self.flashcardIndex].id;
+          var exCard = self.storage.getCard(cardId);
+          var upCard = self.srs.processAttempt(exCard, false, 'unsure');
+          self.storage.saveCard(cardId, upCard);
+          self.storage.recordMistake(cardId, 'gap');
+        }
+        triggerHaptic('wrong');
+        soundFx.playWrong();
+        if (self.flashcardIndex < lexList.length - 1) {
+          self.flashcardIndex++;
+        } else {
+          self.flashcardIndex = 0;
+        }
+        self.flashcardFlipped = false;
+        self.render();
+        return;
+      }
+
+      // Flashcard Mastered (easy/correct)
+      if (e.target.closest('#psi-card-mastered-btn')) {
+        var lexList2 = self.bank.filterByTopic('gujarat_gk', 'administrative_lexicon');
+        if (self.flashcardIndex < lexList2.length) {
+          var cardId2 = lexList2[self.flashcardIndex].id;
+          var exCard2 = self.storage.getCard(cardId2);
+          var upCard2 = self.srs.processAttempt(exCard2, true, 'confident');
+          self.storage.saveCard(cardId2, upCard2);
+        }
+        triggerHaptic('correct');
+        soundFx.playCorrect();
+        if (self.flashcardIndex < lexList2.length - 1) {
+          self.flashcardIndex++;
+        } else {
+          self.flashcardIndex = 0;
+        }
+        self.flashcardFlipped = false;
+        self.render();
+        return;
+      }
+
+      // Flashcard Next & Prev
+      if (e.target.closest('#psi-card-next-btn')) {
+        var lexList3 = self.bank.filterByTopic('gujarat_gk', 'administrative_lexicon');
+        if (self.flashcardIndex < lexList3.length - 1) {
+          self.flashcardIndex++;
+          self.flashcardFlipped = false;
+          soundFx.playTap();
+          triggerHaptic('tap');
+          self.render();
+        }
+        return;
+      }
+      if (e.target.closest('#psi-card-prev-btn')) {
+        if (self.flashcardIndex > 0) {
+          self.flashcardIndex--;
+          self.flashcardFlipped = false;
+          soundFx.playTap();
+          triggerHaptic('tap');
+          self.render();
         }
         return;
       }
@@ -1363,6 +1708,8 @@
           var currQ = curSess.questionIds[curSess.currentIndex];
           // Record explicit blank
           self.engine.recordAnswer(currQ, null);
+          triggerHaptic('skip');
+          soundFx.playTap();
           if (curSess.currentIndex < curSess.questionIds.length - 1) {
             curSess.currentIndex++;
             self.engine.persistActiveSession();

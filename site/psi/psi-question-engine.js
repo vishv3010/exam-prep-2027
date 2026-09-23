@@ -247,6 +247,14 @@
         }.bind(this));
       }
       qIds = shuffle(mistakes).slice(0, options.count || 20).map(function(q) { return q.id; });
+    } else if (mode === 'lexicon') {
+      var lexPool = this.bank.filterByTopic('gujarat_gk', 'administrative_lexicon');
+      if (lexPool.length === 0) {
+        lexPool = this.bank.getAll().filter(function(q) {
+          return q.id && q.id.indexOf('lex_') === 0;
+        });
+      }
+      qIds = shuffle(lexPool).slice(0, options.count || 15).map(function(q) { return q.id; });
     } else {
       // Default quick practice
       var pool = all;

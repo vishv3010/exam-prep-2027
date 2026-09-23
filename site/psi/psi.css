@@ -959,3 +959,92 @@
     padding: 5px 6px;
   }
 }
+
+/* ---------------- Phase 4: Metro Transit Mode Active Viewport ---------------- */
+.psi-quiz-card.metro-mode-active {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+.psi-quiz-card.metro-mode-active .psi-question-text {
+  font-size: 17px;
+  line-height: 1.55;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.psi-quiz-card.metro-mode-active .psi-opt-btn {
+  min-height: 52px;
+  font-size: 15.5px;
+  padding: 12px 14px;
+  border-radius: 9px;
+  box-shadow: var(--shadow-sm);
+}
+.psi-quiz-card.metro-mode-active .psi-opt-btn.opt-e {
+  background: var(--ground);
+  border: 1.5px dashed var(--brass);
+  font-weight: 600;
+}
+
+/* Offline Status Pill with pulsating dot */
+.psi-offline-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--good);
+  background: var(--good-soft);
+  border: 1px solid var(--good-border);
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+.psi-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 0 2px var(--good-soft);
+  animation: pulse 1.8s infinite;
+}
+
+/* ---------------- Phase 5: Flashcard Flip Component ---------------- */
+.psi-flashcard-stage {
+  perspective: 1000px;
+  position: relative;
+  width: 100%;
+}
+.psi-flashcard-inner {
+  position: relative;
+  width: 100%;
+  min-height: 290px;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.psi-flashcard-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+.psi-flashcard-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 290px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+.psi-flashcard-back {
+  transform: rotateY(180deg);
+  background: var(--surface);
+  border-color: var(--good-border);
+}
