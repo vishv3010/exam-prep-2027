@@ -261,6 +261,13 @@
       if (options.subject) {
         pool = this.bank.filterBySubject(options.subject);
       }
+      // Narrow to specific topics: options.topic ("topic") or options.topics (["subject::topic", ...])
+      var keys = Array.isArray(options.topics) ? options.topics :
+        (options.subject && options.topic ? [options.subject + '::' + options.topic] : null);
+      if (keys && keys.length) {
+        var byTopic = all.filter(function(q) { return keys.indexOf(q.subject + '::' + q.topic) !== -1; });
+        if (byTopic.length) pool = byTopic;
+      }
       qIds = shuffle(pool).slice(0, options.count || 15).map(function(q) { return q.id; });
     }
 
@@ -418,7 +425,7 @@
 
     var summary = {
       id: session.id,
-      date: new Date(session.startTime).toISOString().slice(0, 10),
+      date: this.storage.localDateStr(session.startTime),
       mode: session.mode,
       options: session.options || {},
       totalQuestions: session.questionIds.length,

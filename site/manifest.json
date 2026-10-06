@@ -1,5 +1,5 @@
 {
-  "name": "GOAL OS — CDS IMA & Gujarat PSI Preparation",
+  "name": "GOAL OS \u2014 CDS IMA & Gujarat PSI Preparation",
   "short_name": "GOAL OS",
   "description": "Adaptive, evidence-driven personal training system for CDS I 2027 and Gujarat Armed PSI.",
   "start_url": "./index.html",
@@ -11,7 +11,20 @@
       "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
+  ],
+  "id": "./index.html",
+  "scope": "./",
+  "lang": "en",
+  "orientation": "portrait",
+  "categories": [
+    "education"
   ]
 }

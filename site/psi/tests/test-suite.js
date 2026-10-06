@@ -78,7 +78,13 @@ function loadPsiEnvironment(customStorage) {
     'site/data/psi/gujarat-gk.js',
     'site/data/psi/law.js',
     'site/data/psi/ai-practice.js',
+    'site/data/psi/diagnostic-bank.js',
+    'site/data/psi/math-drills.js',
+    'site/data/psi/english-drills.js',
+    'site/data/psi/science-drills.js',
+    'site/data/psi/lexicon.js',
     'site/data/psi/lessons.js',
+    'site/data/syllabus.js',
     'site/psi/psi-config.js',
     'site/psi/psi-storage.js',
     'site/psi/psi-srs.js',
@@ -162,11 +168,11 @@ console.log('\nTEST GROUP 2: SPACED REPETITION SYSTEM (SRS)');
   const SRS = env.PSISRS;
 
   const card0 = SRS.processAttempt(null, true, 'confident');
-  assert(card0.box === 2, 'New card with confident correct answer moves to Box 2');
+  assert(card0.repetition === 1 && card0.intervalDays === 1, 'New card with confident correct answer schedules SM-2 interval of 1 day');
   assert(card0.attempts === 1 && card0.correct === 1, 'Card attempt and correct counters incremented');
 
   const card1 = SRS.processAttempt(card0, true, 'unsure');
-  assert(card1.box === 2, 'Unsure correct keeps card in current box');
+  assert(card1.intervalDays === 6 && card1.ef < card0.ef + 0.1, 'Second success jumps to 6 days; unsure answer does not raise easiness');
 
   const card2 = SRS.processAttempt(card1, false, 'confident');
   assert(card2.box === 1 && card2.lapses === 1, 'Incorrect attempt resets card to Box 1 and increments lapses');
@@ -181,11 +187,11 @@ console.log('\nTEST GROUP 3: QUESTION ENGINE & SMALL BANK BEHAVIOR');
   const engine = new env.PSIQuestionEngine(env.PSI_QUESTION_BANK, env.PSIStorage, env.PSISRS, env.PSI_EXAM_CONFIG);
 
   const allQs = env.PSI_QUESTION_BANK.getAll();
-  assert(allQs.length === 31, 'Question bank contains exactly 31 verified questions');
+  const N = allQs.length;
+  assert(N >= 100, 'Question bank contains at least 100 verified questions (found ' + N + ')');
 
-  // Metro 40 requested 40, but bank has 31:
   const metroSessionIds = engine.buildMetro40Session(40);
-  assert(metroSessionIds.length === 31, 'Metro session scales cleanly to bank size (31 questions)');
+  assert(metroSessionIds.length === Math.min(40, N), 'Metro session size is min(requested, bank size)');
 
   // Verify no duplicate IDs in session
   const uniqueIds = new Set(metroSessionIds);
@@ -193,7 +199,8 @@ console.log('\nTEST GROUP 3: QUESTION ENGINE & SMALL BANK BEHAVIOR');
 
   // Create session and verify structure
   const session = engine.createSession('metro40');
-  assert(session.questionIds.length === 31, 'Session created with 31 questions');
+  const SN = session.questionIds.length;
+  assert(SN === Math.min(40, N), 'Metro session created with expected number of questions (' + SN + ')');
   assert(session.status === 'active', 'Session is initialized as active');
 
   // Answer question 0 with correct answer
@@ -214,13 +221,14 @@ console.log('\nTEST GROUP 3: QUESTION ENGINE & SMALL BANK BEHAVIOR');
 
   // Leave rest blank and finish session
   const summary = engine.finishSession();
-  assert(summary.totalQuestions === 31, 'Summary has total 31 questions');
+  assert(summary.totalQuestions === SN, 'Summary total matches session size');
   assert(summary.correct === 1, 'Summary reports 1 correct');
   assert(summary.wrong === 1, 'Summary reports 1 wrong');
   assert(summary.optionE === 1, 'Summary reports 1 Option E');
-  assert(summary.blank === 28, 'Summary reports 28 blank questions');
-  // Score: 1 * 1.0 - 1 * 0.25 - 28 * 0.25 - 1 * 0 = 1 - 0.25 - 7.0 = -6.25
-  assert(summary.score === -6.25, 'Summary score matches exact formula including blank deduction (-6.25)');
+  assert(summary.blank === SN - 3, 'Summary reports all unanswered questions as blank');
+  // Score: 1*1.0 - 1*0.25 - blank*0.25 - 1*0 (blank = SN-3)
+  const expectedScore = Math.round((1 - 0.25 - (SN - 3) * 0.25) * 100) / 100;
+  assert(summary.score === expectedScore, 'Summary score matches exact formula including blank deduction (' + expectedScore + ')');
 }
 
 // ----------------------------------------------------
@@ -247,12 +255,13 @@ console.log('\nTEST GROUP 4: ANSWER BALANCE & BILINGUAL PARITY');
     }
   });
 
-  assert(dist[0] === 8, 'Choice A count is 8 (25.8%)');
-  assert(dist[1] === 8, 'Choice B count is 8 (25.8%)');
-  assert(dist[2] === 8, 'Choice C count is 8 (25.8%)');
-  assert(dist[3] === 7, 'Choice D count is 7 (22.6%)');
+  const total = qs.length;
+  [0, 1, 2, 3].forEach(i => {
+    const share = dist[i] / total;
+    assert(share >= 0.15 && share <= 0.35, 'Choice ' + 'ABCD'[i] + ' share is balanced (' + (share * 100).toFixed(1) + '%)');
+  });
   assert(dist[4] === 0, 'Choice E is never the correct knowledge answer (0%)');
-  assert(parityOk, 'All 31 questions have complete 5-choice bilingual parity and explanations');
+  assert(parityOk, 'All questions have complete 5-choice bilingual parity and explanations');
 }
 
 // ----------------------------------------------------
@@ -382,7 +391,7 @@ console.log('\nTEST GROUP 9: CDS DASHBOARD INTEGRITY');
   });
 
   assert(allSectionsPresent, 'All 10 required CDS dashboard sections and theme controls remain intact in index.html');
-  assert(html.includes('defer src="psi/psi-app.js"'), 'PSI scripts load with non-blocking defer attribute');
+  assert(/<script defer src="psi\/psi-app\.js[^"]*">/.test(html), 'PSI scripts load with non-blocking defer attribute');
 }
 
 // ----------------------------------------------------
@@ -462,6 +471,117 @@ console.log('\nTEST GROUP 12: BEGINNER FLOW PROGRESSION');
   // Step 4: Practice MCQs for this topic
   const practiceQIds = engine.buildLessonPracticeSession('lesson_const_fr');
   assert(practiceQIds.length > 0, 'Practice question pool generated for topic');
+}
+
+// ----------------------------------------------------
+// 13. ANALYTICS, STORAGE SAFETY & DATA INTEGRITY
+// ----------------------------------------------------
+console.log('\nTEST GROUP 13: ANALYTICS, STORAGE SAFETY & DATA INTEGRITY');
+{
+  // Dashboard-owned fields in cds2027.v1 must survive PSI saves
+  const store = createMockStorage();
+  store.setItem('cds2027.v1', JSON.stringify({ days: {}, hours: 140, habitDone: 12 }));
+  const env = loadPsiEnvironment(store);
+  env.PSIStorage.setPreference('language', 'en');
+  const cds = JSON.parse(store.getItem('cds2027.v1'));
+  assert(cds.hours === 140 && cds.habitDone === 12, 'PSI save preserves extra fields in dashboard key');
+
+  // Default state must not be mutated through returned state
+  const env2 = loadPsiEnvironment();
+  env2.PSIStorage.state.stats.attempted = 999;
+  const fresh = env2.PSIStorage.migrate({});
+  assert(fresh.stats.attempted === 0, 'migrate() returns state independent of shared defaults');
+
+  // Preference sanitization
+  const bad = env2.PSIStorage.migrate({ preferences: { language: 'fr', defaultMode: '<x>' } });
+  assert(bad.preferences.language === 'gu' && bad.preferences.defaultMode === 'metro', 'Invalid preference values fall back to defaults');
+
+  // Local date (not UTC) used for session dates: 05:30 IST is still "today"
+  const st = env2.PSIStorage;
+  const ts = new Date(2026, 9, 6, 5, 30).getTime();
+  assert(st.localDateStr(ts) === '2026-10-06', 'localDateStr uses local calendar day');
+
+  // Streak logic
+  const dayStr = off => { const d = new Date(); d.setDate(d.getDate() - off); return st.localDateStr(d.getTime()); };
+  st.state.history = [
+    { date: dayStr(0), attempted: 10, correct: 5 },
+    { date: dayStr(1), attempted: 10, correct: 5 },
+    { date: dayStr(2), attempted: 10, correct: 5 },
+    { date: dayStr(4), attempted: 10, correct: 5 }
+  ];
+  assert(st.getStreak() === 3, 'Streak counts consecutive days and stops at a gap');
+  st.state.history.shift();
+  assert(st.getStreak() === 2, 'Streak not broken when today has no activity yet');
+  st.state.history = [{ date: dayStr(3), attempted: 10, correct: 5 }];
+  assert(st.getStreak() === 0, 'Streak is 0 after a full missed day');
+
+  // Subject accuracy
+  const q = env2.PSI_QUESTION_BANK.getAll()[0];
+  st.state.cards[q.id] = { attempts: 4, correct: 1 };
+  const acc = st.getSubjectAccuracy(env2.PSI_QUESTION_BANK);
+  assert(acc.length === 1 && acc[0].accuracy === 25, 'Subject accuracy aggregates card counters');
+
+  // Option shuffling: stable, 5 options, correct answer text preserved
+  const qs = env2.PSI_QUESTION_BANK.getAll();
+  assert(qs.every(x => x.options_en.length === 5 && x.options_gu.length === 5 && x.answer >= 0 && x.answer < 4),
+    'Every question has 4 answers + canonical Option E with in-range answer index');
+  const diag = qs.find(x => x.id === 'diag_math_01');
+  assert(diag.options_en[diag.answer] === '2', 'Shuffle remaps answer index to the same correct option text');
+
+  // Progress screen renders insights without throwing
+  const dummyDiv = { innerHTML: '', addEventListener: function() {}, querySelector: function() { return null; }, querySelectorAll: function() { return []; } };
+  const engine = new env2.PSIQuestionEngine(env2.PSI_QUESTION_BANK, st, env2.PSISRS, env2.PSI_EXAM_CONFIG);
+  const ui = new env2.PSIUI(dummyDiv, engine, st, env2.PSI_QUESTION_BANK, env2.PSISRS, env2.PSI_EXAM_CONFIG);
+  ui.lang = 'en';
+  const html = ui.renderProgressScreen();
+  assert(html.includes('Consistency') && html.includes('Accuracy by Subject'), 'Progress screen renders consistency and subject accuracy panels');
+}
+
+// ----------------------------------------------------
+// 14. SYLLABUS ROADMAP
+// ----------------------------------------------------
+console.log('\nTEST GROUP 14: SYLLABUS ROADMAP');
+{
+  const env = loadPsiEnvironment();
+  const syl = env.GOAL_SYLLABUS;
+  assert(syl && syl.subjects.length >= 5, 'Syllabus data loads with subjects');
+
+  const topics = syl.subjects.flatMap(s => s.topics);
+  const ids = new Set(topics.map(t => t.id));
+  assert(ids.size === topics.length, 'Syllabus topic ids are unique');
+  assert(topics.every(t => ['high', 'med', 'low'].includes(t.priority) && t.stage >= 1 && t.stage <= 4 && t.exams.length),
+    'Every topic has valid priority, stage and exam tags');
+
+  const bankKeys = new Set(env.PSI_QUESTION_BANK.getAll().map(q => q.subject + '::' + q.topic));
+  const deadKeys = topics.flatMap(t => t.match).filter(k => !bankKeys.has(k));
+  assert(deadKeys.length === 0, 'Every syllabus match key exists in the question bank' + (deadKeys.length ? ' (missing: ' + deadKeys.join(', ') + ')' : ''));
+
+  const lessonIds = new Set((env.PSI_LESSON_BANK.lessons || []).map(l => l.id));
+  const badLessons = topics.filter(t => t.lesson && !lessonIds.has(t.lesson)).map(t => t.lesson);
+  assert(badLessons.length === 0, 'Every linked lesson exists' + (badLessons.length ? ' (missing: ' + badLessons.join(', ') + ')' : ''));
+
+  // Checklist persistence + sanitization
+  const st = env.PSIStorage;
+  assert(st.toggleSyllabusDone('m_percent') === true && st.isSyllabusDone('m_percent'), 'Topic can be ticked done');
+  assert(st.toggleSyllabusDone('m_percent') === false, 'Topic can be unticked');
+  const m = st.migrate({ syllabusDone: { m_number: 123, '<bad>': 1 } });
+  assert(m.syllabusDone.m_number === 123 && !('<bad>' in m.syllabusDone), 'Imported syllabus ticks are sanitized');
+
+  // Topic-specific practice only draws from requested topics
+  const engine = new env.PSIQuestionEngine(env.PSI_QUESTION_BANK, st, env.PSISRS, env.PSI_EXAM_CONFIG);
+  const sess = engine.createSession('practice', { topics: ['law_constitution::bns', 'law_constitution::bnss'], count: 10 });
+  const allBns = sess.questionIds.every(id => { const q = env.PSI_QUESTION_BANK.getById(id); return q.topic === 'bns' || q.topic === 'bnss'; });
+  assert(sess.questionIds.length > 0 && allBns, 'Topic practice draws only from the requested topics');
+
+  // Screen renders, next-up list and exam filter work
+  const dummyDiv = { innerHTML: '', addEventListener: function() {}, querySelector: function() { return null; }, querySelectorAll: function() { return []; } };
+  const ui = new env.PSIUI(dummyDiv, engine, st, env.PSI_QUESTION_BANK, env.PSISRS, env.PSI_EXAM_CONFIG);
+  ui.lang = 'en';
+  let html = ui.renderSyllabusScreen();
+  assert(html.includes('Start here') && html.includes('Full syllabus by subject'), 'Syllabus screen renders roadmap sections');
+  ui.syllabusExam = 'CDS';
+  html = ui.renderSyllabusScreen();
+  assert(!html.includes('Gujarat geography') && html.includes('Defence'), 'CDS filter hides PSI-only topics');
 }
 
 console.log('\n====================================================');

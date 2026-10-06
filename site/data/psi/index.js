@@ -25,6 +25,7 @@
             item.exams = self.inferExams(item);
           }
           if (!self.questionMap[item.id]) {
+            self.normalizeOptions(item);
             self.questions.push(item);
             self.questionMap[item.id] = item;
           }
@@ -32,6 +33,40 @@
           console.warn('[Goal QuestionBank] Question failed schema validation and was skipped:', item ? item.id : 'unknown');
         }
       });
+    },
+
+    /**
+     * Canonicalises the Option E label and, for non-official questions,
+     * deterministically shuffles A-D (seeded by question id) so the correct
+     * answer is not biased toward particular positions. Stable across
+     * sessions, so SRS history and mistake logs stay consistent.
+     */
+    normalizeOptions: function(q) {
+      var E_EN = '(E) Not Attempted';
+      var E_GU = '(E) પ્રયાસ કરેલ નથી';
+      var gu = q.options_gu.slice(0, 4);
+      var en = q.options_en.slice(0, 4);
+      var positional = /\b(all|none|both|neither)\b[^.]*\b(above|these)\b|\b(option|choice)\s*\(?[A-D]\b/i;
+      var hasPositional = en.some(function(o) { return positional.test(o); }) ||
+        positional.test(q.explanation_en || '');
+      var official = q.sourceType === 'PYQ_OFFICIAL' || q.sourceType === 'PYQ_REPRODUCED';
+
+      if (!official && !hasPositional && q.answer < 4) {
+        // seeded Fisher-Yates over indices [0..3]
+        var h = 2166136261;
+        for (var i = 0; i < q.id.length; i++) { h ^= q.id.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+        var order = [0, 1, 2, 3];
+        for (var j = 3; j > 0; j--) {
+          h = (Math.imul(h, 1103515245) + 12345) >>> 0;
+          var k = (h >>> 8) % (j + 1);
+          var t = order[j]; order[j] = order[k]; order[k] = t;
+        }
+        q.answer = order.indexOf(q.answer);
+        gu = order.map(function(ix) { return gu[ix]; });
+        en = order.map(function(ix) { return en[ix]; });
+      }
+      q.options_gu = gu.concat([E_GU]);
+      q.options_en = en.concat([E_EN]);
     },
 
     /**

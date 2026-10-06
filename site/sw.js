@@ -2,7 +2,7 @@
  * GOAL OS Service Worker
  * Ensures 100% offline availability in underground metro transit conditions.
  */
-const CACHE_NAME = 'goal-os-v2-20260923';
+const CACHE_NAME = 'goal-os-v4-20261006';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -27,13 +27,16 @@ const ASSETS_TO_CACHE = [
   './data/psi/english-drills.js',
   './data/psi/science-drills.js',
   './data/psi/lexicon.js',
-  './data/psi/lessons.js'
+  './data/psi/lessons.js',
+  './data/syllabus.js'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return Promise.all(ASSETS_TO_CACHE.map((a) =>
+        cache.add(a).catch((e) => console.warn('[SW] precache miss', a, e))
+      ));
     }).then(() => self.skipWaiting())
   );
 });
@@ -52,41 +55,39 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
+});
+
+// Stale-while-revalidate. ignoreSearch makes versioned URLs (?v=...) hit the
+// precached copy so the app still loads offline. Cross-origin font requests are
+// cached too (opaque responses are fine for stylesheets/fonts).
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  const isFont = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
+  if (url.origin !== self.location.origin && !isFont) return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch in background to keep cache fresh (stale-while-revalidate for html/scripts)
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse.clone());
-            });
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.match(event.request, { ignoreSearch: !isFont }).then((cached) => {
+        const network = fetch(event.request).then((response) => {
+          if (response && (response.status === 200 || response.type === 'opaque')) {
+            cache.put(event.request, response.clone());
           }
-        }).catch(() => {
-          // Ignore network errors when offline
-        });
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
+        }).catch(() => null);
+
+        if (cached) {
+          event.waitUntil(network);
+          return cached;
         }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
+        return network.then((response) => {
+          if (response) return response;
+          if (event.request.mode === 'navigate') return cache.match('./index.html');
+          return Response.error();
         });
-        return response;
-      }).catch(() => {
-        // Fallback to cached index.html for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
-    })
+      })
+    )
   );
 });

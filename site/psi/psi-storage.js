@@ -17,9 +17,28 @@
   var DB_NAME = 'GoalOS_DB';
   var DB_VERSION = 1;
 
-  function todayStr() {
-    var d = new Date();
+  function todayStr(ts) {
+    var d = ts ? new Date(ts) : new Date();
     return d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' : '') + (d.getMonth() + 1) + '-' + (d.getDate() < 10 ? '0' : '') + d.getDate();
+  }
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function pickEnum(val, allowed, fallback) {
+    return allowed.indexOf(val) !== -1 ? val : fallback;
+  }
+
+  function cleanStr(val, fallback, max) {
+    if (typeof val !== 'string') return fallback;
+    // strip anything that could be interpreted as markup
+    var v = val.replace(/[<>&"'`]/g, '').trim().slice(0, max || 80);
+    return v || fallback;
+  }
+
+  function cleanNum(val, fallback, min, max) {
+    var n = Number(val);
+    if (!isFinite(n)) return fallback;
+    return Math.min(max, Math.max(min, n));
   }
 
   var defaultState = {
@@ -71,6 +90,7 @@
       runs: []                // array of run logs
     },
     diagnosticResult: null,   // baseline test record
+    syllabusDone: {},         // syllabus topic id -> completedAt timestamp
     savedWords: [],           // array of { word, simple_gu, en, example, timestamp }
     reports: [],              // question reports
     activeSession: null,      // interruption recovery state
@@ -169,7 +189,7 @@
         try { legacyCds = JSON.parse(rawCds); } catch (e) {}
       }
 
-      var merged = Object.assign({}, defaultState);
+      var merged = clone(defaultState);
       if (legacyPsi && typeof legacyPsi === 'object') {
         merged = this.migrate(legacyPsi);
       }
@@ -188,15 +208,36 @@
 
   GoalStorage.prototype.migrate = function(data) {
     if (!data || typeof data !== 'object') data = {};
-    var state = Object.assign({}, defaultState);
+    var state = clone(defaultState);
 
-    // Preferences
+    // Preferences (validated against allowed values)
     if (data.preferences && typeof data.preferences === 'object') {
-      state.preferences = Object.assign({}, defaultState.preferences, data.preferences);
+      var pr = data.preferences, dp = defaultState.preferences;
+      state.preferences = {
+        language: pickEnum(pr.language, ['gu', 'en'], dp.language),
+        defaultMode: pickEnum(pr.defaultMode, ['metro', 'desk', 'diagnostic'], dp.defaultMode),
+        ttsEnabled: pr.ttsEnabled === true,
+        useOptionE: pr.useOptionE !== false,
+        activeExamFocus: pickEnum(pr.activeExamFocus, ['50_50', 'cds_focus', 'psi_focus'], dp.activeExamFocus)
+      };
     }
-    // Profile
+    // Profile (validated; never trust imported strings)
     if (data.userProfile && typeof data.userProfile === 'object') {
-      state.userProfile = Object.assign({}, defaultState.userProfile, data.userProfile);
+      var up = data.userProfile, dup = defaultState.userProfile;
+      state.userProfile = {
+        candidateName: cleanStr(up.candidateName, dup.candidateName, 40),
+        education: cleanStr(up.education, dup.education, 80),
+        level: pickEnum(up.level, ['foundation', 'intermediate', 'advanced'], dup.level),
+        hasStudiedBefore: pickEnum(up.hasStudiedBefore, ['not_yet', 'some', 'extensively'], 'not_yet'),
+        targetExams: Array.isArray(up.targetExams)
+          ? up.targetExams.filter(function(x) { return typeof x === 'string' && /^[A-Z_]{2,30}$/.test(x); }).slice(0, 6)
+          : dup.targetExams.slice(),
+        dailyDeskTargetMin: cleanNum(up.dailyDeskTargetMin, dup.dailyDeskTargetMin, 0, 600),
+        dailyMetroTargetMin: cleanNum(up.dailyMetroTargetMin, dup.dailyMetroTargetMin, 0, 600),
+        runningBaselineKm: cleanNum(up.runningBaselineKm, dup.runningBaselineKm, 0, 100),
+        runningBaselineMin: cleanNum(up.runningBaselineMin, dup.runningBaselineMin, 0, 1000),
+        onboardingComplete: up.onboardingComplete === true
+      };
     }
     // Stats
     if (data.stats && typeof data.stats === 'object') {
@@ -233,7 +274,19 @@
     }
 
     // Mistakes
-    state.mistakes = (data.mistakes && typeof data.mistakes === 'object') ? data.mistakes : {};
+    state.mistakes = {};
+    if (data.mistakes && typeof data.mistakes === 'object') {
+      Object.keys(data.mistakes).forEach(function(qId) {
+        var m = data.mistakes[qId];
+        if (m && typeof m === 'object') {
+          state.mistakes[qId] = {
+            count: cleanNum(m.count, 1, 0, 9999),
+            type: cleanStr(m.type, 'gap', 30),
+            lastWrong: Number(m.lastWrong) || 0
+          };
+        }
+      });
+    }
     // Marked questions
     state.marked = Array.isArray(data.marked) ? data.marked.filter(function(x) { return typeof x === 'string'; }) : [];
     // History
@@ -252,6 +305,14 @@
     state.cdsHabitData = (data.cdsHabitData && typeof data.cdsHabitData === 'object') ? data.cdsHabitData : { days: {}, mocks: [], runs: [] };
     // Diagnostic result
     state.diagnosticResult = (data.diagnosticResult && typeof data.diagnosticResult === 'object') ? data.diagnosticResult : null;
+
+    // Syllabus checklist (topic id -> timestamp)
+    state.syllabusDone = {};
+    if (data.syllabusDone && typeof data.syllabusDone === 'object') {
+      Object.keys(data.syllabusDone).forEach(function(k) {
+        if (/^[a-z0-9_]{1,40}$/.test(k)) state.syllabusDone[k] = Number(data.syllabusDone[k]) || Date.now();
+      });
+    }
 
     // Daily Mission
     state.dailyMission = Object.assign({}, defaultState.dailyMission, (data.dailyMission && typeof data.dailyMission === 'object') ? data.dailyMission : {});
@@ -280,10 +341,15 @@
     try {
       var serialized = JSON.stringify(this.state);
       localStorage.setItem(STORAGE_KEY, serialized);
-      // Keep legacy keys in sync for backward compatibility
-      localStorage.setItem(LEGACY_PSI_KEY, serialized);
+      // Mirror habit data into the dashboard's own key without discarding
+      // any other fields the dashboard keeps there.
       if (this.state.cdsHabitData) {
-        localStorage.setItem(LEGACY_CDS_KEY, JSON.stringify(this.state.cdsHabitData));
+        var existing = {};
+        try { existing = JSON.parse(localStorage.getItem(LEGACY_CDS_KEY)) || {}; } catch (e) {}
+        existing.days = this.state.cdsHabitData.days;
+        existing.mocks = this.state.cdsHabitData.mocks;
+        existing.runs = this.state.cdsHabitData.runs;
+        localStorage.setItem(LEGACY_CDS_KEY, JSON.stringify(existing));
       }
     } catch (e) {
       console.warn('[GoalStorage] localStorage quota error:', e);
@@ -427,6 +493,69 @@
     this.state.activeSession = null;
     this.save();
   };
+  GoalStorage.prototype.isSyllabusDone = function(id) { return !!this.state.syllabusDone[id]; };
+  GoalStorage.prototype.toggleSyllabusDone = function(id) {
+    if (this.state.syllabusDone[id]) delete this.state.syllabusDone[id];
+    else this.state.syllabusDone[id] = Date.now();
+    this.save();
+    return !!this.state.syllabusDone[id];
+  };
+
+  GoalStorage.prototype.localDateStr = function(ts) { return todayStr(ts); };
+
+  /**
+   * Questions answered per local day, built from session history.
+   * Returns { 'YYYY-MM-DD': count }
+   */
+  GoalStorage.prototype.getActivityByDay = function() {
+    var map = {};
+    this.state.history.forEach(function(h) {
+      if (h && typeof h.date === 'string') {
+        map[h.date] = (map[h.date] || 0) + (Number(h.attempted) || 0);
+      }
+    });
+    return map;
+  };
+
+  /**
+   * Consecutive-day study streak. Today not yet studied does not break the
+   * streak (it counts from yesterday), so the streak is only lost after a
+   * full missed day.
+   */
+  GoalStorage.prototype.getStreak = function() {
+    var map = this.getActivityByDay();
+    var d = new Date();
+    var streak = 0;
+    if (!map[todayStr(d.getTime())]) d.setDate(d.getDate() - 1);
+    while (map[todayStr(d.getTime())]) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    }
+    return streak;
+  };
+
+  /**
+   * Accuracy per subject computed from SRS card counters.
+   * Returns [{ subject, attempts, correct, accuracy }] sorted weakest first.
+   */
+  GoalStorage.prototype.getSubjectAccuracy = function(bank) {
+    var agg = {};
+    var cards = this.state.cards;
+    Object.keys(cards).forEach(function(id) {
+      var q = bank.getById(id);
+      var c = cards[id];
+      if (!q || !c.attempts) return;
+      var a = agg[q.subject] || (agg[q.subject] = { subject: q.subject, attempts: 0, correct: 0 });
+      a.attempts += c.attempts;
+      a.correct += c.correct;
+    });
+    return Object.keys(agg).map(function(k) {
+      var a = agg[k];
+      a.accuracy = Math.round((a.correct / a.attempts) * 100);
+      return a;
+    }).sort(function(x, y) { return x.accuracy - y.accuracy; });
+  };
+
   GoalStorage.prototype.recordSessionComplete = function(summary) {
     this.state.history.unshift(summary);
     if (this.state.history.length > 50) this.state.history.pop();

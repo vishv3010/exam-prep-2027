@@ -200,6 +200,9 @@
       case 'progress':
         bodyHtml = this.renderProgressScreen();
         break;
+      case 'syllabus':
+        bodyHtml = this.renderSyllabusScreen();
+        break;
       case 'learn':
         bodyHtml = this.renderLessonView();
         break;
@@ -245,6 +248,7 @@
     // Simplified 5-tab hierarchy: HOME, PRACTICE, REVISION, PYQ, PROGRESS
     var tabs = [
       { id: 'home', label: (this.lang === 'gu' ? 'મુખ્ય' : 'Home') },
+      { id: 'syllabus', label: (this.lang === 'gu' ? 'સિલેબસ' : 'Syllabus') },
       { id: 'practice', label: (this.lang === 'gu' ? 'પ્રેક્ટિસ' : 'Practice') },
       { id: 'revision', label: (this.lang === 'gu' ? 'રિવિઝન' : 'Revision') },
       { id: 'pyq', label: (this.lang === 'gu' ? 'PYQ' : 'PYQ') },
@@ -648,6 +652,210 @@
   /**
    * Progress Screen: Minimal analytics and sanitized data management
    */
+  /**
+   * Syllabus roadmap: what to study, in what order, how important, and progress.
+   */
+  PSIUI.prototype.renderSyllabusScreen = function() {
+    var gu = this.lang === 'gu';
+    var syl = root.GOAL_SYLLABUS;
+    if (!syl) return '<div class="psi-hero-card"><p>Syllabus data not loaded.</p></div>';
+    var self = this;
+    var exam = this.syllabusExam || 'ALL';
+    var cards = this.storage.state.cards;
+
+    // Question-bank index: "subject::topic" -> [ids]
+    var bankIdx = {};
+    this.bank.getAll().forEach(function(q) {
+      var k = q.subject + '::' + q.topic;
+      (bankIdx[k] = bankIdx[k] || []).push(q.id);
+    });
+
+    function topicStats(t) {
+      var n = 0, att = 0, cor = 0;
+      t.match.forEach(function(k) {
+        (bankIdx[k] || []).forEach(function(id) {
+          n++;
+          var c = cards[id];
+          if (c && c.attempts) { att += c.attempts; cor += c.correct; }
+        });
+      });
+      return { count: n, acc: att ? Math.round((cor / att) * 100) : null };
+    }
+    function inExam(t) { return exam === 'ALL' || t.exams.indexOf(exam) !== -1; }
+
+    var PR = {
+      high: { en: 'High', gu: 'મહત્વનું', css: 'color:var(--alert);background:var(--alert-soft);border:1px solid var(--alert-border);', rank: 0 },
+      med: { en: 'Medium', gu: 'મધ્યમ', css: 'color:var(--brass);background:var(--brass-soft);border:1px solid var(--brass-border);', rank: 1 },
+      low: { en: 'Low', gu: 'ઓછું', css: 'color:var(--ink-faint);background:var(--ground);border:1px solid var(--line);', rank: 2 }
+    };
+
+    // Flatten all topics in scope
+    var all = [];
+    syl.subjects.forEach(function(s) {
+      s.topics.forEach(function(t) { if (inExam(t)) all.push({ s: s, t: t }); });
+    });
+    var doneCount = all.filter(function(x) { return self.storage.isSyllabusDone(x.t.id); }).length;
+    var pct = all.length ? Math.round((doneCount / all.length) * 100) : 0;
+
+    // Next up: unfinished topics ordered by stage, then priority
+    var next = all.filter(function(x) { return !self.storage.isSyllabusDone(x.t.id); })
+      .sort(function(a, b) { return (a.t.stage - b.t.stage) || (PR[a.t.priority].rank - PR[b.t.priority].rank); })
+      .slice(0, 5);
+
+    function topicRow(x, compact) {
+      var t = x.t, done = self.storage.isSyllabusDone(t.id), st = topicStats(t), p = PR[t.priority];
+      var accHtml = st.acc === null ? '' :
+        '<span class="mono" style="font-size:11.5px;color:' + (st.acc >= 70 ? 'var(--good)' : st.acc >= 45 ? 'var(--brass)' : 'var(--alert)') + ';">' + st.acc + '%</span>';
+      var actions = '';
+      if (t.lesson) actions += '<button class="psi-pill-btn" data-open-lesson="' + escapeHtml(t.lesson) + '">' + (gu ? 'પાઠ' : 'Lesson') + '</button>';
+      if (st.count) actions += '<button class="psi-pill-btn" data-syl-practice="' + escapeHtml(t.match.join(',')) + '">' + (gu ? 'પ્રેક્ટિસ' : 'Practice') + ' (' + st.count + ')</button>';
+      return '<div class="syl-row' + (done ? ' done' : '') + '">' +
+        '<button class="syl-check" data-syl-done="' + escapeHtml(t.id) + '" aria-pressed="' + done + '" aria-label="' + (done ? 'Mark not done' : 'Mark done') + ': ' + escapeHtml(t.name) + '">' + (done ? '&#10003;' : '') + '</button>' +
+        '<div class="syl-body">' +
+          '<div class="syl-name">' + escapeHtml(t.name) + '</div>' +
+          '<div class="syl-meta">' +
+            '<span class="syl-tag" style="' + p.css + '">' + (gu ? p.gu : p.en) + '</span>' +
+            '<span class="syl-tag">S' + t.stage + '</span>' +
+            (compact ? '<span class="syl-tag">' + escapeHtml(gu ? x.s.gu : x.s.en) + '</span>' : '') +
+            '<span class="syl-tag">' + escapeHtml(t.exams.join(' + ')) + '</span>' + accHtml +
+          '</div>' +
+          (t.tip && !compact ? '<div class="syl-tip">' + escapeHtml(t.tip) + '</div>' : '') +
+          (actions ? '<div class="syl-actions">' + actions + '</div>' : '') +
+        '</div>' +
+      '</div>';
+    }
+
+    // Exam filter
+    var filter = '<div class="syl-filter" role="group" aria-label="Exam filter">' +
+      [['ALL', gu ? 'બંને' : 'Both'], ['CDS', 'CDS'], ['PSI', 'PSI']].map(function(f) {
+        return '<button class="psi-lang-btn' + (exam === f[0] ? ' active' : '') + '" data-syl-exam="' + f[0] + '">' + f[1] + '</button>';
+      }).join('') + '</div>';
+
+    var html = '<div class="psi-hero-card syl">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">' +
+        '<div><h3 style="margin:0;">' + (gu ? 'સિલેબસ અને રોડમેપ' : 'Syllabus & Roadmap') + '</h3>' +
+        '<p class="hint" style="margin:4px 0 0;">' + (gu ? 'શું શીખવું, કયા ક્રમમાં, અને કેટલું મહત્વનું.' : 'What to learn, in what order, and how much it matters.') + '</p></div>' +
+        filter +
+      '</div>' +
+      '<div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span style="font-weight:600;">' +
+        (gu ? 'કુલ પ્રગતિ' : 'Overall coverage') + '</span><span class="mono">' + doneCount + ' / ' + all.length + ' · ' + pct + '%</span></div>' +
+        '<div style="height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden;"><div style="width:' + pct + '%;height:100%;background:var(--good);"></div></div>' +
+        '<p class="hint" style="margin-top:6px;font-size:12px;">' + (gu ? 'વિષય ત્યારે જ ટિક કરો જ્યારે તમે તેને શીખી અને પ્રશ્નોથી ચકાસી લો.' : 'Tick a topic only when it is learned AND tested — not just read.') + '</p></div>';
+
+    // Start here
+    html += '<div class="syl-section"><h4>' + (gu ? '👉 અહીંથી શરૂ કરો — આગળના ૫ વિષયો' : '👉 Start here — your next 5 topics') + '</h4>' +
+      (next.length ? next.map(function(x) { return topicRow(x, true); }).join('') :
+        '<p class="hint">' + (gu ? 'બધા વિષયો પૂર્ણ! હવે મોક ટેસ્ટ અને રિવિઝન.' : 'Every topic covered — switch to mocks and revision.') + '</p>') +
+    '</div>';
+
+    // Study order
+    html += '<details class="syl-section"><summary><h4>' + (gu ? 'અભ્યાસનો ક્રમ (૪ સ્ટેજ)' : 'Study order (4 stages)') + '</h4></summary>' +
+      syl.stages.map(function(st) {
+        var inStage = all.filter(function(x) { return x.t.stage === st.n; });
+        var d = inStage.filter(function(x) { return self.storage.isSyllabusDone(x.t.id); }).length;
+        return '<div class="syl-stage"><div style="display:flex;justify-content:space-between;gap:8px;"><strong>' + escapeHtml(gu ? st.gu : st.en) + '</strong>' +
+          '<span class="mono" style="font-size:12px;">' + d + '/' + inStage.length + '</span></div>' +
+          '<div class="syl-tip">' + escapeHtml(st.when) + ' — ' + escapeHtml(st.why) + '</div></div>';
+      }).join('') +
+    '</details>';
+
+    // Exam pattern & rules
+    syl.exams.forEach(function(ex) {
+      if (exam !== 'ALL' && exam !== ex.id) return;
+      var days = ex.date ? Math.ceil((new Date(ex.date + 'T00:00:00') - new Date()) / 86400000) : null;
+      html += '<details class="syl-section"><summary><h4>' + escapeHtml(ex.name) +
+        (days !== null && days >= 0 ? ' <span class="mono" style="font-size:12px;color:var(--accent);">· ' + days + (gu ? ' દિવસ બાકી' : ' days left') + '</span>' : '') +
+        '</h4></summary>' +
+        '<table class="syl-table"><tbody>' + ex.pattern.map(function(r) {
+          return '<tr><td>' + escapeHtml(r[0]) + '</td><td class="mono">' +
+            escapeHtml(r.slice(1).filter(Boolean).join(' · ')) + '</td></tr>';
+        }).join('') + '</tbody></table>' +
+        '<ul class="syl-rules">' + ex.rules.map(function(r) { return '<li>' + escapeHtml(r) + '</li>'; }).join('') + '</ul>' +
+      '</details>';
+    });
+
+    // Full topic list by subject
+    html += '<div class="syl-section"><h4>' + (gu ? 'વિષયવાર સંપૂર્ણ સિલેબસ' : 'Full syllabus by subject') + '</h4>';
+    syl.subjects.forEach(function(s) {
+      var ts = s.topics.filter(inExam);
+      if (!ts.length) return;
+      var d = ts.filter(function(t) { return self.storage.isSyllabusDone(t.id); }).length;
+      ts = ts.slice().sort(function(a, b) { return (a.stage - b.stage) || (PR[a.priority].rank - PR[b.priority].rank); });
+      html += '<details class="syl-subject"><summary>' +
+        '<span style="font-weight:700;">' + escapeHtml(gu ? s.gu : s.en) + '</span>' +
+        '<span class="mono" style="font-size:12px;color:var(--ink-faint);">' + d + '/' + ts.length + '</span>' +
+      '</summary>' + ts.map(function(t) { return topicRow({ s: s, t: t }, false); }).join('') + '</details>';
+    });
+    html += '<p class="hint" style="font-size:12px;margin-top:8px;">' +
+      (gu ? 'મહત્વ = જૂના પેપરમાં સામાન્ય વજન. તમારા પોતાના PYQ વિશ્લેષણથી ચકાસો.' : 'Importance reflects typical weight in past papers — confirm with your own PYQ analysis. Verify patterns against each official notification.') +
+    '</p></div>';
+
+    return html + '</div>';
+  };
+
+  /**
+   * Consistency + subject accuracy + score trend panel for the Progress tab
+   */
+  PSIUI.prototype.renderInsights = function() {
+    var gu = this.lang === 'gu';
+    var streak = this.storage.getStreak();
+    var activity = this.storage.getActivityByDay();
+
+    // Last 14 days strip (oldest -> newest)
+    var cells = '';
+    var maxQ = 1, days = [];
+    for (var i = 13; i >= 0; i--) {
+      var d = new Date();
+      d.setDate(d.getDate() - i);
+      var key = this.storage.localDateStr(d.getTime());
+      var n = activity[key] || 0;
+      days.push({ key: key, n: n });
+      if (n > maxQ) maxQ = n;
+    }
+    days.forEach(function(day) {
+      var h = day.n ? Math.max(14, Math.round((day.n / maxQ) * 100)) : 6;
+      cells += '<div title="' + escapeHtml(day.key) + ': ' + day.n + ' Qs" style="flex:1;display:flex;align-items:flex-end;height:48px;">' +
+        '<div style="width:100%;height:' + h + '%;border-radius:3px;background:' + (day.n ? 'var(--accent)' : 'var(--line)') + ';"></div></div>';
+    });
+
+    // Subject accuracy bars
+    var subjects = this.storage.getSubjectAccuracy(this.bank);
+    var bars = subjects.length ? subjects.map(function(s) {
+      var color = s.accuracy >= 70 ? 'var(--good)' : (s.accuracy >= 45 ? 'var(--brass)' : 'var(--alert)');
+      var label = s.subject.replace(/_/g, ' ');
+      return '<div style="margin-bottom:8px;">' +
+        '<div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;">' +
+          '<span style="font-weight:600;text-transform:capitalize;">' + escapeHtml(label) + '</span>' +
+          '<span class="mono" style="color:' + color + ';font-weight:700;">' + s.accuracy + '% <span style="color:var(--ink-faint);font-weight:400;">(' + s.attempts + ')</span></span>' +
+        '</div>' +
+        '<div style="height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;"><div style="width:' + s.accuracy + '%;height:100%;background:' + color + ';"></div></div>' +
+      '</div>';
+    }).join('') : '<p class="hint">' + (gu ? 'થોડા પ્રશ્નો હલ કરો, પછી વિષયવાર એક્યુરેસી અહીં દેખાશે.' : 'Answer some questions and per-subject accuracy will appear here.') + '</p>';
+
+    // Recent sessions
+    var recent = this.storage.state.history.slice(0, 5).map(function(h) {
+      var pct = h.attempted ? Math.round((h.correct / h.attempted) * 100) : 0;
+      return '<div style="display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--line-soft);">' +
+        '<span>' + escapeHtml(h.date || '') + ' &middot; ' + escapeHtml(String(h.mode || '').replace(/_/g, ' ')) + '</span>' +
+        '<span class="mono">' + (Number(h.correct) || 0) + '/' + (Number(h.totalQuestions) || 0) + ' &middot; ' + pct + '%</span>' +
+      '</div>';
+    }).join('');
+
+    return '<div style="border-top:1px solid var(--line-soft);padding-top:14px;margin-top:14px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+        '<h4 style="margin:0;font-size:15px;">' + (gu ? 'સાતત્ય (છેલ્લા ૧૪ દિવસ)' : 'Consistency (last 14 days)') + '</h4>' +
+        '<span class="psi-badge" style="background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-border);">' +
+          streak + (gu ? ' દિવસની સ્ટ્રીક' : '-day streak') + '</span>' +
+      '</div>' +
+      '<div style="display:flex;gap:3px;margin-top:10px;">' + cells + '</div>' +
+    '</div>' +
+    '<div style="border-top:1px solid var(--line-soft);padding-top:14px;margin-top:14px;">' +
+      '<h4 style="margin:0 0 10px;font-size:15px;">' + (gu ? 'વિષયવાર એક્યુરેસી (નબળા પહેલા)' : 'Accuracy by Subject (weakest first)') + '</h4>' + bars +
+    '</div>' +
+    (recent ? '<div style="border-top:1px solid var(--line-soft);padding-top:14px;margin-top:14px;">' +
+      '<h4 style="margin:0 0 6px;font-size:15px;">' + (gu ? 'તાજેતરના સેશન' : 'Recent Sessions') + '</h4>' + recent + '</div>' : '');
+  };
+
   PSIUI.prototype.renderProgressScreen = function() {
     var stats = this.storage.state.stats;
     var acc = stats.attempted > 0 ? Math.round((stats.correct / stats.attempted) * 100) : 0;
@@ -688,6 +896,8 @@
           '<span class="mono">' + (stats.blank || 0) + '</span>' +
         '</div>' +
       '</div>' +
+
+      this.renderInsights() +
 
       // Dual-Target Preparation Balance (CDS IMA vs Gujarat PSI)
       '<div style="border-top:1px solid var(--line-soft);padding-top:14px;margin-top:14px;">' +
@@ -1539,6 +1749,28 @@
       if (tabBtn) {
         var tab = tabBtn.getAttribute('data-tab');
         self.switchTab(tab);
+        return;
+      }
+
+      // Syllabus: tick topic done / practise topic / exam filter
+      var sylDone = e.target.closest('[data-syl-done]');
+      if (sylDone) {
+        self.storage.toggleSyllabusDone(sylDone.getAttribute('data-syl-done'));
+        var y = typeof window !== 'undefined' ? window.scrollY : 0;
+        self.render();
+        if (typeof window !== 'undefined') window.scrollTo(0, y);
+        return;
+      }
+      var sylPractice = e.target.closest('[data-syl-practice]');
+      if (sylPractice) {
+        var keys = sylPractice.getAttribute('data-syl-practice').split(',');
+        self.startSession('practice', { topics: keys, count: 10 });
+        return;
+      }
+      var sylExam = e.target.closest('[data-syl-exam]');
+      if (sylExam) {
+        self.syllabusExam = sylExam.getAttribute('data-syl-exam');
+        self.render();
         return;
       }
 
