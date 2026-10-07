@@ -203,7 +203,7 @@
   ]);
 
   G.add('g_defence', [
-    L('Academies (CDS entries)', '- **IMA** — Dehradun (1932)\n- **INA** — Ezhimala, Kerala\n- **AFA** — Dundigal, Hyderabad\n- **OTA** — Chennai (also Gaya)\n- NDA — Khadakwasla, Pune\nYour B.E. makes you eligible for **INA and AFA**, not just IMA/OTA — shallower pools.'),
+    L('Academies (CDS entries)', '- **IMA** — Dehradun (1932)\n- **INA** — Ezhimala, Kerala\n- **AFA** — Dundigal, Hyderabad\n- Ages (check each notice): IMA 19–24 · **INA 19–22** · AFA 20–24 · OTA 19–25\n- **OTA** — Chennai (also Gaya)\n- NDA — Khadakwasla, Pune\nYour B.E. makes you eligible for **INA and AFA**, not just IMA/OTA — shallower pools.'),
     F('Indian Military Academy', 'Dehradun'), F('Indian Naval Academy', 'Ezhimala, Kerala'), F('Air Force Academy', 'Dundigal, Hyderabad'), F('Officers Training Academy', 'Chennai (and Gaya)'),
     Q('The Indian Naval Academy is at:', ['Ezhimala', 'Visakhapatnam', 'Kochi', 'Goa'], 'Kerala.'),
     L('Ranks, days, firsts', '- Army ranks: Lieutenant → Captain → Major → Lt Colonel → Colonel → Brigadier → Major General → Lt General → General.\n- First Field Marshal: **Sam Manekshaw** (1973); also K. M. Cariappa. Marshal of the Air Force: **Arjan Singh**.\n- First Chief of Defence Staff: **Gen Bipin Rawat** (1 Jan 2020).\n- **Army Day 15 Jan** · **Air Force Day 8 Oct** · **Navy Day 4 Dec** · **Kargil Vijay Diwas 26 July** · **Armed Forces Flag Day 7 Dec**.'),

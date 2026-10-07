@@ -323,3 +323,48 @@ details .md { padding-bottom: 12px; }
   body { font-size: 16px; }
   .top { padding-top: 26px; }
 }
+
+/* ---------- v2.1 refresh: quiet monochrome, hairlines, no shadows ---------- */
+:root {
+  --bg: #FAFAF9; --surface: #FFFFFF; --surface-2: #F4F4F3; --line: #EAEAE8;
+  --ink: #0B0B0C; --ink-2: #52525B; --ink-3: #8E8E96;
+  --go: #0B0B0C; --go-ink: #FFFFFF;
+  --psi: #D9620F; --psi-soft: #FDF1E7; --cds: #5B7F3A; --cds-soft: #EEF4E8;
+  --shadow: none; --r: 20px; --r-sm: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #09090B; --surface: #111113; --surface-2: #18181B; --line: #232327;
+    --ink: #F4F4F5; --ink-2: #A1A1AA; --ink-3: #71717A;
+    --go: #F4F4F5; --go-ink: #09090B; --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #09090B; --surface: #111113; --surface-2: #18181B; --line: #232327;
+  --ink: #F4F4F5; --ink-2: #A1A1AA; --ink-3: #71717A;
+  --go: #F4F4F5; --go-ink: #09090B; --shadow: none;
+}
+body { font-size: 15px; letter-spacing: -.006em; }
+h2 { font-size: 16px; font-weight: 600; letter-spacing: -.02em; }
+h3 { font-weight: 600; }
+.brand { font-weight: 700; font-size: 20px; letter-spacing: -.04em; }
+.brand span { font-weight: 500; letter-spacing: 0; }
+.pill { border-color: transparent; background: var(--surface-2); font-weight: 500; }
+.card { padding: 20px; margin-bottom: 10px; border-color: var(--line); }
+.card h2 { margin-bottom: 12px; }
+.place, .chip, .btn, .opt { border-width: 1px; }
+.place { background: transparent; min-height: 96px; padding: 14px 12px; }
+.place b, .chip { font-weight: 600; }
+.place.on { background: var(--surface-2); border-color: var(--ink); }
+.chip { background: transparent; min-height: 40px; }
+.go { border-radius: 99px; font-weight: 600; font-size: 16px; min-height: 54px; letter-spacing: -.015em; }
+.btn { border-radius: 99px; font-weight: 600; background: transparent; }
+.opt { border-radius: var(--r-sm); }
+.bar { height: 6px; }
+.bar.thin { height: 4px; }
+.tabs { left: 50%; right: auto; bottom: calc(10px + env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(360px, calc(100% - 32px)); padding: 5px; border: 1px solid var(--line); border-radius: 99px; }
+.tabs a { flex: 1; border-radius: 99px; font-weight: 500; padding: 6px 0; }
+.tabs a.on { background: var(--ink); color: var(--bg); }
+.tabs a.on svg { color: inherit; }
+body { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+.sheet { border-radius: 24px 24px 0 0; }
