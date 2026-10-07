@@ -181,7 +181,7 @@
       ['metro', 'desk', 'free'].map(function (p) {
         return '<button class="place' + (p === place ? ' on' : '') + '" data-act="place" data-v="' + p + '">' + IC[p] + '<b>' + G.PLACES[p].name + '</b><small>' + G.PLACES[p].hint + '</small></button>';
       }).join('') + '</div>' +
-      '<h2>How long?</h2><div class="chips">' +
+      '<h2>How long? <small class="unit">minutes</small></h2><div class="chips mins">' +
       MINS.map(function (m) { return '<button class="chip' + (m === mins ? ' on' : '') + '" data-act="mins" data-v="' + m + '">' + m + '<small>min</small></button>'; }).join('') + '</div>' +
       '<div class="preview">' + (plan.queue.length
         ? '<span class="lbl">Up next</span> <b>' + esc(names.slice(0, 2).join(' + ') || 'Reviews') + '</b><span class="meta">' + nNew + ' new · ' + plan.nReview + ' review' + (hasTask ? ' · + Paper 2 writing' : '') + '</span>'
