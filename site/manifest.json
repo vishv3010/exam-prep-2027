@@ -1,11 +1,11 @@
 {
-  "name": "GOAL OS \u2014 CDS IMA & Gujarat PSI Preparation",
-  "short_name": "GOAL OS",
-  "description": "Adaptive, evidence-driven personal training system for CDS I 2027 and Gujarat Armed PSI.",
+  "name": "GOAL — PSI + CDS",
+  "short_name": "GOAL",
+  "description": "Minutes in, marks out. Gujarat PSI + CDS prep that fits a full-time life.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0F172A",
-  "theme_color": "#2563EB",
+  "background_color": "#0E1116",
+  "theme_color": "#0E1116",
   "icons": [
     {
       "src": "icon.svg",

@@ -1,105 +1,66 @@
-# Goal: Government Field Job
+# GOAL — Gujarat PSI + CDS, 55 / 45
 
-**Owner:** Vishv
-**Started:** 26 August 2026
-**Profile:** 22 (Oct 2026) · B.E. graduate · private job 8:30am–8:10pm · trains at gym 1hr+/day · fluent spoken + reading Gujarati, weak on formal/exam-register written Gujarati · one GPSC ICT Officer attempt already sat
+**Open:** `site/index.html` (live: https://vishv3010.github.io/exam-prep-2027/) · works offline · add it to your home screen.
 
----
+## The one rule
 
-## The three targets
+**Open it. Tap where you are. Tap how many minutes. Press Start.** The app decides what to study. You never plan.
 
-| Exam | Post | Status | Next window |
-|---|---|---|---|
-| **CDS** (UPSC) | Officer — IMA / INA / AFA / OTA | **CO-ANCHOR** — holds the deep block | Exam 11 Apr 2027 |
-| **Gujarat PSI** (GPRB) | Police Sub-Inspector | **CO-ANCHOR** — standing readiness | Next cycle TBD |
-| **SSC CGL** | CBI Sub-Inspector | ⚠️ **POSSIBLY LIVE NOW** | Tier 1 **Sept 2026** |
+| You are… | Tap | You get |
+|---|---|---|
+| Standing in the metro, one hand | **Metro** | Flashcards, polity, Gujarat GK, vocab, quick-mental questions. No pen needed. |
+| At your office desk, a gap between work | **Desk** | Maths, reasoning, grammar — the stuff that needs focus. |
+| Home / weekend, pen and paper | **Free** | Same, plus one Paper 2 writing task a week (40+ min sessions). |
 
-⚠️ **Before anything else: `ssc-cgl-2026-sprint.md`.** You believe you submitted the CGL 2026
-form. If so, Tier 1 is weeks away, not months. Confirm submission *and payment* at ssc.gov.in
-today — an unpaid application is not a submitted one.
+2 minutes counts. 5 minutes keeps the streak. **Miss a day, never miss two.**
 
----
+## Why this beats the old app
 
-## The situation as of today
+The old app was a planner built for a 5:30 am routine you don't live. This one is built for the life you actually have — job, startup, football, content, scattered gaps.
 
-Every cycle you named has **already closed applications**:
+1. **It ranks by marks per hour.** Every topic carries its real weight in both exams (out of 300 each), and the app serves the topic paying the most marks per hour of your effort, weighted 55% PSI / 45% CDS. Change the split in **Me → Settings**.
+2. **Half of PSI Paper 1 is Reasoning + Quant (100 / 200 marks).** The old app barely covered it. Quant is also all of CDS Maths, so every maths minute pays twice.
+3. **Places do different jobs.** Facts go to the metro, maths to the desk, writing to home. The time you already lose in transit becomes GK time.
+4. **Spaced repetition on everything.** What you miss comes back tomorrow; what you know comes back in 3, 7, 16, 35 days.
+5. **A projected score you can't fool.** The Now tab shows estimated marks out of 300 for each exam, with section minimums (PSI 40% in each part of Paper 1). It is deliberately conservative: it counts the time you've actually spent per topic, not just questions answered.
+6. **Rules drilled, not just facts.** PSI mocks have Option E and charge −0.25 for a blank. CDS mocks charge −⅓ for a wrong answer and nothing for a skip. You'll make those calls by habit.
+7. **Paper 2 is cheap marks for you.** Gujarati writing is ~60–70 marks, and you already speak Gujarati. What's tested is format and formal register. The app gives frames, formal phrases, 20 timed tasks and a self-check rubric. Write on paper.
 
-- CDS II 2026 — closed 11 Jun 2026, exam 13 Sep 2026
-- Gujarat PSI (13,591 posts) — mid-process since Dec 2025
-- SSC CGL 2026 — closed 22 Jun 2026, **but you may be in it.** Tier 1 is in September 2026.
+## The weekly minimum (from the Now tab)
 
-This is not a setback. It is a **7.5-month runway with zero exam pressure** — the single best
-condition for someone starting from zero prep on an 11.5-hour workday. Most aspirants never get
-a clean runway; they start mid-cycle and are always behind.
+- One **mini mock** (25 min, Test tab) — weekends are good for it
+- One **Paper 2 writing task** on paper
+- One **5 km time trial** — PET is 25:00; aim for 23:00. Football builds the engine.
+- Current affairs: 10–15 min of a newspaper, logged under **Me → Outside study**
 
----
+## Dates
 
-## Why CDS holds the deep block — and PSI is co-equal, not secondary
+| When | What |
+|---|---|
+| **2–22 Dec 2026** | CDS I 2027 form at upsc.gov.in. Apply in week 1. Tick **all four** (IMA, INA, AFA, OTA) — your B.E. opens INA and AFA. |
+| 11 Apr 2027 | CDS I 2027 written |
+| 19 Sep 2027 | CDS II 2027 — your strongest CDS shot, with ~a year of build behind it |
+| 1st of every month | Check gprb.gujarat.gov.in and ojas.gujarat.gov.in for the PSI notification. No date is announced; when it drops it's a 60–90 day sprint, and the app's Map shows where to push. |
 
-1. **It is the only firmly dated target.** 11 April 2027, published in the UPSC calendar.
-   PSI's next notification date is not in your control and may be years out.
-2. **Your engineering degree buys three extra doors.** One CDS application covers IMA, INA, AFA
-   and OTA. INA requires an engineering degree; AFA requires engineering or 10+2 PCM. Non-engineering
-   graduates can only compete for IMA and OTA. You compete in **shallower pools** for two of the four.
-3. **The window closes; PSI's does not.** You have ~4 IMA/INA attempts left (CDS I & II 2027,
-   CDS I & II 2028). Gujarat PSI stays open to age 35 — thirteen more years.
-   **Do the closing-window exam first.** This is the whole sequencing argument.
-4. **Elementary Mathematics is class-10 level.** For a B.E. graduate that is the cheapest
-   100 marks on any exam in this list.
+Exam patterns used (verify against each notification):
+PSI — Paper 1 MCQ 200 (Part A: Reasoning & DI 50 + Quant 50; Part B: Constitution & public admin 25, history/geography/heritage 25, current affairs & GK 25, environment/science/economy 25; 40% in each part), Paper 2 descriptive 100 (Gujarati + English), PET 5 km in 25 min.
+CDS — English 100, GK 100, Elementary Maths 100 (OTA: no maths); −⅓ per wrong answer.
 
-**And why PSI is co-equal, not secondary** — this ranking is yours and the numbers back it:
-858 PSI posts in one Gujarat cycle against 451 CDS vacancies nationally; **no SSB**, so the
-filter is a written paper and a run, both of which respond directly to work you control; and
-it is a field job in your own state, which is what you actually said you wanted.
+## Your data
 
-The age argument still decides *sequencing*, not importance: CDS closes for you around 2029,
-PSI stays open to 35. So **CDS holds the protected 5:30am deep block; PSI gets a real standing
-allocation of ~5–6 hrs/week.** Details in `psi.md`.
+Progress is saved on your phone only. **Me → Backup → Export** once a week; Import on a new phone.
 
-## The stacking dividend
+## For development
 
-Roughly **70% of CDS preparation is also SSC CGL and PSI Prelims preparation** — English, General
-Knowledge, and Quantitative Aptitude are shared. You are building one core and bolting on three
-small exam-specific modules:
+```
+python3 -m http.server 8080      # then open http://localhost:8080/site/
+node scripts/check.js            # content integrity, marks budget, 30-day scheduler simulation, mock scoring
+```
 
-- **CDS-only:** SSB interview preparation
-- **CGL-only:** Reasoning (~6 focused weeks)
-- **PSI-only:** Gujarat GK + formal Gujarati
+- `site/core.js` — engine: topics, spaced repetition, session builder, projection, mocks
+- `site/content/topics.js` — the syllabus as a marks budget (edit weights here)
+- `site/content/*.js` — lessons, questions, flashcards, writing tasks. Write the **correct option first**; the UI shuffles.
+- `site/legacy/` — 130 bilingual questions from v1, mapped in by `content/legacy.js`
+- `archive/v1/` — the old app and planning docs
 
-Nothing here is wasted work.
-
----
-
-## The thing almost everyone gets wrong about CDS
-
-CDS **written** cutoffs are historically low — roughly 20–25%. The written paper is not the filter.
-
-The **SSB interview** is: five days, single-digit-percent conversion. The overwhelming majority of
-candidates clear the written and then walk into SSB completely cold, having spent 100% of their
-preparation on books.
-
-**Therefore:** SSB preparation starts in Phase 2 (December), not after the written result.
-It is a scheduled workstream in this plan, not an afterthought.
-
----
-
-## Files
-
-- `ssc-cgl-2026-sprint.md` — ⚠️ read first. The possibly-live exam
-- `psi.md` — Gujarat PSI as co-anchor: structure, the Option-E trap, standing readiness
-- `week-01-04.md` — **start here.** The first month, day by day, decision-free
-- `gujarat-gk.md` — the PSI-only content map: Gujarat GK, legal, psychology & sociology
-- `calendar.md` — every dated milestone, counted down
-- `daily-schedule.md` — the weekday and weekend template
-- `syllabus-tracker.md` — checkbox progress across all subjects
-- `books.md` — the deliberately short book list
-- `physical.md` — running conversion + medical standards
-- `gujarati.md` — the exam-vocabulary drip
-- `log/` — daily logs and mock scores
-- `reference/` — saved notification PDFs, syllabi, past papers
-
-## Verify before you rely on it
-
-Every date and number here was checked against live sources on 26 Aug 2026, but patterns and age
-relaxations change year to year. **Re-verify against the actual notification** at
-`upsc.gov.in`, `ssc.gov.in`, `ojas.gujarat.gov.in` and `gprb.gujarat.gov.in` when each drops.
+When you add a content file, add it to `site/index.html` and `site/sw.js` (and bump `CACHE_NAME`).

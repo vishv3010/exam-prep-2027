@@ -1,34 +1,34 @@
 /**
- * GOAL OS Service Worker
- * Ensures 100% offline availability in underground metro transit conditions.
+ * GOAL service worker — the whole app works offline (underground metro).
+ * When you add a content file to index.html, add it here and bump CACHE_NAME.
  */
-const CACHE_NAME = 'goal-os-v4-20261006';
+const CACHE_NAME = 'goal-v2-20261007b';
 
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './app.css',
   './icon.svg',
   './manifest.json',
-  './psi/psi.css',
-  './psi/psi-config.js',
-  './psi/psi-storage.js',
-  './psi/psi-srs.js',
-  './psi/psi-question-engine.js',
-  './psi/psi-scheduler.js',
-  './psi/psi-ui.js',
-  './psi/psi-app.js',
-  './data/psi/index.js',
-  './data/psi/pyq-2021.js',
-  './data/psi/gujarat-gk.js',
-  './data/psi/law.js',
-  './data/psi/ai-practice.js',
-  './data/psi/diagnostic-bank.js',
-  './data/psi/math-drills.js',
-  './data/psi/english-drills.js',
-  './data/psi/science-drills.js',
-  './data/psi/lexicon.js',
-  './data/psi/lessons.js',
-  './data/syllabus.js'
+  './core.js',
+  './content/topics.js',
+  './content/maths.js',
+  './content/reasoning.js',
+  './content/english.js',
+  './content/writing.js',
+  './content/gk.js',
+  './content/gujarat.js',
+  './legacy/pyq-2021.js',
+  './legacy/gujarat-gk.js',
+  './legacy/law.js',
+  './legacy/ai-practice.js',
+  './legacy/diagnostic-bank.js',
+  './legacy/math-drills.js',
+  './legacy/english-drills.js',
+  './legacy/science-drills.js',
+  './legacy/lexicon.js',
+  './content/legacy.js',
+  './ui.js'
 ];
 
 self.addEventListener('install', (event) => {
