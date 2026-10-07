@@ -156,6 +156,10 @@
       mocks: [],       // { exam, day, score, max, right, wrong, blank, secs }
       runs: [],        // { day, km, min }
       outside: [],     // { day, kind, min }
+      track: {},       // topic id -> { stage 0-5, last: day of notes/last revision, src }
+      log: [],         // { day, topic, kind, min, note }
+      scores: [],      // { day, exam, label, score, max }
+      mistakes: [],    // { day, topic, text, done }
       prefs: { place: 'desk', mins: 10, weekly: 300, floor: 5, split: 55 }
     };
   };
@@ -501,6 +505,53 @@
   G.weekHas = function (list, pred) {
     var s = G.weekStart();
     return list.some(function (x) { return x.day >= s && (!pred || pred(x)); });
+  };
+
+  // ---------------------------------------------------------------- tracker
+  // A topic moves: not started -> learning -> notes made -> revised 1x/2x/3x.
+  // Each revision is due GAP[stage] days after the last one.
+  G.STAGES = ['Not started', 'Learning', 'Notes made', 'Revised 1×', 'Revised 2×', 'Revised 3×'];
+  var GAP = [null, null, 3, 7, 21, 45];
+  G.track = function (S, id) { return S.track[id] || { stage: 0, last: null, src: '' }; };
+  G.trackW = function (S, id) { return S.track[id] || (S.track[id] = { stage: 0, last: null, src: '' }); };
+  G.dueDay = function (tr) { return tr.stage >= 2 && tr.last != null ? tr.last + GAP[tr.stage] : null; };
+  G.setStage = function (S, id, k) {
+    var tr = G.trackW(S, id);
+    tr.stage = k;
+    tr.last = k >= 2 ? G.dayNum() : null;
+  };
+  G.revise = function (S, id) {
+    var tr = G.trackW(S, id);
+    if (tr.stage < 2) return false;
+    tr.stage = Math.min(5, tr.stage + 1);
+    tr.last = G.dayNum();
+    return true;
+  };
+  G.dueRevisions = function (S) {
+    var today = G.dayNum();
+    return G.topics.map(function (t) { return { t: t, due: G.dueDay(G.track(S, t.id)) }; })
+      .filter(function (x) { return x.due != null && x.due <= today; })
+      .sort(function (a, b) { return a.due - b.due || G.weight(b.t) - G.weight(a.t); });
+  };
+  /** Unfinished topics: in-progress first, then those whose prerequisites are started, by marks per hour. */
+  G.nextToLearn = function (S, n) {
+    return G.topics.filter(function (t) { return G.track(S, t.id).stage < 2; })
+      .map(function (t) {
+        var ready = t.pre.every(function (p) { return G.track(S, p).stage >= 1; });
+        return { t: t, k: (G.track(S, t.id).stage === 1 ? 1000 : 0) + (ready ? 100 : 0) + G.roi(t) };
+      })
+      .sort(function (a, b) { return b.k - a.k; }).slice(0, n).map(function (x) { return x.t; });
+  };
+  G.syllabusCoverage = function (S) {
+    var out = { psi: { notes: 0, rev: 0 }, cds: { notes: 0, rev: 0 } };
+    G.topics.forEach(function (t) {
+      var st = G.track(S, t.id).stage;
+      ['psi', 'cds'].forEach(function (e) {
+        if (st >= 2) out[e].notes += t[e];
+        if (st >= 3) out[e].rev += t[e];
+      });
+    });
+    return out;
   };
 
   // ---------------------------------------------------------------- mocks

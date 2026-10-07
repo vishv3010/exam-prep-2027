@@ -69,6 +69,6 @@
   T({ id: 'g_tech', group: 'GS', name: 'Science & technology, space', psi: 3, cds: 2, sec: { psi: 'B', cds: 'G' }, hrs: 2, metro: true });
   T({ id: 'g_defence', group: 'GS', name: 'Defence GK', psi: 0, cds: 6, sec: { cds: 'G' }, hrs: 3, metro: true });
   T({ id: 'g_static', group: 'GS', name: 'Static GK — firsts, bodies, sports, days', psi: 8, cds: 6, sec: { psi: 'B', cds: 'G' }, hrs: 4, metro: true });
-  T({ id: 'g_current', group: 'GS', name: 'Current affairs (system, not facts)', psi: 17, cds: 10, sec: { psi: 'B', cds: 'G' }, hrs: 30, metro: true, fromLog: 'ca',
+  T({ id: 'g_current', group: 'GS', name: 'Current affairs', psi: 17, cds: 10, sec: { psi: 'B', cds: 'G' }, hrs: 30, metro: true, fromLog: 'ca',
     note: 'Facts here go stale. The app teaches the method; log your daily 10–15 min reading under Me → Outside study.' });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -117,5 +117,23 @@ sc.score === 0.5 ? ok('PSI scoring: +1 −0.25 wrong, E = 0, blank −0.25') : e
 const sc2 = G.scoreMock('cds', [{ a: 0 }, { a: 1 }, { a: 2 }], [0, 0, null]);
 Math.abs(sc2.score - 0.67) < 0.01 ? ok('CDS scoring: +1 −1/3, blank free') : err(`CDS scoring wrong: ${sc2.score}`);
 
+console.log('Tracker');
+{
+  const T = G.blank();
+  const today = G.dayNum();
+  G.setStage(T, 'g_polity', 2);
+  G.dueDay(G.track(T, 'g_polity')) === today + 3 ? ok('notes made → first revision in 3 days') : err('first revision not at +3');
+  T.track.g_polity.last = today - 3;
+  G.dueRevisions(T).length === 1 ? ok('due list picks it up on day 3') : err('due list missing topic');
+  G.revise(T, 'g_polity'); G.revise(T, 'g_polity'); G.revise(T, 'g_polity');
+  const tr = G.track(T, 'g_polity');
+  tr.stage === 5 && G.dueDay(tr) === today + 45 ? ok('3 revisions → stage 5, maintenance every 45 days') : err(`after 3 revisions: stage ${tr.stage}, due ${G.dueDay(tr) - today}`);
+  G.revise(T, 'm_percent') === false ? ok('cannot revise before notes are made') : err('revised a topic with no notes');
+  const c = G.syllabusCoverage(T);
+  c.psi.notes === G.topicMap.g_polity.psi && c.cds.rev === G.topicMap.g_polity.cds ? ok('coverage counts marks of topics with notes') : err('coverage wrong');
+  const nx = G.nextToLearn(T, 3);
+  nx.length === 3 && !nx.some(t => t.id === 'g_polity') ? ok('next to learn: ' + nx.map(t => t.name).join(', ')) : err('next-to-learn includes a finished topic');
+}
+
 console.log(fail ? `\n${fail} problem(s)` : '\nAll checks passed');
 process.exit(fail ? 1 : 0);

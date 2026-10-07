@@ -1,6 +1,6 @@
 /**
- * GOAL — interface. Four tabs (Now · Map · Test · Me) and two full-screen runners
- * (study session, mini mock). State lives in localStorage; export it from Me.
+ * GOAL — interface. A study tracker (Today · Syllabus · Progress) plus practice
+ * runners (quick quiz, mini mock, Paper 2 writing). State lives in localStorage; export it from Me.
  */
 (function () {
   'use strict';
@@ -82,11 +82,17 @@
     x: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'
   };
 
+  IC.today = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="1.5"/><path d="M4 10h16M9 3v4M15 3v4M9 15l2 2 4-4"/></svg>';
+  IC.syllabus = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3"/></svg>';
+  IC.practice = IC.test;
+  IC.progress = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>';
+
   // ------------------------------------------------------------- shell
-  var TABS = [['now', 'Now'], ['map', 'Map'], ['test', 'Test'], ['me', 'Me']];
+  var TABS = [['today', 'Today'], ['syllabus', 'Syllabus'], ['practice', 'Practice'], ['progress', 'Progress']];
+  var lastTab = null;
   function tab() {
-    var h = (location.hash || '#now').slice(1);
-    return TABS.some(function (t) { return t[0] === h; }) ? h : 'now';
+    var h = (location.hash || '#today').slice(1);
+    return TABS.some(function (t) { return t[0] === h; }) ? h : 'today';
   }
   function renderTabs() {
     var cur = tab();
@@ -96,9 +102,11 @@
   }
   function render() {
     renderTabs();
-    var v = { now: viewNow, map: viewMap, test: viewTest, me: viewMe }[tab()];
+    var cur = tab();
+    var v = { today: viewToday, syllabus: viewSyllabus, practice: viewPractice, progress: viewProgress }[cur];
     document.getElementById('app').innerHTML = v();
-    window.scrollTo(0, 0);
+    if (cur !== lastTab) window.scrollTo(0, 0);
+    lastTab = cur;
   }
   window.addEventListener('hashchange', function () {
     if (ov.classList.contains('sheet-mode')) { ov.className = ''; ov.innerHTML = ''; document.body.classList.remove('locked'); }
@@ -106,21 +114,23 @@
   });
 
   // ------------------------------------------------------------- shared bits
-  function projectionCard() {
-    var p = G.project(S);
-    return '<section class="card proj">' + ['psi', 'cds'].map(function (e) {
-      var ex = G.EXAMS[e], tot = p[e].total;
-      var secs = ex.sections.map(function (s) {
-        var v = p[e].sec[s.id] || 0;
-        var cls = !s.min ? '' : v < s.min ? 'low' : 'okk';
-        return '<span class="' + cls + '">' + esc(s.id === 'W' ? 'Paper 2' : s.id === 'A' ? 'Part A' : s.id === 'B' ? 'Part B' : s.name) + ' ' + Math.round(v) + (s.min ? '<i>/' + s.min + '</i>' : '') + '</span>';
-      }).join('');
-      return '<div class="exam ' + e + '">' +
-        '<div class="exam-h"><span class="tag">' + (e === 'psi' ? 'PSI' : 'CDS') + '</span><span class="big mono">' + r1(tot) + '</span><span class="of mono">/ 300</span><span class="tgt mono">target ' + ex.target + '</span></div>' +
-        '<div class="bar"><i style="width:' + Math.min(100, tot / 3) + '%"></i><b style="left:' + ex.target / 3 + '%"></b></div>' +
-        '<div class="secs">' + secs + '</div></div>';
-    }).join('') +
-      '<p class="fine">Projected marks if the exam were today, from what you have practised and the time behind it. Section minimums shown after the slash.</p></section>';
+  var DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function dayLabel(n) { var d = new Date(n * 86400000); return DOW[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; }
+  function dayShort(n) { var d = new Date(n * 86400000); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; }
+  function rel(n) {
+    var k = n - G.dayNum();
+    return k === 0 ? 'today' : k === -1 ? 'yesterday' : k < 0 ? (-k) + 'd overdue' : k === 1 ? 'tomorrow' : 'in ' + k + 'd';
+  }
+  function marks(t) {
+    return (t.psi ? '<i class="psi">PSI ' + t.psi + '</i>' : '') + (t.cds ? '<i class="cds">CDS ' + t.cds + '</i>' : '');
+  }
+
+  function head(title, sub) {
+    var streak = G.streak(S);
+    return '<header class="top"><div class="brand">' + title + '<span>' + sub + '</span></div>' +
+      '<div class="pills"><span class="pill' + (streak ? ' lit' : '') + '" title="Day streak">' + IC.flame + '<b class="mono">' + streak + '</b></span>' +
+      '<span class="pill mono" title="Days to CDS I 2027">CDS I · ' + G.daysUntil('2027-04-11') + 'd</span></div></header>';
   }
 
   function dateBanner() {
@@ -128,197 +138,254 @@
       .filter(function (x) { return x.n >= 0; })
       .sort(function (a, b) { return a.n - b.n; })[0];
     var out = '';
-    var dom = new Date().getDate();
-    if (dom <= 3) out += '<div class="banner psi"><b>1st of the month:</b> check <a href="https://gprb.gujarat.gov.in" target="_blank" rel="noopener">gprb.gujarat.gov.in</a> and <a href="https://ojas.gujarat.gov.in" target="_blank" rel="noopener">ojas.gujarat.gov.in</a> for the PSI notification.</div>';
-    if (next && next.n <= 120) {
-      out += '<div class="banner cds"><span class="mono">' + (next.n === 0 ? 'TODAY' : next.n + 'd') + '</span> ' + esc(next.d.label) + '</div>';
-    }
+    if (new Date().getDate() <= 3) out += '<div class="banner psi"><b>1st of the month:</b> check <a href="https://gprb.gujarat.gov.in" target="_blank" rel="noopener">gprb.gujarat.gov.in</a> and <a href="https://ojas.gujarat.gov.in" target="_blank" rel="noopener">ojas.gujarat.gov.in</a> for the PSI notification.</div>';
+    if (next && next.n <= 120) out += '<div class="banner cds"><span class="mono">' + (next.n === 0 ? 'TODAY' : next.n + 'd') + '</span> ' + esc(next.d.label) + '</div>';
     return out;
   }
 
-  function placeFor(t) {
-    var p = S.prefs.place;
-    return (p === 'metro' && !t.metro) ? 'desk' : p;
+  var GROUPS = ['Maths', 'Reasoning', 'English', 'Writing', 'GS', 'Gujarat'];
+  function topicSelect(sel) {
+    return '<select name="topic" class="sel" aria-label="Topic"><option value="">Topic…</option>' + GROUPS.map(function (g) {
+      return '<optgroup label="' + g + '">' + G.topics.filter(function (t) { return t.group === g; }).map(function (t) {
+        return '<option value="' + t.id + '"' + (t.id === sel ? ' selected' : '') + '>' + esc(t.name) + '</option>';
+      }).join('') + '</optgroup>';
+    }).join('') + '</select>';
   }
 
-  // ------------------------------------------------------------- NOW
-  var MINS = [2, 5, 10, 15, 25, 40, 60];
-
-  function planFor(place, mins) {
-    var task = null;
-    if (place === 'free' && mins >= 40 && !G.weekHas(S.tasks)) task = G.nextTask(S, mins - 5);
-    var s = G.build(S, place, task ? Math.max(3, mins - task.min) : mins, { task: task });
-    s.minutes = mins;
-    return s;
+  // UI-only choices (not saved)
+  var KINDS = { learn: 'Study + notes', revise: 'Revision', pyq: 'Past paper / practice', ca: 'Current affairs' };
+  var ui = { kind: 'learn', min: 30, topic: '', filter: 'all' };
+  function chipRow(group, list, cur, cls) {
+    return '<div class="chips ' + (cls || 'sm') + '">' + list.map(function (x) {
+      return '<button type="button" class="chip' + (String(x[0]) === String(cur) ? ' on' : '') + '" data-act="pickChip" data-g="' + group + '" data-v="' + x[0] + '">' + x[1] + '</button>';
+    }).join('') + '</div>';
   }
 
-  function viewNow() {
-    var place = S.prefs.place, mins = S.prefs.mins;
-    var plan = planFor(place, mins);
-    var names = plan.topics.map(function (id) { return G.topicMap[id].name; });
-    var nNew = plan.queue.length - plan.nReview;
-    var hasTask = plan.queue.some(function (x) { return x.type === 'task'; });
-    var streak = G.streak(S);
-    var today = G.dayMinutes(S, G.dayNum());
-    var week = G.weekMinutes(S);
-    var rs = G.recentSplit(S);
-    var cds = G.daysUntil('2027-04-11');
-    var weekend = [0, 6].indexOf(new Date().getDay()) >= 0;
+  // ------------------------------------------------------------- TODAY
+  function viewToday() {
+    var today = G.dayNum();
+    var due = G.dueRevisions(S);
+    var next = G.nextToLearn(S, 3);
+    var todays = S.log.filter(function (l) { return l.day === today; });
+    var tmin = G.dayMinutes(S, today), week = G.weekMinutes(S);
 
-    var intro = S.introDone ? '' :
-      '<section class="card intro"><h2>How this works</h2>' +
-      '<ol><li>Tell it <b>where</b> you are and <b>how many minutes</b> you have. That is the only decision.</li>' +
-      '<li>It serves whatever earns the most marks per minute right now, for PSI 55% / CDS 45%. Facts in the metro, maths at a desk, writing at home.</li>' +
-      '<li><b>5 minutes counts.</b> Miss a day, never miss two.</li></ol>' +
-      '<button class="btn" data-act="intro">Got it</button></section>';
+    var howto = S.log.length ? '' :
+      '<section class="card"><h2>How to use this</h2><ol class="steps-ol">' +
+      '<li>Study from your book and <b>make notes on paper</b>.</li>' +
+      '<li><b>Log it here</b> — topic, minutes. Keeps your streak and your week honest.</li>' +
+      '<li>When a topic’s notes are complete, mark <b>Notes made</b> in Syllabus. The app then tells you when to revise it: after 3, 7, 21 and 45 days.</li>' +
+      '<li>Sit real mocks and past papers; enter the scores in Progress.</li></ol></section>';
 
-    return '<header class="top"><div class="brand">GOAL<span>PSI · CDS</span></div>' +
-      '<div class="pills"><span class="pill streak' + (streak ? ' lit' : '') + '">' + IC.flame + '<b class="mono">' + streak + '</b></span>' +
-      '<span class="pill mono" title="Days to CDS I 2027">CDS I · ' + cds + 'd</span></div></header>' +
-      intro + dateBanner() +
-      '<section class="card start">' +
-      '<h2>Where are you?</h2><div class="places">' +
-      ['metro', 'desk', 'free'].map(function (p) {
-        return '<button class="place' + (p === place ? ' on' : '') + '" data-act="place" data-v="' + p + '">' + IC[p] + '<b>' + G.PLACES[p].name + '</b><small>' + G.PLACES[p].hint + '</small></button>';
-      }).join('') + '</div>' +
-      '<h2>How long? <small class="unit">minutes</small></h2><div class="chips mins">' +
-      MINS.map(function (m) { return '<button class="chip' + (m === mins ? ' on' : '') + '" data-act="mins" data-v="' + m + '">' + m + '<small>min</small></button>'; }).join('') + '</div>' +
-      '<div class="preview">' + (plan.queue.length
-        ? '<span class="lbl">Up next</span> <b>' + esc(names.slice(0, 2).join(' + ') || 'Reviews') + '</b><span class="meta">' + nNew + ' new · ' + plan.nReview + ' review' + (hasTask ? ' · + Paper 2 writing' : '') + '</span>'
-        : 'Nothing fits this place right now — try Desk or Free.') + '</div>' +
-      '<button class="go" data-act="start"' + (plan.queue.length ? '' : ' disabled') + '>Start ' + mins + ' min</button>' +
-      '</section>' +
-      projectionCard() +
-      '<section class="card week"><div class="row3">' +
-      '<div><span class="k mono">' + fmtMin(today) + '</span><span class="l">today · floor ' + S.prefs.floor + 'm</span></div>' +
-      '<div><span class="k mono">' + fmtMin(week) + '</span><span class="l">this week / ' + fmtMin(S.prefs.weekly) + '</span></div>' +
-      '<div><span class="k mono">' + (rs.psi == null ? '—' : Math.round(rs.psi * 100) + '%') + '</span><span class="l">PSI share · goal ' + S.prefs.split + '%</span></div></div>' +
+    return head(dayLabel(today), 'PSI ' + S.prefs.split + ' · CDS ' + (100 - S.prefs.split)) + dateBanner() + howto +
+      '<section class="card"><h2>Log study</h2><form data-form="log" class="logf">' + topicSelect(ui.topic) +
+      chipRow('kind', Object.keys(KINDS).map(function (k) { return [k, KINDS[k]]; }), ui.kind, 'sm kinds') +
+      chipRow('min', [[15, '15'], [30, '30'], [45, '45'], [60, '60'], [90, '90'], [120, '120']], ui.min, 'mins') +
+      '<input name="note" class="txt" placeholder="Note — book, chapter, pages (optional)" maxlength="140" autocomplete="off">' +
+      '<button class="go" id="logBtn">Log ' + ui.min + ' min</button></form></section>' +
+
+      '<section class="card"><h2>Revise today <small class="unit">' + due.length + ' due</small></h2>' +
+      (due.length ? '<ul class="list">' + due.map(function (x) {
+        var tr = G.track(S, x.t.id);
+        return '<li><button class="lrow" data-act="topic" data-v="' + x.t.id + '"><b>' + esc(x.t.name) + '</b><small>' + G.STAGES[tr.stage] + ' · <span class="' + (x.due < today ? 'late' : '') + '">' + rel(x.due) + '</span>' + (tr.src ? ' · ' + esc(tr.src) : '') + '</small></button>' +
+          '<button class="btn sm" data-act="revised" data-v="' + x.t.id + '">Done</button></li>';
+      }).join('') + '</ul>'
+        : '<p class="empty">Nothing due. Revisions show up here once you mark a topic’s notes as made.</p>') + '</section>' +
+
+      '<section class="card"><h2>Next to learn</h2><ul class="list">' + next.map(function (t) {
+        var st = G.track(S, t.id).stage;
+        return '<li><button class="lrow" data-act="topic" data-v="' + t.id + '"><b>' + esc(t.name) + '</b><small class="tm">' + marks(t) + '<i>~' + t.hrs + ' h</i>' + (st === 1 ? '<i>in progress</i>' : '') + '</small></button></li>';
+      }).join('') + '</ul><p class="fine">Most marks per hour among topics without finished notes.</p></section>' +
+
+      '<section class="card"><h2>Today <small class="unit">' + fmtMin(tmin) + '</small></h2>' +
+      (todays.length ? '<ul class="list">' + todays.map(logRow).join('') + '</ul>' : '<p class="empty">Nothing logged yet. 15 minutes counts.</p>') +
+      '<div class="wk"><span>This week</span><span class="mono">' + fmtMin(week) + ' / ' + fmtMin(S.prefs.weekly) + '</span></div>' +
       '<div class="bar thin"><i style="width:' + Math.min(100, week / S.prefs.weekly * 100) + '%"></i></div>' +
       '<ul class="checks">' +
-      check(G.weekHas(S.mocks), 'One mini mock', weekend ? 'Weekend — good time for it' : 'Test tab, 25 min', 'test') +
-      check(G.weekHas(S.tasks), 'One Paper 2 writing task', 'Pen + paper, 15–35 min', 'test') +
-      check(G.weekHas(S.runs), 'One 5 km time trial', 'PET: 25:00 to qualify', 'me') +
+      check(G.weekHas(S.mocks) || G.weekHas(S.scores), 'One mock or past paper', 'Score it in Progress', 'progress') +
+      check(G.weekHas(S.tasks), 'One Paper 2 writing task', 'Practice tab · pen + paper', 'practice') +
+      check(G.weekHas(S.runs), 'One 5 km time trial', 'PET: 25:00 to qualify', 'progress') +
       '</ul></section>';
+  }
+  function logRow(l) {
+    var t = G.topicMap[l.topic];
+    return '<li><span class="lrow static"><b>' + esc(t ? t.name : l.topic) + '</b><small>' + KINDS[l.kind] + ' · ' + fmtMin(l.min) + (l.note ? ' · ' + esc(l.note) : '') + '</small></span>' +
+      '<button class="icon sm" data-act="unlog" data-v="' + S.log.indexOf(l) + '" aria-label="Delete entry">' + IC.x + '</button></li>';
   }
   function check(done, title, sub, href) {
     return '<li class="' + (done ? 'done' : '') + '"><a href="#' + href + '"><span class="box">' + (done ? '✓' : '') + '</span><span><b>' + title + '</b><small>' + sub + '</small></span></a></li>';
   }
 
-  // ------------------------------------------------------------- MAP
-  var GROUPS = ['Maths', 'Reasoning', 'English', 'Writing', 'GS', 'Gujarat'];
-
-  function viewMap() {
-    var totW = 0, covW = 0;
-    G.topics.forEach(function (t) { var w = G.weight(t); totW += w; covW += w * G.coverage(S, t); });
-    var best = G.rank(S, 'desk').slice(0, 5);
-    return '<header class="top"><div class="brand">Map<span>the syllabus as marks</span></div></header>' +
-      '<section class="card"><div class="cov"><span class="big mono">' + Math.round(covW / totW * 100) + '%</span><span>of the marks-weighted syllabus touched at least once.</span></div>' +
-      '<h3>Best marks per hour right now</h3><ol class="best">' + best.map(function (t) {
-        return '<li><button data-act="topic" data-v="' + t.id + '"><b>' + esc(t.name) + '</b><span class="mono">' + r1(G.roi(t)) + ' marks/h</span></button></li>';
-      }).join('') + '</ol></section>' +
+  // ------------------------------------------------------------- SYLLABUS
+  var FILTERS = [['all', 'All'], ['psi', 'PSI'], ['cds', 'CDS'], ['due', 'Due'], ['todo', 'Not started']];
+  function viewSyllabus() {
+    var cov = G.syllabusCoverage(S), today = G.dayNum(), f = ui.filter;
+    var keep = function (t) {
+      var tr = G.track(S, t.id), d = G.dueDay(tr);
+      return f === 'all' || (f === 'psi' && t.psi) || (f === 'cds' && t.cds) || (f === 'due' && d != null && d <= today) || (f === 'todo' && tr.stage === 0);
+    };
+    return head('Syllabus', 'your notes, topic by topic') +
+      '<section class="card"><div class="covg">' + ['psi', 'cds'].map(function (e) {
+        return '<div class="' + e + '"><span class="tag">' + e.toUpperCase() + '</span><div><span class="big">' + cov[e].notes + '</span><span class="of mono"> / 300</span></div>' +
+          '<div class="bar"><i style="width:' + cov[e].notes / 3 + '%"></i></div><small class="mono">marks with notes · ' + cov[e].rev + ' revised</small></div>';
+      }).join('') + '</div></section>' +
+      chipRow('filter', FILTERS, f, 'sm filt') +
       GROUPS.map(function (g) {
-        var ts = G.topics.filter(function (t) { return t.group === g; });
-        return '<section class="card grp"><h3>' + g + '</h3>' + ts.map(topicRow).join('') + '</section>';
-      }).join('');
+        var ts = G.topics.filter(function (t) { return t.group === g && keep(t); });
+        return ts.length ? '<section class="card grp"><h3>' + g + '</h3>' + ts.map(trow).join('') + '</section>' : '';
+      }).join('') || '<p class="empty">No topics match.</p>';
   }
-  function topicRow(t) {
-    var rd = G.readiness(S, t), cov = G.coverage(S, t);
-    return '<button class="trow" data-act="topic" data-v="' + t.id + '">' +
-      '<span class="tn">' + esc(t.name) + (S.pin === t.id ? ' <em>pinned</em>' : '') + '</span>' +
-      '<span class="tm">' + (t.psi ? '<i class="psi">PSI ' + t.psi + '</i>' : '') + (t.cds ? '<i class="cds">CDS ' + t.cds + '</i>' : '') + '<i>' + Math.round(cov * 100) + '% seen</i></span>' +
-      '<span class="bar thin"><i style="width:' + Math.round(rd * 100) + '%"></i></span></button>';
+  function trow(t) {
+    var tr = G.track(S, t.id), due = G.dueDay(tr), today = G.dayNum();
+    return '<button class="trow" data-act="topic" data-v="' + t.id + '"><span class="tn">' + esc(t.name) + '</span>' +
+      '<span class="tm">' + marks(t) + '<i class="st">' + G.STAGES[tr.stage] + '</i>' + (due != null ? '<i class="' + (due <= today ? 'late' : '') + '">revise ' + rel(due) + '</i>' : '') + '</span>' +
+      '<span class="steps">' + [1, 2, 3, 4, 5].map(function (k) { return '<i' + (tr.stage >= k ? ' class="on"' : '') + '></i>'; }).join('') + '</span></button>';
   }
 
   function openTopic(id) {
-    var t = G.topicMap[id];
+    var t = G.topicMap[id], tr = G.track(S, id), due = G.dueDay(tr);
     var learn = t.seq.filter(function (x) { return x.type === 'learn'; });
-    var count = { mcq: 0, flash: 0, task: 0 };
-    t.seq.forEach(function (x) { if (count[x.type] != null) count[x.type]++; });
+    var nq = t.seq.filter(function (x) { return x.type === 'mcq' || x.type === 'flash'; }).length;
+    var hist = S.log.filter(function (l) { return l.topic === id; }).slice(-8).reverse();
+    var mis = S.mistakes.filter(function (m) { return m.topic === id && !m.done; });
     sheet('<div class="sheet-h"><h2>' + esc(t.name) + '</h2><button class="icon" data-act="close" aria-label="Close">' + IC.x + '</button></div>' +
-      '<div class="tm big">' + (t.psi ? '<i class="psi">PSI ' + t.psi + ' marks</i>' : '') + (t.cds ? '<i class="cds">CDS ' + t.cds + ' marks</i>' : '') + '<i>~' + t.hrs + ' h to learn</i><i>' + r1(G.roi(t)) + ' marks/h</i></div>' +
+      '<div class="tm big">' + marks(t) + '<i>~' + t.hrs + ' h to learn</i><i>' + fmtMin((S.tmin || {})[id]) + ' logged</i></div>' +
       (t.note ? '<p class="fine">' + esc(t.note) + '</p>' : '') +
-      '<p class="fine">Ready ' + Math.round(G.readiness(S, t) * 100) + '% · seen ' + Math.round(G.coverage(S, t) * 100) + '% · ' + fmtMin((S.tmin || {})[id]) + ' spent · ' +
-      learn.length + ' lessons, ' + count.mcq + ' questions, ' + count.flash + ' flashcards' + (count.task ? ', ' + count.task + ' writing tasks' : '') + '</p>' +
-      '<div class="btns"><button class="go" data-act="studyTopic" data-v="' + id + '">Study this · 15 min</button>' +
-      '<button class="btn" data-act="pin" data-v="' + id + '">' + (S.pin === id ? 'Unpin' : 'Pin as next everywhere') + '</button></div>' +
-      (learn.length ? '<h3>Lessons</h3>' + learn.map(function (l) {
-        return '<details' + (S.seen[l.id] ? '' : ' class="new"') + '><summary>' + esc(l.title) + '</summary><div class="md">' + md(l.body) + (l.ex ? '<div class="ex">' + md(l.ex) + '</div>' : '') + '</div></details>';
+      '<h3>Status</h3><div class="stages">' + G.STAGES.map(function (s, k) {
+        return '<button class="stg' + (k === tr.stage ? ' on' : k < tr.stage ? ' past' : '') + '" data-act="stage" data-id="' + id + '" data-v="' + k + '">' + s + '</button>';
+      }).join('') + '</div>' +
+      (due != null ? '<p class="fine">Next revision <b>' + rel(due) + '</b> · ' + dayLabel(due) + '</p><button class="go" data-act="revised" data-v="' + id + '">I revised it today</button>'
+        : '<p class="fine">Mark <b>Notes made</b> when your notes are complete. Revisions are then scheduled after 3, 7, 21 and 45 days.</p>') +
+      '<h3>Source</h3><input class="txt" data-src="' + id + '" value="' + esc(tr.src || '') + '" placeholder="Book + chapters, e.g. Laxmikanth ch. 1–8" maxlength="80">' +
+      (mis.length ? '<h3>Open mistakes</h3><ul class="list">' + mis.map(function (m) { return '<li><span class="lrow static">' + esc(m.text) + '</span></li>'; }).join('') + '</ul>' : '') +
+      (hist.length ? '<h3>History</h3><ul class="list">' + hist.map(function (l) {
+        return '<li><span class="lrow static"><b class="mono">' + dayShort(l.day) + '</b><small>' + KINDS[l.kind] + ' · ' + fmtMin(l.min) + (l.note ? ' · ' + esc(l.note) : '') + '</small></span></li>';
+      }).join('') + '</ul>' : '') +
+      (nq ? '<div class="btns"><button class="btn wide" data-act="studyTopic" data-v="' + id + '">Quick quiz on this topic · ' + nq + ' cards</button></div>' : '') +
+      (learn.length ? '<h3>Quick reference</h3>' + learn.map(function (l) {
+        return '<details><summary>' + esc(l.title) + '</summary><div class="md">' + md(l.body) + (l.ex ? '<div class="ex">' + md(l.ex) + '</div>' : '') + '</div></details>';
       }).join('') : ''));
   }
 
-  // ------------------------------------------------------------- TEST
+  // ------------------------------------------------------------- PRACTICE
   var mockPart = { psi: '', cds: '' };
+  var QMINS = [5, 10, 15, 20, 30];
+  function placeFor(t) { return t.metro ? S.prefs.place : 'desk'; }
+  function planFor(place, mins) {
+    var s = G.build(S, place, mins);
+    s.minutes = mins;
+    return s;
+  }
 
-  function viewTest() {
-    var last = S.mocks.slice(-6).reverse();
+  function viewPractice() {
+    var place = S.prefs.place === 'metro' ? 'metro' : 'desk';
+    var mins = QMINS.indexOf(S.prefs.mins) >= 0 ? S.prefs.mins : 10;
     var next = G.nextTask(S, 60);
     var tasks = [];
     G.topics.forEach(function (t) { t.seq.forEach(function (it) { if (it.type === 'task') tasks.push(it); }); });
-    var parts = {
-      psi: [['', 'Mixed'], ['A', 'Part A'], ['B', 'Part B']],
-      cds: [['', 'Mixed'], ['E', 'English'], ['G', 'GK'], ['M', 'Maths']]
-    };
-    return '<header class="top"><div class="brand">Test<span>practise the rules, not just the facts</span></div></header>' +
+    var parts = { psi: [['', 'Mixed'], ['A', 'Part A'], ['B', 'Part B']], cds: [['', 'Mixed'], ['E', 'English'], ['G', 'GK'], ['M', 'Maths']] };
+    var open = S.mistakes.filter(function (m) { return !m.done; });
+
+    return head('Practice', 'test what your notes taught you') +
+      '<section class="card"><h2>Quick quiz</h2><p class="fine">Flashcards and questions with spaced repetition — for metro rides and short gaps.</p>' +
+      '<div class="seg">' + [['metro', 'Metro · one hand'], ['desk', 'Desk · pen ok']].map(function (p) {
+        return '<button class="' + (p[0] === place ? 'on' : '') + '" data-act="place" data-v="' + p[0] + '">' + IC[p[0]] + p[1] + '</button>';
+      }).join('') + '</div>' +
+      '<div class="chips mins">' + QMINS.map(function (m) { return '<button class="chip' + (m === mins ? ' on' : '') + '" data-act="mins" data-v="' + m + '">' + m + '</button>'; }).join('') + '</div>' +
+      '<button class="go" data-act="start">Start ' + mins + ' min</button></section>' +
+
+      '<section class="card"><h2>Mistake log <small class="unit">' + open.length + ' open</small></h2>' +
+      '<p class="fine">One line per question you got wrong — the fact or the trap. Read these before every mock.</p>' +
+      '<form data-form="mistake" class="logf">' + topicSelect('') +
+      '<textarea name="text" class="txt" rows="2" placeholder="e.g. Art. 21A = right to education, not Art. 21" maxlength="240" required></textarea>' +
+      '<button class="btn">Add mistake</button></form>' +
+      (open.length ? '<ul class="list">' + open.slice().reverse().map(function (m) {
+        var t = G.topicMap[m.topic];
+        return '<li><span class="lrow static"><b>' + esc(m.text) + '</b><small>' + (t ? esc(t.name) + ' · ' : '') + dayShort(m.day) + '</small></span><button class="btn sm" data-act="mfix" data-v="' + S.mistakes.indexOf(m) + '">Fixed</button></li>';
+      }).join('') + '</ul>' : '') + '</section>' +
+
       ['psi', 'cds'].map(function (e) {
-        return '<section class="card mock ' + e + '"><div class="mock-h"><span class="tag">' + (e === 'psi' ? 'PSI' : 'CDS') + '</span><h3>Mini mock · 25 Q · 25 min</h3></div>' +
+        return '<section class="card mock ' + e + '"><div class="mock-h"><span class="tag">' + e.toUpperCase() + '</span><h3>Mini mock · 25 Q · 25 min</h3></div>' +
           '<p class="rule">' + esc(G.EXAMS[e].rules) + '</p>' +
           '<div class="chips sm">' + parts[e].map(function (p) {
             return '<button class="chip' + (mockPart[e] === p[0] ? ' on' : '') + '" data-act="mockPart" data-e="' + e + '" data-v="' + p[0] + '">' + p[1] + '</button>';
           }).join('') + '</div>' +
-          '<button class="go" data-act="mock" data-v="' + e + '">Start ' + (e === 'psi' ? 'PSI' : 'CDS') + ' mock</button></section>';
+          '<button class="go" data-act="mock" data-v="' + e + '">Start ' + e.toUpperCase() + ' mock</button></section>';
       }).join('') +
-      '<section class="card"><h3>Paper 2 — write on paper</h3><p class="fine">Handwritten and human-marked, so the only way to train it is to write. The app gives the frame, the timer and the checklist; your score goes into the projection.</p>' +
+
+      '<section class="card"><h2>Paper 2 writing</h2><p class="fine">Handwritten and human-marked — the only way to train it is to write. Frame, timer and a self-check list.</p>' +
       (next ? '<button class="go" data-act="task" data-v="' + next.id + '">Next: ' + esc(next.title) + ' · ' + next.min + ' min</button>' : '') +
       '<details><summary>All ' + tasks.length + ' tasks</summary><ul class="tasks">' + tasks.map(function (it) {
         var done = S.tasks.filter(function (x) { return x.id === it.id; });
         var l = done[done.length - 1];
         return '<li><button data-act="task" data-v="' + it.id + '"><span>' + gu(it.prompt) + '<small>' + esc(it.title) + (it.en ? ' — ' + esc(it.en) : '') + '</small></span><span class="mono">' + (l ? l.score + '/' + l.max : it.min + 'm') + '</span></button></li>';
-      }).join('') + '</ul></details></section>' +
-      (last.length ? '<section class="card"><h3>Recent mocks</h3><ul class="hist">' + last.map(function (m) {
-        return '<li><span class="tag ' + m.exam + '">' + m.exam.toUpperCase() + (m.part ? ' ' + m.part : '') + '</span><span class="mono">' + m.score + ' / ' + m.max + '</span><span class="fine">' + m.right + '✓ ' + m.wrong + '✗ ' + (m.blank ? m.blank + ' blank ' : '') + (m.e ? m.e + ' E ' : '') + '· ' + G.dayKey(m.day).slice(5) + '</span></li>';
-      }).join('') + '</ul></section>' : '');
+      }).join('') + '</ul></details></section>';
   }
 
-  // ------------------------------------------------------------- ME
-  var OUT_KINDS = { ca: 'Current affairs', paper: 'Practice from a book / on paper', video: 'Lecture / video', other: 'Other study' };
-  var outKind = 'ca';
-
-  function viewMe() {
-    var today = G.dayNum(), days = [], max = 10;
+  // ------------------------------------------------------------- PROGRESS
+  function viewProgress() {
+    var today = G.dayNum(), days = [], max = 30;
     for (var i = 13; i >= 0; i--) { var m = G.dayMinutes(S, today - i); days.push({ n: today - i, m: m }); if (m > max) max = m; }
-    var runs = S.runs.slice().sort(function (a, b) { return a.min - b.min; });
-    var best = runs[0];
-    var lastRuns = S.runs.slice(-4).reverse();
     var tot = 0; for (var k in S.days) tot += S.days[k].m;
     S.outside.forEach(function (o) { tot += o.min; });
-    var dw = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    var grp = {}, gmax = 1;
+    S.log.forEach(function (l) { if (l.day > today - 7) { var g = (G.topicMap[l.topic] || {}).group || 'Other'; grp[g] = (grp[g] || 0) + l.min; if (grp[g] > gmax) gmax = grp[g]; } });
+    var runs = S.runs.slice().sort(function (a, b) { return a.min - b.min; });
+    var best = runs[0], lastRuns = S.runs.slice(-4).reverse();
+    var scores = S.scores.map(function (x) { return { exam: x.exam, day: x.day, label: x.label, score: x.score, max: x.max, real: 1 }; })
+      .concat(S.mocks.map(function (x) { return { exam: x.exam, day: x.day, label: 'App mini mock' + (x.part ? ' · ' + x.part : ''), score: x.score, max: x.max }; }))
+      .sort(function (a, b) { return a.day - b.day; });
 
-    return '<header class="top"><div class="brand">Me<span>' + fmtMin(tot) + ' studied so far</span></div></header>' +
-      '<section class="card"><h3>Last 14 days</h3><div class="chart">' + days.map(function (d) {
-        var hit = d.m >= S.prefs.floor;
-        return '<div class="col' + (hit ? ' hit' : '') + (d.n === today ? ' today' : '') + '" title="' + G.dayKey(d.n) + ': ' + Math.round(d.m) + ' min"><i style="height:' + Math.max(3, d.m / max * 100) + '%"></i><span>' + dw[new Date(d.n * 86400000).getUTCDay()] + '</span></div>';
-      }).join('') + '</div></section>' +
-      '<section class="card"><h3>Log study done outside the app</h3><p class="fine">Newspaper, a book, a lecture — it counts toward your streak. Current affairs also feeds that topic’s projection.</p>' +
-      '<div class="chips sm">' + Object.keys(OUT_KINDS).map(function (k) { return '<button class="chip' + (k === outKind ? ' on' : '') + '" data-act="outKind" data-v="' + k + '">' + OUT_KINDS[k] + '</button>'; }).join('') + '</div>' +
-      '<div class="chips sm">' + [10, 15, 20, 30, 45, 60].map(function (m) { return '<button class="chip" data-act="outAdd" data-v="' + m + '">+' + m + 'm</button>'; }).join('') + '</div></section>' +
-      '<section class="card"><h3>5 km — PET</h3><p class="fine">Qualify: <b>25:00</b>. Aim for 23:00 so a bad day still passes. Football builds the engine; the time trial proves it.</p>' +
+    return head('Progress', fmtMin(tot) + ' studied in total') +
+      '<section class="card"><h2>Last 14 days</h2><div class="chart">' + days.map(function (d) {
+        return '<div class="col' + (d.m >= S.prefs.floor ? ' hit' : '') + (d.n === today ? ' today' : '') + '" title="' + G.dayKey(d.n) + ': ' + Math.round(d.m) + ' min"><i style="height:' + Math.max(2, d.m / max * 100) + '%"></i><span>' + DOW[new Date(d.n * 86400000).getUTCDay()][0] + '</span></div>';
+      }).join('') + '</div>' +
+      (Object.keys(grp).length ? '<h3>Last 7 days by subject</h3><ul class="hbars">' + GROUPS.concat(['Other']).filter(function (g) { return grp[g]; }).map(function (g) {
+        return '<li><span>' + g + '</span><i style="width:' + grp[g] / gmax * 100 + '%"></i><b class="mono">' + fmtMin(grp[g]) + '</b></li>';
+      }).join('') + '</ul>' : '') + '</section>' +
+
+      '<section class="card"><h2>Scores</h2><p class="fine">Full mocks and past papers, on paper or online. The only honest measure — enter every one.</p>' +
+      '<form data-form="score" class="scoref"><select name="exam" class="sel" aria-label="Exam"><option value="psi">PSI</option><option value="cds">CDS</option></select>' +
+      '<input name="score" class="txt" inputmode="decimal" placeholder="Score" required aria-label="Score">' +
+      '<input name="max" class="txt" inputmode="numeric" placeholder="Out of" value="200" required aria-label="Out of">' +
+      '<input name="label" class="txt full" placeholder="Which paper — e.g. PSI 2021 PYQ, Testbook mock 4" maxlength="60">' +
+      '<button class="btn full">Add score</button></form>' +
+      ['psi', 'cds'].map(function (e) {
+        var xs = scores.filter(function (x) { return x.exam === e; }).slice(-12);
+        if (!xs.length) return '';
+        var tgt = G.EXAMS[e].target / 3;
+        return '<div class="spark ' + e + '"><div class="spark-h"><span class="tag">' + e.toUpperCase() + '</span><small class="mono">target ' + Math.round(tgt) + '%</small></div><div class="sb">' +
+          '<b style="bottom:' + tgt + '%"></b>' + xs.map(function (x) {
+            var pc = x.score / x.max * 100;
+            return '<i class="' + (x.real ? 'real' : '') + '" style="height:' + Math.max(2, pc) + '%" title="' + esc(x.label) + ': ' + Math.round(pc) + '%"></i>';
+          }).join('') + '</div></div>';
+      }).join('') +
+      (scores.length ? '<ul class="list">' + scores.slice(-8).reverse().map(function (x) {
+        var idx = x.real ? S.scores.findIndex(function (s) { return s.day === x.day && s.label === x.label && s.score === x.score; }) : -1;
+        return '<li><span class="lrow static"><b>' + esc(x.label || 'Mock') + '</b><small>' + x.exam.toUpperCase() + ' · ' + dayShort(x.day) + '</small></span><span class="mono sc">' + x.score + '/' + x.max + ' · ' + Math.round(x.score / x.max * 100) + '%</span>' +
+          (idx >= 0 ? '<button class="icon sm" data-act="unscore" data-v="' + idx + '" aria-label="Delete score">' + IC.x + '</button>' : '') + '</li>';
+      }).join('') + '</ul>' : '') + '</section>' +
+
+      '<section class="card"><h2>5 km · PET</h2><p class="fine">Qualify: <b>25:00</b>. Aim for 23:00 so a bad day still passes.</p>' +
       '<form class="runf" data-form="run"><input name="t" inputmode="numeric" placeholder="mm:ss e.g. 24:30" pattern="\\d{1,2}:\\d{2}" required aria-label="5 km time"><button class="btn">Log run</button></form>' +
       (best ? '<p class="runbest">Best <b class="mono">' + clock(best.min * 60) + '</b>' + (best.min <= 25 ? ' <span class="okk">qualifies</span>' : ' <span class="low">' + clock((best.min - 25) * 60) + ' to cut</span>') + '</p>' : '') +
-      (lastRuns.length ? '<ul class="hist">' + lastRuns.map(function (r) { return '<li><span class="mono">' + clock(r.min * 60) + '</span><span class="fine">' + G.dayKey(r.day) + '</span></li>'; }).join('') + '</ul>' : '') + '</section>' +
-      '<section class="card"><h3>Settings</h3>' +
-      slider('weekly', 'Weekly target', S.prefs.weekly, 60, 900, 30, fmtMin(S.prefs.weekly)) +
-      slider('floor', 'Daily floor (keeps the streak)', S.prefs.floor, 2, 30, 1, S.prefs.floor + ' min') +
+      (lastRuns.length ? '<ul class="hist">' + lastRuns.map(function (r) { return '<li><span class="mono">' + clock(r.min * 60) + '</span><span class="fine">' + dayShort(r.day) + '</span></li>'; }).join('') + '</ul>' : '') + '</section>' +
+
+      '<section class="card"><h2>Settings</h2>' +
+      slider('weekly', 'Weekly target', S.prefs.weekly, 60, 1500, 30, fmtMin(S.prefs.weekly)) +
+      slider('floor', 'Daily minimum (keeps the streak)', S.prefs.floor, 5, 60, 5, S.prefs.floor + ' min') +
       slider('split', 'Focus split', S.prefs.split, 20, 80, 5, 'PSI ' + S.prefs.split + '% · CDS ' + (100 - S.prefs.split) + '%') +
       '</section>' +
-      '<section class="card"><h3>Dates</h3><ul class="dates">' + G.DATES.map(function (d) {
+
+      '<section class="card"><h2>Dates</h2><ul class="dates">' + G.DATES.map(function (d) {
         var n = G.daysUntil(d.date);
         return '<li class="' + (n < 0 ? 'past' : '') + '"><span class="mono">' + (n < 0 ? 'done' : n + 'd') + '</span><span>' + esc(d.label) + '<small>' + d.date + '</small></span></li>';
-      }).join('') + '<li><span class="mono">?</span><span>Gujarat PSI notification — no date. Check GPRB / OJAS on the 1st of every month.</span></li></ul>' +
+      }).join('') + '<li><span class="mono">?</span><span>Gujarat PSI notification — no date yet. Check GPRB / OJAS on the 1st of every month.</span></li></ul>' +
       '<p class="fine">PSI: ' + esc(G.EXAMS.psi.rules) + '. 40% needed in each part of Paper 1.</p>' +
-      '<p class="fine">CDS: ' + esc(G.EXAMS.cds.rules) + '. Your B.E. opens INA and AFA too — tick all four entries.</p></section>' +
-      '<section class="card"><h3>Backup</h3><p class="fine">Progress lives on this device only. Export it now and then; import on a new phone.</p>' +
+      '<p class="fine">CDS: ' + esc(G.EXAMS.cds.rules) + '. Ages: IMA 19–24 · INA 19–22 · AFA 20–24 · OTA 19–25 — check the notice.</p></section>' +
+
+      '<section class="card"><h2>Backup</h2><p class="fine">Everything lives on this phone only. Export once a week; import on a new phone.</p>' +
       '<div class="btns"><button class="btn" data-act="export">Export</button><label class="btn">Import<input type="file" accept="application/json" data-act="import" hidden></label><button class="btn danger" data-act="reset">Reset</button></div>' +
-      '<p class="fine">' + G.topics.length + ' topics · ' + G.topics.reduce(function (a, t) { return a + t.seq.length; }, 0) + ' items · ' + G.legacyCount + ' carried over from v1</p></section>';
+      (S.lastExport ? '<p class="fine">Last export ' + rel(S.lastExport) + '.</p>' : '<p class="fine">Never exported.</p>') + '</section>';
   }
   function slider(key, label, val, min, max, step, show) {
     return '<label class="slide"><span>' + label + '<b data-show="' + key + '">' + esc(show) + '</b></span><input type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + val + '" data-pref="' + key + '"></label>';
@@ -379,7 +446,7 @@
     if (plan.topics.length && !opts.topic) S.frontier[place] = plan.topics[plan.topics.length - 1];
     run = {
       kind: 'session', place: place, minutes: plan.minutes || mins, queue: plan.queue, i: 0,
-      start: Date.now(), before: G.project(S), done: 0, right: 0, wrong: 0, requeued: {}, extended: 0
+      start: Date.now(), done: 0, right: 0, wrong: 0, requeued: {}, extended: 0
     };
     save();
     showCard();
@@ -472,16 +539,14 @@
 
   function finishSession() {
     stopTick();
-    var after = G.project(S);
-    var dp = after.psi.total - run.before.psi.total, dc = after.cds.total - run.before.cds.total;
     var mins = (Date.now() - run.start) / 60000;
     var streak = G.streak(S);
     var line = run.done === 0 ? 'Nothing done — that’s fine. Open it again when you have 2 minutes.'
       : streak >= 2 ? 'Streak ' + streak + ' days. Keep the chain.' : 'Day logged. Come back tomorrow, even for 5 minutes.';
     full('<div class="done">' +
       '<div class="done-k">Session done</div>' +
-      '<div class="gain"><div class="psi"><span class="mono">+' + r1(dp) + '</span><small>PSI marks</small></div><div class="cds"><span class="mono">+' + r1(dc) + '</span><small>CDS marks</small></div></div>' +
-      '<p class="mono stat">' + run.done + ' cards · ' + Math.max(1, Math.round(mins)) + ' min' + (run.right + run.wrong ? ' · ' + run.right + '/' + (run.right + run.wrong) + ' right' : '') + '</p>' +
+      '<div class="gain"><div><span class="mono">' + run.right + '/' + (run.right + run.wrong) + '</span><small>right</small></div><div><span class="mono">' + Math.max(1, Math.round(mins)) + 'm</span><small>practised</small></div></div>' +
+      '<p class="mono stat">' + run.done + ' cards</p>' +
       '<p class="msg">' + esc(line) + '</p>' +
       (run.wrong ? '<p class="fine">Missed ones come back tomorrow — that’s how they stick.</p>' : '') +
       '<div class="btns col"><button class="go" data-act="more">5 more min</button><button class="btn" data-act="close">Done</button></div></div>');
@@ -590,13 +655,35 @@
 
   // ------------------------------------------------------------- actions
   var A = {
-    intro: function () { S.introDone = 1; save(); render(); },
     place: function (d) { S.prefs.place = d.v; save(); render(); },
     mins: function (d) { S.prefs.mins = +d.v; save(); render(); },
-    start: function () { startSession(S.prefs.place, S.prefs.mins); },
+    start: function () { startSession(S.prefs.place === 'metro' ? 'metro' : 'desk', QMINS.indexOf(S.prefs.mins) >= 0 ? S.prefs.mins : 10); },
+    pickChip: function (d, el) {
+      ui[d.g] = d.g === 'min' ? +d.v : d.v;
+      if (d.g === 'filter') return render();
+      [].forEach.call(el.parentNode.children, function (c) { c.classList.toggle('on', c === el); });
+      if (d.g === 'min') document.getElementById('logBtn').textContent = 'Log ' + d.v + ' min';
+    },
+    revised: function (d) {
+      G.revise(S, d.v); save(); render();
+      var due = G.dueDay(G.track(S, d.v));
+      toast('Revised · next ' + rel(due));
+      if (ov.classList.contains('sheet-mode')) openTopic(d.v);
+    },
+    stage: function (d) { G.setStage(S, d.id, +d.v); save(); render(); openTopic(d.id); },
+    unlog: function (d) {
+      var l = S.log[+d.v];
+      if (!l || !confirm('Delete this entry?')) return;
+      S.log.splice(+d.v, 1);
+      var rec = S.days[G.dayKey(l.day)], t = G.topicMap[l.topic], f = t ? t.psiFrac : 0.5;
+      if (rec) { rec.m = Math.max(0, rec.m - l.min); rec.psi = Math.max(0, rec.psi - l.min * f); rec.cds = Math.max(0, rec.cds - l.min * (1 - f)); }
+      if (S.tmin[l.topic]) S.tmin[l.topic] = Math.max(0, S.tmin[l.topic] - l.min);
+      save(); render();
+    },
+    mfix: function (d) { var m = S.mistakes[+d.v]; if (m) { m.done = G.dayNum(); save(); render(); toast('Marked fixed'); } },
+    unscore: function (d) { if (confirm('Delete this score?')) { S.scores.splice(+d.v, 1); save(); render(); } },
     topic: function (d) { openTopic(d.v); },
     close: closeOverlay,
-    pin: function (d) { S.pin = S.pin === d.v ? null : d.v; save(); toast(S.pin ? 'Pinned — it comes first in every session' : 'Unpinned'); openTopic(d.v); },
     studyTopic: function (d) { var t = G.topicMap[d.v]; startSession(placeFor(t), 15, { topic: d.v }); },
     learned: function () { G.markSeen(S, run.queue[run.i]); advance(); },
     reveal: function () {
@@ -622,13 +709,12 @@
       if (!add.queue.length) { toast('Nothing more fits here — nice.'); return; }
       run.queue = run.queue.slice(0, run.i).concat(add.queue);
       run.minutes = (Date.now() - run.start) / 60000 + 5;
-      run.before = run.before || G.project(S);
       showCard();
       startTick();
     },
     task: function (d) {
       var it = G.itemMap[d.v];
-      run = { kind: 'task', queue: [it], i: 0, start: Date.now(), shownAt: Date.now(), done: 0, right: 0, wrong: 0, requeued: {}, before: G.project(S) };
+      run = { kind: 'task', queue: [it], i: 0, start: Date.now(), shownAt: Date.now(), done: 0, right: 0, wrong: 0, requeued: {} };
       showTask(it, 'brief');
     },
     skipTask: function () {
@@ -666,24 +752,13 @@
       submitMock();
     },
     quitMock: function () { if (confirm('Quit this mock? Nothing will be saved.')) closeOverlay(); },
-    outKind: function (d) { outKind = d.v; render(); },
-    outAdd: function (d) {
-      var m = +d.v, day = G.dayNum();
-      S.outside.push({ day: day, kind: outKind, min: m });
-      var t = outKind === 'ca' ? G.topicMap.g_current : null;
-      var k = G.dayKey(day), rec = S.days[k] || (S.days[k] = { m: 0, psi: 0, cds: 0, n: 0 });
-      var f = t ? t.psiFrac : G.split.psi;
-      rec.psi += m * f; rec.cds += m * (1 - f);
-      save();
-      toast('+' + m + ' min ' + OUT_KINDS[outKind].toLowerCase());
-      render();
-    },
     export: function () {
       var blob = new Blob([JSON.stringify(S)], { type: 'application/json' });
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'goal-backup-' + G.dayKey(G.dayNum()) + '.json';
       document.body.appendChild(a); a.click(); a.remove();
+      S.lastExport = G.dayNum(); save(); render();
     },
     reset: function () {
       if (!confirm('Erase ALL progress on this device? Export first if you might want it.')) return;
@@ -695,7 +770,7 @@
     var el = e.target.closest('[data-act]');
     if (!el || el.tagName === 'INPUT') return;
     var fn = A[el.dataset.act];
-    if (fn) { e.preventDefault(); fn(el.dataset); }
+    if (fn) { e.preventDefault(); fn(el.dataset, el); }
   });
 
   document.addEventListener('change', function (e) {
@@ -712,6 +787,8 @@
       };
       r.readAsText(el.files[0]);
     }
+    if (el.dataset.src) { G.trackW(S, el.dataset.src).src = el.value.trim(); save(); render(); return; }
+    if (el.name === 'topic' && el.form && el.form.dataset.form === 'log') { ui.topic = el.value; return; }
     if (el.dataset.pref) { S.prefs[el.dataset.pref] = +el.value; G.applyPrefs(S); save(); render(); }
   });
   document.addEventListener('input', function (e) {
@@ -722,8 +799,34 @@
   });
   document.addEventListener('submit', function (e) {
     var f = e.target;
-    if (f.dataset.form !== 'run') return;
     e.preventDefault();
+    if (f.dataset.form === 'log') {
+      var topic = f.topic.value || (ui.kind === 'ca' ? 'g_current' : '');
+      if (!topic) { toast('Pick a topic first'); return; }
+      S.log.push({ day: G.dayNum(), topic: topic, kind: ui.kind, min: ui.min, note: f.note.value.trim() });
+      G.logTime(S, topic, ui.min);
+      var st = G.track(S, topic).stage;
+      if (ui.kind === 'learn' && st === 0) G.setStage(S, topic, 1);
+      if (ui.kind === 'revise' && st >= 2) G.revise(S, topic);
+      ui.topic = topic;
+      save(); render(); toast('Logged ' + fmtMin(ui.min) + ' · ' + G.topicMap[topic].name);
+      return;
+    }
+    if (f.dataset.form === 'mistake') {
+      var txt = f.text.value.trim();
+      if (!txt) return;
+      S.mistakes.push({ day: G.dayNum(), topic: f.topic.value, text: txt, done: 0 });
+      save(); render(); toast('Added to mistake log');
+      return;
+    }
+    if (f.dataset.form === 'score') {
+      var sc = parseFloat(f.score.value), mx = parseFloat(f.max.value);
+      if (!(mx > 0) || isNaN(sc) || sc > mx) { toast('Check the score and the total'); return; }
+      S.scores.push({ day: G.dayNum(), exam: f.exam.value, label: f.label.value.trim() || (f.exam.value.toUpperCase() + ' mock'), score: sc, max: mx });
+      save(); render(); toast('Score saved');
+      return;
+    }
+    if (f.dataset.form !== 'run') return;
     var m = (f.t.value || '').match(/^(\d{1,2}):(\d{2})$/);
     if (!m || +m[2] > 59) { toast('Use mm:ss, e.g. 24:30'); return; }
     S.runs.push({ day: G.dayNum(), km: 5, min: +m[1] + m[2] / 60 });

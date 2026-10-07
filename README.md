@@ -2,17 +2,16 @@
 
 **Open:** `site/index.html` (live: https://vishv3010.github.io/exam-prep-2027/) · works offline · add it to your home screen.
 
-## The one rule
+## How to use it
 
-**Open it. Tap where you are. Tap how many minutes. Press Start.** The app decides what to study. You never plan.
+The app tracks **your** study; the learning happens in your books and your notebook.
 
-| You are… | Tap | You get |
-|---|---|---|
-| Standing in the metro, one hand | **Metro** | Flashcards, polity, Gujarat GK, vocab, quick-mental questions. No pen needed. |
-| At your office desk, a gap between work | **Desk** | Maths, reasoning, grammar — the stuff that needs focus. |
-| Home / weekend, pen and paper | **Free** | Same, plus one Paper 2 writing task a week (40+ min sessions). |
-
-2 minutes counts. 5 minutes keeps the streak. **Miss a day, never miss two.**
+1. **Study from a book, make notes on paper.**
+2. **Today → Log study**: topic, what you did (study + notes / revision / past paper / current affairs), minutes. 10 seconds. It keeps your streak and your weekly total honest.
+3. **Syllabus**: when a topic's notes are complete, set it to **Notes made**. The app schedules revisions after **3, 7, 21 and 45 days**; they appear under **Today → Revise today**. Tap *Done* when you've revised.
+4. **Today → Next to learn** shows the unfinished topics paying the most marks per hour (weighted PSI 55 / CDS 45).
+5. **Progress → Scores**: enter every real mock and past paper. That chart, not any app estimate, tells you where you stand.
+6. **Practice**: quick quiz for metro rides, mini mocks that drill the marking rules, Paper 2 writing tasks, and a **mistake log** — one line per question you got wrong, read before every mock.
 
 ## Why this beats the old app
 
