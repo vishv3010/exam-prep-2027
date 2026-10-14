@@ -160,7 +160,7 @@
       log: [],         // { day, topic, kind, min, note }
       scores: [],      // { day, exam, label, score, max }
       mistakes: [],    // { day, topic, text, done }
-      prefs: { place: 'desk', mins: 10, weekly: 300, floor: 5, split: 55 }
+      prefs: { place: 'desk', mins: 10, weekly: 300, floor: 5, split: 55, theme: 'auto' }
     };
   };
 

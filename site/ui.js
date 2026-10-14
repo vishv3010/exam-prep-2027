@@ -10,6 +10,14 @@
   var S = load();
   G.applyPrefs(S);
 
+  function applyTheme(t) {
+    t = t || (S.prefs && S.prefs.theme) || 'auto';
+    if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    else if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    else document.documentElement.removeAttribute('data-theme');
+  }
+  applyTheme(S.prefs.theme);
+
   function load() {
     try { return G.migrate(JSON.parse(localStorage.getItem(KEY))); } catch (e) { return G.blank(); }
   }
@@ -152,9 +160,42 @@
     }).join('') + '</select>';
   }
 
+  function quickTopics() {
+    var recents = [];
+    var seen = {};
+    for (var i = S.log.length - 1; i >= 0 && recents.length < 4; i--) {
+      var tid = S.log[i].topic;
+      if (tid && !seen[tid] && G.topicMap[tid]) {
+        seen[tid] = true;
+        recents.push(G.topicMap[tid]);
+      }
+    }
+    if (recents.length < 4) {
+      G.topics.forEach(function (t) {
+        if (recents.length < 4 && !seen[t.id] && G.track(S, t.id).stage === 1) {
+          seen[t.id] = true;
+          recents.push(t);
+        }
+      });
+    }
+    if (recents.length < 4) {
+      var next = G.nextToLearn(S, 4);
+      next.forEach(function (t) {
+        if (recents.length < 4 && !seen[t.id]) {
+          seen[t.id] = true;
+          recents.push(t);
+        }
+      });
+    }
+    if (!recents.length) return '';
+    return '<div class="quick-topics">' + recents.map(function (t) {
+      return '<button type="button" class="chip' + (t.id === ui.topic ? ' on' : '') + '" data-act="pickTopicChip" data-v="' + t.id + '">' + esc(t.name) + '</button>';
+    }).join('') + '</div>';
+  }
+
   // UI-only choices (not saved)
   var KINDS = { learn: 'Study + notes', revise: 'Revision', pyq: 'Past paper / practice', ca: 'Current affairs' };
-  var ui = { kind: 'learn', min: 30, topic: '', filter: 'all' };
+  var ui = { kind: 'learn', min: 30, topic: '', filter: 'all', squery: '' };
   function chipRow(group, list, cur, cls) {
     return '<div class="chips ' + (cls || 'sm') + '">' + list.map(function (x) {
       return '<button type="button" class="chip' + (String(x[0]) === String(cur) ? ' on' : '') + '" data-act="pickChip" data-g="' + group + '" data-v="' + x[0] + '">' + x[1] + '</button>';
@@ -177,7 +218,7 @@
       '<li>Sit real mocks and past papers; enter the scores in Progress.</li></ol></section>';
 
     return head(dayLabel(today), 'PSI ' + S.prefs.split + ' · CDS ' + (100 - S.prefs.split)) + dateBanner() + howto +
-      '<section class="card"><h2>Log study</h2><form data-form="log" class="logf">' + topicSelect(ui.topic) +
+      '<section class="card"><h2>Log study</h2><form data-form="log" class="logf">' + quickTopics() + topicSelect(ui.topic) +
       chipRow('kind', Object.keys(KINDS).map(function (k) { return [k, KINDS[k]]; }), ui.kind, 'sm kinds') +
       chipRow('min', [[15, '15'], [30, '30'], [45, '45'], [60, '60'], [90, '90'], [120, '120']], ui.min, 'mins') +
       '<input name="note" class="txt" placeholder="Note — book, chapter, pages (optional)" maxlength="140" autocomplete="off">' +
@@ -197,6 +238,7 @@
       }).join('') + '</ul><p class="fine">Most marks per hour among topics without finished notes.</p></section>' +
 
       '<section class="card"><h2>Today <small class="unit">' + fmtMin(tmin) + '</small></h2>' +
+      (tmin >= S.prefs.floor ? '<p class="streak-status" style="color:var(--good);margin-bottom:8px;">✓ ' + S.prefs.floor + 'm daily minimum met · streak preserved</p>' : '<p class="streak-status late" style="margin-bottom:8px;">' + (S.prefs.floor - tmin) + 'm left to meet your ' + S.prefs.floor + 'm daily minimum</p>') +
       (todays.length ? '<ul class="list">' + todays.map(logRow).join('') + '</ul>' : '<p class="empty">Nothing logged yet. 15 minutes counts.</p>') +
       '<div class="wk"><span>This week</span><span class="mono">' + fmtMin(week) + ' / ' + fmtMin(S.prefs.weekly) + '</span></div>' +
       '<div class="bar thin"><i style="width:' + Math.min(100, week / S.prefs.weekly * 100) + '%"></i></div>' +
@@ -218,16 +260,20 @@
   // ------------------------------------------------------------- SYLLABUS
   var FILTERS = [['all', 'All'], ['psi', 'PSI'], ['cds', 'CDS'], ['due', 'Due'], ['todo', 'Not started']];
   function viewSyllabus() {
-    var cov = G.syllabusCoverage(S), today = G.dayNum(), f = ui.filter;
+    var cov = G.syllabusCoverage(S), today = G.dayNum(), f = ui.filter, q = (ui.squery || '').toLowerCase().trim();
     var keep = function (t) {
       var tr = G.track(S, t.id), d = G.dueDay(tr);
-      return f === 'all' || (f === 'psi' && t.psi) || (f === 'cds' && t.cds) || (f === 'due' && d != null && d <= today) || (f === 'todo' && tr.stage === 0);
+      var matchesFilter = f === 'all' || (f === 'psi' && t.psi) || (f === 'cds' && t.cds) || (f === 'due' && d != null && d <= today) || (f === 'todo' && tr.stage === 0);
+      if (!matchesFilter) return false;
+      if (q && t.name.toLowerCase().indexOf(q) < 0 && (t.group || '').toLowerCase().indexOf(q) < 0) return false;
+      return true;
     };
     return head('Syllabus', 'your notes, topic by topic') +
       '<section class="card"><div class="covg">' + ['psi', 'cds'].map(function (e) {
         return '<div class="' + e + '"><span class="tag">' + e.toUpperCase() + '</span><div><span class="big">' + cov[e].notes + '</span><span class="of mono"> / 300</span></div>' +
           '<div class="bar"><i style="width:' + cov[e].notes / 3 + '%"></i></div><small class="mono">marks with notes · ' + cov[e].rev + ' revised</small></div>';
       }).join('') + '</div></section>' +
+      '<div class="syl-search"><input type="search" class="txt" placeholder="Search topics (e.g. Ratio, Polity, Gujarat)…" value="' + esc(ui.squery || '') + '" data-act="squery" aria-label="Search syllabus"></div>' +
       chipRow('filter', FILTERS, f, 'sm filt') +
       GROUPS.map(function (g) {
         var ts = G.topics.filter(function (t) { return t.group === g && keep(t); });
@@ -260,7 +306,8 @@
       (hist.length ? '<h3>History</h3><ul class="list">' + hist.map(function (l) {
         return '<li><span class="lrow static"><b class="mono">' + dayShort(l.day) + '</b><small>' + KINDS[l.kind] + ' · ' + fmtMin(l.min) + (l.note ? ' · ' + esc(l.note) : '') + '</small></span></li>';
       }).join('') + '</ul>' : '') +
-      (nq ? '<div class="btns"><button class="btn wide" data-act="studyTopic" data-v="' + id + '">Quick quiz on this topic · ' + nq + ' cards</button></div>' : '') +
+      '<div class="btns">' + (nq ? '<button class="go" data-act="studyTopic" data-v="' + id + '">Quick quiz on this topic · ' + nq + ' cards</button>' : '') +
+      '<button class="btn wide" data-act="logForTopic" data-v="' + id + '">Log study for this topic</button></div>' +
       (learn.length ? '<h3>Quick reference</h3>' + learn.map(function (l) {
         return '<details><summary>' + esc(l.title) + '</summary><div class="md">' + md(l.body) + (l.ex ? '<div class="ex">' + md(l.ex) + '</div>' : '') + '</div></details>';
       }).join('') : ''));
@@ -298,6 +345,7 @@
       '<form data-form="mistake" class="logf">' + topicSelect('') +
       '<textarea name="text" class="txt" rows="2" placeholder="e.g. Art. 21A = right to education, not Art. 21" maxlength="240" required></textarea>' +
       '<button class="btn">Add mistake</button></form>' +
+      (open.length ? '<div class="btns" style="margin:12px 0 6px;"><button class="go" data-act="drillMistakes">Drill open mistakes · ' + open.length + ' cards</button></div>' : '') +
       (open.length ? '<ul class="list">' + open.slice().reverse().map(function (m) {
         var t = G.topicMap[m.topic];
         return '<li><span class="lrow static"><b>' + esc(m.text) + '</b><small>' + (t ? esc(t.name) + ' · ' : '') + dayShort(m.day) + '</small></span><button class="btn sm" data-act="mfix" data-v="' + S.mistakes.indexOf(m) + '">Fixed</button></li>';
@@ -331,6 +379,7 @@
     S.log.forEach(function (l) { if (l.day > today - 7) { var g = (G.topicMap[l.topic] || {}).group || 'Other'; grp[g] = (grp[g] || 0) + l.min; if (grp[g] > gmax) gmax = grp[g]; } });
     var runs = S.runs.slice().sort(function (a, b) { return a.min - b.min; });
     var best = runs[0], lastRuns = S.runs.slice(-4).reverse();
+    var proj = G.project(S);
     var scores = S.scores.map(function (x) { return { exam: x.exam, day: x.day, label: x.label, score: x.score, max: x.max, real: 1 }; })
       .concat(S.mocks.map(function (x) { return { exam: x.exam, day: x.day, label: 'App mini mock' + (x.part ? ' · ' + x.part : ''), score: x.score, max: x.max }; }))
       .sort(function (a, b) { return a.day - b.day; });
@@ -342,6 +391,23 @@
       (Object.keys(grp).length ? '<h3>Last 7 days by subject</h3><ul class="hbars">' + GROUPS.concat(['Other']).filter(function (g) { return grp[g]; }).map(function (g) {
         return '<li><span>' + g + '</span><i style="width:' + grp[g] / gmax * 100 + '%"></i><b class="mono">' + fmtMin(grp[g]) + '</b></li>';
       }).join('') + '</ul>' : '') + '</section>' +
+
+      '<section class="card exam-proj"><h2>Projected exam score <small class="unit">readiness model</small></h2>' +
+      '<p class="fine">Conservative estimate based on your logged study time and memory retention in each topic.</p>' +
+      '<div class="exam psi"><div class="exam-h"><span class="tag">PSI</span><span class="big mono">' + Math.round(proj.psi.total) + '</span><span class="of mono"> / 300</span><span class="tgt mono">Target: 180 (60%)</span></div>' +
+      '<div class="bar"><i style="width:' + Math.min(100, proj.psi.total / 3) + '%"></i><b style="left:60%" title="Target: 180"></b></div>' +
+      '<div class="secs">' +
+      '<span class="' + ((proj.psi.sec.A || 0) >= 40 ? 'okk' : 'low') + '">Part A (Quant+Reas): ' + Math.round(proj.psi.sec.A || 0) + '/100 <i>(min 40)</i></span>' +
+      '<span class="' + ((proj.psi.sec.B || 0) >= 40 ? 'okk' : 'low') + '">Part B (GS): ' + Math.round(proj.psi.sec.B || 0) + '/100 <i>(min 40)</i></span>' +
+      '<span>Paper 2 (Writing): ' + Math.round(proj.psi.sec.W || 0) + '/100</span>' +
+      '</div></div>' +
+      '<div class="exam cds"><div class="exam-h"><span class="tag">CDS</span><span class="big mono">' + Math.round(proj.cds.total) + '</span><span class="of mono"> / 300</span><span class="tgt mono">Target: 135 (45%)</span></div>' +
+      '<div class="bar"><i style="width:' + Math.min(100, proj.cds.total / 3) + '%"></i><b style="left:45%" title="Target: 135"></b></div>' +
+      '<div class="secs">' +
+      '<span class="' + ((proj.cds.sec.E || 0) >= 20 ? 'okk' : 'low') + '">English: ' + Math.round(proj.cds.sec.E || 0) + '/100 <i>(min 20)</i></span>' +
+      '<span class="' + ((proj.cds.sec.G || 0) >= 20 ? 'okk' : 'low') + '">GK: ' + Math.round(proj.cds.sec.G || 0) + '/100 <i>(min 20)</i></span>' +
+      '<span class="' + ((proj.cds.sec.M || 0) >= 20 ? 'okk' : 'low') + '">Maths: ' + Math.round(proj.cds.sec.M || 0) + '/100 <i>(min 20)</i></span>' +
+      '</div></div></section>' +
 
       '<section class="card"><h2>Scores</h2><p class="fine">Full mocks and past papers, on paper or online. The only honest measure — enter every one.</p>' +
       '<form data-form="score" class="scoref"><select name="exam" class="sel" aria-label="Exam"><option value="psi">PSI</option><option value="cds">CDS</option></select>' +
@@ -365,12 +431,14 @@
           (idx >= 0 ? '<button class="icon sm" data-act="unscore" data-v="' + idx + '" aria-label="Delete score">' + IC.x + '</button>' : '') + '</li>';
       }).join('') + '</ul>' : '') + '</section>' +
 
-      '<section class="card"><h2>5 km · PET</h2><p class="fine">Qualify: <b>25:00</b>. Aim for 23:00 so a bad day still passes.</p>' +
+      '<section class="card"><h2>5 km · PET</h2><p class="fine">Qualify: <b>25:00</b> (5:00/km). Aim for 23:00 (4:36/km) so a bad day still passes.</p>' +
       '<form class="runf" data-form="run"><input name="t" inputmode="numeric" placeholder="mm:ss e.g. 24:30" pattern="\\d{1,2}:\\d{2}" required aria-label="5 km time"><button class="btn">Log run</button></form>' +
-      (best ? '<p class="runbest">Best <b class="mono">' + clock(best.min * 60) + '</b>' + (best.min <= 25 ? ' <span class="okk">qualifies</span>' : ' <span class="low">' + clock((best.min - 25) * 60) + ' to cut</span>') + '</p>' : '') +
-      (lastRuns.length ? '<ul class="hist">' + lastRuns.map(function (r) { return '<li><span class="mono">' + clock(r.min * 60) + '</span><span class="fine">' + dayShort(r.day) + '</span></li>'; }).join('') + '</ul>' : '') + '</section>' +
+      (best ? '<p class="runbest">Best <b class="mono">' + clock(best.min * 60) + '</b> <span class="pace-badge mono">(' + clock((best.min / 5) * 60) + '/km)</span>' + (best.min <= 25 ? ' <span class="okk">qualifies</span>' : ' <span class="low">' + clock((best.min - 25) * 60) + ' to cut</span>') + ' · <span class="fine">Target: 23:00 (4:36/km)</span></p>' : '') +
+      (lastRuns.length ? '<ul class="hist">' + lastRuns.map(function (r) { return '<li><span class="mono">' + clock(r.min * 60) + '</span><span class="pace-badge mono">' + clock((r.min / 5) * 60) + '/km</span><span class="fine">' + dayShort(r.day) + '</span></li>'; }).join('') + '</ul>' : '') + '</section>' +
 
       '<section class="card"><h2>Settings</h2>' +
+      '<div class="slide"><span>Theme<b data-show="theme">' + esc(S.prefs.theme || 'auto').toUpperCase() + '</b></span>' +
+      chipRow('theme', [['auto', 'Auto'], ['dark', 'Dark'], ['light', 'Light']], S.prefs.theme || 'auto', 'sm theme-chips') + '</div>' +
       slider('weekly', 'Weekly target', S.prefs.weekly, 60, 1500, 30, fmtMin(S.prefs.weekly)) +
       slider('floor', 'Daily minimum (keeps the streak)', S.prefs.floor, 5, 60, 5, S.prefs.floor + ' min') +
       slider('split', 'Focus split', S.prefs.split, 20, 80, 5, 'PSI ' + S.prefs.split + '% · CDS ' + (100 - S.prefs.split) + '%') +
@@ -384,7 +452,7 @@
       '<p class="fine">CDS: ' + esc(G.EXAMS.cds.rules) + '. Ages: IMA 19–24 · INA 19–22 · AFA 20–24 · OTA 19–25 — check the notice.</p></section>' +
 
       '<section class="card"><h2>Backup</h2><p class="fine">Everything lives on this phone only. Export once a week; import on a new phone.</p>' +
-      '<div class="btns"><button class="btn" data-act="export">Export</button><label class="btn">Import<input type="file" accept="application/json" data-act="import" hidden></label><button class="btn danger" data-act="reset">Reset</button></div>' +
+      '<div class="btns"><button class="btn" data-act="export">Export</button><button class="btn" data-act="copyBackup">Copy JSON</button><label class="btn">Import<input type="file" accept="application/json" data-act="import" hidden></label><button class="btn danger" data-act="reset">Reset</button></div>' +
       (S.lastExport ? '<p class="fine">Last export ' + rel(S.lastExport) + '.</p>' : '<p class="fine">Never exported.</p>') + '</section>';
   }
   function slider(key, label, val, min, max, step, show) {
@@ -579,6 +647,44 @@
     full(top + '<div class="rbody">' + head + body + '</div><div class="ract">' + actions + '</div>');
   }
 
+  // ------------------------------------------------------------- mistake drill runner
+  function startMistakeDrill() {
+    var open = S.mistakes.filter(function (m) { return !m.done; });
+    if (!open.length) { toast('No open mistakes to drill right now'); return; }
+    run = {
+      kind: 'mistakes',
+      list: shuffle(open),
+      i: 0,
+      fixedCount: 0,
+      start: Date.now()
+    };
+    showMistakeCard();
+  }
+
+  function showMistakeCard() {
+    if (!run || run.kind !== 'mistakes') return;
+    if (run.i >= run.list.length) {
+      full('<div class="done"><div class="done-k">Mistake drill complete</div>' +
+        '<div class="gain"><div><span class="mono">' + run.fixedCount + '</span><small>marked fixed</small></div><div><span class="mono">' + run.list.length + '</span><small>reviewed</small></div></div>' +
+        '<p class="msg">Every fixed mistake is a mark gained on exam day.</p>' +
+        '<div class="btns col"><button class="go" data-act="close">Done</button></div></div>');
+      return;
+    }
+    var m = run.list[run.i];
+    var t = G.topicMap[m.topic];
+    var top = '<div class="rtop"><button class="icon" data-act="close" aria-label="Close">' + IC.x + '</button><span class="mtag psi">Mistake Drill · ' + (run.i + 1) + '/' + run.list.length + '</span><span></span></div>';
+    var head = '<div class="ctag"><span class="tdot ' + (t && t.psiFrac > 0.6 ? 'psi' : t && t.psiFrac < 0.4 ? 'cds' : 'both') + '"></span>' + esc(t ? t.name : 'General GK') + '<span class="kind">Mistake Recall</span></div>';
+    var body = '<p class="q">Can you recall the rule, formula, or trap you recorded for this topic?</p>' +
+      (m.day ? '<p class="fine">Recorded: ' + dayLabel(m.day) + '</p>' : '') +
+      '<div id="mrevealed" class="why no" hidden style="margin-top:16px; font-size:16px;"><b>Your note:</b> ' + esc(m.text) + '</div>';
+    var actions = '<button class="go" data-act="revealMistake" id="mrevealBtn">Reveal note →</button>' +
+      '<div class="two" id="mjudgeBtns" hidden>' +
+      '<button class="btn" data-act="keepMistake">Keep reviewing</button>' +
+      '<button class="go" data-act="fixMistake">Mastered it · Mark fixed ✓</button>' +
+      '</div>';
+    full(top + '<div class="rbody">' + head + body + '</div><div class="ract">' + actions + '</div>');
+  }
+
   // ------------------------------------------------------------- mock runner
   function startMock(exam) {
     var items = G.buildMock(S, exam, 25, mockPart[exam] || null);
@@ -631,9 +737,13 @@
     S.mocks.push({ exam: run.exam, part: run.part, day: day, score: res.score, max: res.max, right: res.right, wrong: res.wrong, blank: res.blank, e: res.e });
     save();
     var lesson = '';
-    if (run.exam === 'psi' && res.blank) lesson = 'You left ' + res.blank + ' blank — that cost ' + (res.blank * 0.25) + ' marks. In PSI, mark E instead. Every row gets an answer.';
-    else if (run.exam === 'cds' && res.wrong > res.right / 2) lesson = 'Wrong answers cost you ' + r1(res.wrong / 3) + ' marks. In CDS, skip unless you can eliminate two options.';
-    else if (run.exam === 'psi' && res.wrong > res.right / 2) lesson = 'Many wrong answers at −0.25 each. Mark E when you have no idea.';
+    if (run.exam === 'psi' && res.blank) {
+      lesson = '⚠️ Leaving ' + res.blank + ' blank row(s) cost you −' + r1(res.blank * 0.25) + ' marks! In Gujarat PSI, blank rows cost −0.25. If unsure, ALWAYS mark Option E ("Not attempted") to receive 0 penalty.';
+    } else if (run.exam === 'cds' && res.wrong > 0) {
+      lesson = '⚠️ ' + res.wrong + ' wrong answer(s) deducted −' + r1(res.wrong / 3) + ' marks. In CDS, skipping is free (0 penalty). Only attempt when you can eliminate 2 options!';
+    } else if (run.exam === 'psi' && res.wrong > res.right / 2) {
+      lesson = '⚠️ High negative penalty from ' + res.wrong + ' wrong answers (−0.25 each). Mark Option E when you have no idea.';
+    }
 
     full('<div class="rtop"><button class="icon" data-act="close" aria-label="Close">' + IC.x + '</button><span class="mtag ' + run.exam + '">' + run.exam.toUpperCase() + ' result</span><span></span></div>' +
       '<div class="rbody"><div class="mres"><span class="big mono">' + res.score + '</span><span class="of mono">/ ' + res.max + '</span><span class="pc">' + Math.round(res.score / res.max * 100) + '%</span></div>' +
@@ -659,10 +769,68 @@
     mins: function (d) { S.prefs.mins = +d.v; save(); render(); },
     start: function () { startSession(S.prefs.place === 'metro' ? 'metro' : 'desk', QMINS.indexOf(S.prefs.mins) >= 0 ? S.prefs.mins : 10); },
     pickChip: function (d, el) {
+      if (d.g === 'theme') {
+        S.prefs.theme = d.v;
+        applyTheme(d.v);
+        save();
+        render();
+        toast('Theme: ' + d.v);
+        return;
+      }
       ui[d.g] = d.g === 'min' ? +d.v : d.v;
       if (d.g === 'filter') return render();
       [].forEach.call(el.parentNode.children, function (c) { c.classList.toggle('on', c === el); });
       if (d.g === 'min') document.getElementById('logBtn').textContent = 'Log ' + d.v + ' min';
+    },
+    pickTopicChip: function (d) {
+      ui.topic = d.v;
+      var f = document.querySelector('form[data-form="log"]');
+      if (f && f.topic) f.topic.value = d.v;
+      var chips = document.querySelectorAll('.quick-topics .chip');
+      for (var i = 0; i < chips.length; i++) chips[i].classList.toggle('on', chips[i].dataset.v === d.v);
+      toast('Selected: ' + (G.topicMap[d.v] ? G.topicMap[d.v].name : d.v));
+    },
+    logForTopic: function (d) {
+      ui.topic = d.v;
+      closeOverlay();
+      location.hash = '#today';
+      render();
+    },
+    drillMistakes: function () {
+      startMistakeDrill();
+    },
+    revealMistake: function () {
+      var rev = document.getElementById('mrevealed');
+      if (rev) rev.hidden = false;
+      var btn = document.getElementById('mrevealBtn');
+      if (btn) btn.hidden = true;
+      var jbtns = document.getElementById('mjudgeBtns');
+      if (jbtns) jbtns.hidden = false;
+    },
+    keepMistake: function () {
+      run.i++;
+      showMistakeCard();
+    },
+    fixMistake: function () {
+      var m = run.list[run.i];
+      m.done = G.dayNum();
+      run.fixedCount++;
+      save();
+      toast('Marked fixed ✓');
+      run.i++;
+      showMistakeCard();
+    },
+    copyBackup: function () {
+      var txt = JSON.stringify(S);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(function () {
+          toast('Backup copied to clipboard');
+        }).catch(function () {
+          prompt('Copy your backup data:', txt);
+        });
+      } else {
+        prompt('Copy your backup data:', txt);
+      }
     },
     revised: function (d) {
       G.revise(S, d.v); save(); render();
@@ -793,6 +961,16 @@
   });
   document.addEventListener('input', function (e) {
     var el = e.target;
+    if (el.dataset.act === 'squery') {
+      ui.squery = el.value;
+      render();
+      var inp = document.querySelector('input[data-act="squery"]');
+      if (inp) {
+        inp.focus();
+        inp.selectionStart = inp.selectionEnd = inp.value.length;
+      }
+      return;
+    }
     if (!el.dataset.pref) return;
     var k = el.dataset.pref, v = +el.value, show = document.querySelector('[data-show="' + k + '"]');
     if (show) show.textContent = k === 'weekly' ? fmtMin(v) : k === 'floor' ? v + ' min' : 'PSI ' + v + '% · CDS ' + (100 - v) + '%';
