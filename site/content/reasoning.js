@@ -23,12 +23,18 @@
     Q('A, C, F, J, O, ?', ['U', 'T', 'V', 'S'], 'Gaps +2, +3, +4, +5, +6 → O(15) + 6 = U(21).', M),
     Q('Z, X, V, T, ?', ['R', 'S', 'Q', 'P'], 'Back two letters each time.', M),
     Q('AZ, BY, CX, ?', ['DW', 'DV', 'EW', 'DX'], 'First letter moves forward, second moves backward.', M),
+    Q('1, 1, 2, 3, 5, 8, 13, ?', ['21', '20', '19', '24'], 'Fibonacci sequence: each term is the sum of previous two. 8 + 13 = 21.', M),
+    Q('0, 7, 26, 63, 124, ?', ['215', '216', '125', '214'], 'Pattern is n³ − 1: 1³−1=0, 2³−1=7, 3³−1=26, 4³−1=63, 5³−1=124, so next is 6³−1 = 216 − 1 = 215.', M),
+    Q('2, 5, 10, 17, 26, ?', ['37', '35', '36', '38'], 'Pattern is n² + 1: 1²+1, 2²+1, 3²+1, 4²+1, 5²+1, next is 6²+1 = 37.', M),
+    Q('B, D, G, K, P, ?', ['V', 'U', 'W', 'T'], 'Letter gaps: B(+2)→D(+3)→G(+4)→K(+5)→P(+6) = V (16 + 6 = 22 = V).', M),
     L('Analogy and odd one out', '**Analogy** (A : B :: C : ?) — say the relation in words first: "worker : workplace", "country : capital", "n : n³".\n**Odd one out** — find what three of them share (prime, category, square); the fourth breaks it.'),
     Q('Doctor : Hospital :: Teacher : ?', ['School', 'Student', 'Book', 'Chalk'], 'Person : place of work.', M),
     Q('3 : 27 :: 4 : ?', ['64', '16', '48', '81'], 'n : n³.', M),
+    Q('Analogy: 11 : 121 :: 15 : ?', ['225', '215', '235', '195'], 'Rule n : n². 15² = 225.', M),
     Q('Odd one out: 3, 5, 9, 11, 13', ['9', '5', '11', '13'], 'All the others are prime.', M),
     Q('Odd one out: Mango, Apple, Potato, Banana', ['Potato', 'Mango', 'Apple', 'Banana'], 'Potato is a vegetable; the rest are fruits.', M),
-    Q('Odd one out: 121, 144, 169, 180', ['180', '121', '144', '169'], 'The others are perfect squares.', M)
+    Q('Odd one out: 121, 144, 169, 180', ['180', '121', '144', '169'], 'The others are perfect squares.', M),
+    Q('Odd one out: 64, 125, 216, 343', ['64', '125', '216', '343'], '64 is both a perfect square (8²) and cube (4³); the others are pure cubes.', M)
   ]);
 
   G.add('r_coding', [
@@ -39,6 +45,10 @@
     Q('ROSE = 6821, CHAIR = 73456, PREACH = 961473. SEARCH = ?', ['214673', '214763', '216473', '241673'], 'Each letter has a fixed digit: S 2, E 1, A 4, R 6, C 7, H 3.', P),
     Q('If A = 1, B = 2 … Z = 26, then CAT = ?', ['24', '23', '26', '22'], 'C 3 + A 1 + T 20 = 24.', M),
     Q('"sky is blue" = "ta na pa" and "blue is good" = "na ta ka". The code for "good"?', ['ka', 'ta', 'na', 'pa'], '"is blue" is the common pair "ta na"; "good" is the leftover "ka".', M),
+    Q('If CAT is coded as XZG, how is DOG coded?', ['WLT', 'WLS', 'VLT', 'WKT'], 'Opposite letters (positions sum to 27): D(4)↔W(23), O(15)↔L(12), G(7)↔T(20).', M),
+    Q('If BOOK is coded as 43, what is PEN coded as?', ['35', '32', '36', '40'], 'Sum of letter positions: P(16) + E(5) + N(14) = 35.', M),
+    Q('If "water" is called "food", "food" is called "tree", and "tree" is called "sky", on what do fruits grow?', ['Sky', 'Tree', 'Food', 'Water'], 'Fruits grow on a "tree", and "tree" is called "sky".', M),
+    Q('If MASTER is coded as SAMRET, what is CARROT coded as?', ['RACTOR', 'RACROT', 'RACORT', 'CARROT'], 'First 3 letters reversed (MAS→SAM), last 3 reversed (TER→RET). CAR→RAC, ROT→TOR → RACTOR.', M),
     F('Opposite letter of G', 'T (27 − 7 = 20)'),
     F('Position of M', '13 — M and N are the middle pair')
   ]);
@@ -48,6 +58,9 @@
     Q('Pointing to a man, Riya says, "He is the son of my mother’s only son." The man is Riya’s:', ['Nephew', 'Brother', 'Son', 'Cousin'], 'Her mother’s only son is Riya’s brother. His son is her nephew.', M),
     Q('A is B’s brother. C is A’s mother. D is C’s father. B is D’s:', ['Grandchild', 'Son', 'Grandfather', 'Nephew'], 'D → C → A and B. B is D’s grandchild (gender not given).', M),
     Q('A man points to a girl: "Her mother is the only daughter of my mother." He is the girl’s:', ['Maternal uncle', 'Father', 'Brother', 'Grandfather'], 'The only daughter of his mother is his sister, so he is the girl’s mama.', M),
+    Q('Pointing to a photograph of a boy, Suresh said, "He is the only son of my mother." How is Suresh related to that boy?', ['Father', 'Uncle', 'Brother', 'Grandfather'], 'Said by a man, "the only son of my mother" is Suresh himself. So Suresh is the boy’s father.', M),
+    Q('Introducing a man, a woman said, "His wife is the only daughter of my father." How is the man related to the woman?', ['Husband', 'Brother', 'Father-in-law', 'Maternal uncle'], 'The only daughter of the woman’s father is herself. His wife is herself → the man is her husband.', M),
+    Q('A is the mother of B. B is the sister of C. D is the son of C. How is A related to D?', ['Maternal grandmother', 'Mother', 'Aunt', 'Sister'], 'A is mother of C; D is son of C. Therefore, A is D’s maternal grandmother (Nani).', M),
     Q('X is Y’s husband. Y is Z’s sister. Z is W’s son. X is W’s:', ['Son-in-law', 'Son', 'Brother', 'Father'], 'Y is W’s daughter; her husband is W’s son-in-law.', M),
     Q('P is Q’s brother and Q is R’s sister. P is R’s:', ['Brother', 'Sister', 'Father', 'Cousin'], 'P is male and a sibling of Q, and so of R.', M),
     F('Father’s sister', 'Aunt — ફોઈ (phoi)'), F('Mother’s brother', 'Maternal uncle — મામા (mama)'), F('Sister’s husband', 'Brother-in-law — બનેવી (banevi)')
@@ -58,6 +71,9 @@
     Q('A man walks 3 km north, then 4 km east. Distance from the start?', ['5 km', '7 km', '1 km', '6 km'], '3-4-5 triangle.', M),
     Q('Facing north, you turn right, right again, then left. Which way do you face?', ['East', 'West', 'South', 'North'], 'N → E → S → (left from S) E.', M),
     Q('In the morning, a man’s shadow falls to his right. Which way is he facing?', ['South', 'North', 'East', 'West'], 'Morning shadows point west. West on your right means you face south.', M),
+    Q('At sunset, a man notices his shadow is falling to his right. Which direction is he facing?', ['North', 'South', 'East', 'West'], 'At sunset, sun is in the west, so shadow falls east. East to your right means you face North.', M),
+    Q('A person starts facing South, turns 90° clockwise, then 180° anticlockwise. Which way is he facing?', ['East', 'West', 'North', 'South'], 'Facing South: 90° clockwise = West. Then 180° = East.', M),
+    Q('A man walks 12 km West, then 5 km South. What is the shortest distance back to start?', ['13 km', '17 km', '7 km', '15 km'], '5-12-13 right triangle: √(12² + 5²) = √(144 + 25) = √169 = 13 km.', M),
     Q('Ravi walks 10 m south, turns left and walks 5 m, turns left and walks 10 m. Where is he now from the start?', ['5 m east', '5 m west', '10 m north', '15 m east'], 'South, then left = east 5 m, then left = north 10 m. He is level with the start, 5 m east.', M),
     Q('A walks 6 km east, 8 km north, then 6 km west. Position from the start?', ['8 km north', '10 km north-east', '14 km north', '6 km west'], 'East and west cancel out.', M),
     F('Morning shadows fall towards', 'the West'),
@@ -68,6 +84,9 @@
     L('Ranking', 'Total = rank from top + rank from bottom − 1.\nRanked 7th from the top and 12th from the bottom → **18** students.\nPosition from the other end = total − position + 1.'),
     Q('Raj is 7th from the top and 12th from the bottom of his class. Number of students?', ['18', '19', '20', '17'], '7 + 12 − 1 = 18.', M),
     Q('In a row of 40 people, A is 15th from the left. Position from the right?', ['26th', '25th', '24th', '27th'], '40 − 15 + 1 = 26.', M),
+    Q('In a row of 35 students, Ramesh is 11th from the right. What is his position from the left?', ['25th', '24th', '26th', '23rd'], 'Position from left = Total − Right + 1 = 35 − 11 + 1 = 25th.', M),
+    Q('In a class, Priya ranks 6th from the top and 28th from the bottom. How many students in the class?', ['33', '34', '32', '35'], 'Total = Top + Bottom − 1 = 6 + 28 − 1 = 33.', M),
+    Q('A is older than B, B is older than C, and D is older than A. Who is the second oldest?', ['A', 'D', 'B', 'C'], 'Order: D > A > B > C. The second oldest is A.', M),
     L('Seating — the method', '1. Draw the seats first (a line or a circle).\n2. Place the **definite** clues first ("A sits at an end", "B is third from the left").\n3. Then the relative clues ("C is to the right of D").\n4. In a circle facing the centre, your right is anticlockwise — draw it, don’t imagine it.'),
     Q('Five friends sit in a row. B is right of A, C is left of A, D is right of B, E is right of D. Who is in the middle?', ['B', 'A', 'C', 'D'], 'Left to right: C, A, B, D, E. Middle = B.', M),
     Q('A is taller than B. C is shorter than B. D is taller than A. Who is the shortest?', ['C', 'B', 'A', 'D'], 'D > A > B > C.', M),
@@ -80,6 +99,9 @@
     Q('Some pens are books. All books are bags. Which follows?', ['Some pens are bags', 'All pens are bags', 'No pen is a bag', 'All bags are pens'], 'The pens that are books sit inside the bag circle.', M),
     Q('No cat is a dog. All dogs are pets. Which definitely follows?', ['Some pets are not cats', 'No cat is a pet', 'All pets are dogs', 'Some cats are pets'], 'The dogs are pets but not cats, so some pets are not cats.', M),
     Q('All roses are flowers. Some flowers fade quickly. Conclusion: Some roses fade quickly.', ['Does not follow', 'Follows', 'All roses fade quickly', 'No rose fades'], 'The fast-fading flowers may lie outside the rose circle.', M),
+    Q('Statements: All cups are plates. All plates are spoons. Conclusion: All cups are spoons.', ['Follows', 'Does not follow', 'Either follows', 'Cannot say'], 'Cup circle is completely inside plate, which is completely inside spoon. Follows.', M),
+    Q('Statements: Some apples are red. No red is sweet. Conclusion: Some apples are not sweet.', ['Follows', 'Does not follow', 'All apples are sweet', 'Cannot say'], 'The apples that are red cannot be sweet. Therefore, those apples are not sweet. Follows.', M),
+    Q('Statements: All birds have wings. A bat has wings. Conclusion: A bat is a bird.', ['Does not follow', 'Follows', 'True only for some bats', 'Cannot say'], 'Having wings does not mean lying inside the bird circle. Does not follow.', M),
     L('Statements, assumptions, conclusions', 'An **assumption** is what the speaker takes for granted. A **conclusion** must follow from the statement alone — no outside knowledge.\nOptions with extreme words ("only", "always", "all", "never") are usually wrong.'),
     Q('Statement: "Use our toothpaste for whiter teeth." Implicit assumption?', ['People want whiter teeth', 'All other toothpastes are harmful', 'Teeth are naturally white', 'People never brush'], 'An advert assumes the audience wants the benefit it offers.', M)
   ]);
@@ -89,10 +111,14 @@
     Q('Is 1900 a leap year?', ['No', 'Yes', 'Only in the Indian calendar', 'Cannot say'], 'A century year must be divisible by 400.', M),
     Q('15 August 2026 is a Saturday. What day is 15 August 2027?', ['Sunday', 'Monday', 'Saturday', 'Friday'], 'There is no 29 February between them, so 365 days = 1 odd day.', M),
     Q('Today is Monday. What day is it after 61 days?', ['Saturday', 'Sunday', 'Friday', 'Tuesday'], '61 = 8 weeks + 5 days → Monday + 5 = Saturday.', M),
+    Q('If today is Friday, what day of the week was it 15 days ago?', ['Thursday', 'Friday', 'Saturday', 'Wednesday'], '15 days = 2 full weeks (14 days) + 1 day. 1 day before Friday is Thursday.', M),
     L('Clocks', 'Angle between the hands = |30H − 5.5M| degrees (if it is over 180, use 360 minus it).\nThe hands overlap 22 times a day, are opposite 22 times, and at right angles 44 times.'),
     Q('Angle between the hands at 3:30?', ['75°', '90°', '60°', '105°'], '|30 × 3 − 5.5 × 30| = |90 − 165| = 75.', M),
     Q('Angle between the hands at 9:00?', ['90°', '270°', '45°', '180°'], '|270 − 0| = 270 → 360 − 270 = 90.', M),
+    Q('What time is shown by the reflection of a clock in a mirror if the real clock shows 3:40?', ['8:20', '8:40', '9:20', '7:20'], 'Mirror trick: Subtract from 11:60. 11:60 − 3:40 = 8:20.', M),
+    Q('What time does a mirror reflect when a clock shows 8:15?', ['3:45', '4:45', '3:15', '4:15'], 'Mirror trick: 11:60 − 8:15 = 3:45.', M),
     Q('How many times do the hour and minute hands coincide in a day?', ['22', '24', '12', '11'], 'Once every 65 5/11 minutes → 22 times in 24 hours.', M),
+    Q('How many times do clock hands form a straight line (overlap or opposite) in 24 hours?', ['44', '22', '48', '24'], '22 overlaps + 22 opposite directions = 44 times.', M),
     F('Angle between clock hands', '|30H − 5.5M|'), F('Odd days in a leap year', '2'), F('Odd days in 400 years', '0')
   ]);
 

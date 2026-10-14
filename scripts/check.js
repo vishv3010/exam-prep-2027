@@ -117,6 +117,19 @@ sc.score === 0.5 ? ok('PSI scoring: +1 −0.25 wrong, E = 0, blank −0.25') : e
 const sc2 = G.scoreMock('cds', [{ a: 0 }, { a: 1 }, { a: 2 }], [0, 0, null]);
 Math.abs(sc2.score - 0.67) < 0.01 ? ok('CDS scoring: +1 −1/3, blank free') : err(`CDS scoring wrong: ${sc2.score}`);
 
+console.log('Mental Aptitude & Reasoning Sprint');
+{
+  const S = G.blank();
+  const mPsi = G.buildMentalDrill(S, 'psi_a', 10);
+  mPsi.length === 10 && mPsi.every(x => x.mental === 1) ? ok('PSI Part A mental drill: 10 pen-and-paper-free questions') : err('PSI Part A mental drill invalid');
+  const mR = G.buildMentalDrill(S, 'reasoning', 10);
+  mR.length === 10 && mR.every(x => x.topic.startsWith('r_')) ? ok('Reasoning drill: 10 logic items') : err('Reasoning drill invalid');
+  const mM = G.buildMentalDrill(S, 'maths', 10);
+  mM.length === 10 && mM.every(x => x.topic.startsWith('m_')) ? ok('Maths drill: 10 speed maths items') : err('Maths drill invalid');
+  const mF = G.buildMentalDrill(S, 'shortcuts', 10);
+  mF.length === 10 && mF.every(x => x.type === 'flash') ? ok('Shortcuts drill: 10 formula flashcards') : err('Shortcuts drill invalid');
+}
+
 console.log('Tracker');
 {
   const T = G.blank();

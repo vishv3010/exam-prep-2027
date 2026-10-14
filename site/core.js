@@ -160,7 +160,7 @@
       log: [],         // { day, topic, kind, min, note }
       scores: [],      // { day, exam, label, score, max }
       mistakes: [],    // { day, topic, text, done }
-      prefs: { place: 'desk', mins: 10, weekly: 300, floor: 5, split: 55, theme: 'auto' }
+      prefs: { place: 'desk', mins: 10, weekly: 300, floor: 5, split: 55, theme: 'auto', mentalCat: 'psi_a', mentalCount: 10 }
     };
   };
 
@@ -598,6 +598,78 @@
       ? right - 0.25 * wrong - 0.25 * blank
       : right - wrong / 3;
     return { right: right, wrong: wrong, blank: blank, e: e, score: Math.round(score * 100) / 100, max: items.length };
+  };
+
+  // ------------------------------------------------------------- Mental Aptitude & Reasoning Sprint
+  /**
+   * Builds a sprint of mental (pen-and-paper-free) questions.
+   * category: 'psi_a' (mixed 50/50 Reasoning + Quant) | 'reasoning' | 'maths' | 'shortcuts' (flashcards)
+   * n: number of items (default 10)
+   */
+  G.buildMentalDrill = function (S, category, n, rnd) {
+    rnd = rnd || Math.random;
+    n = n || 10;
+    category = category || 'psi_a';
+
+    var poolR = [];
+    var poolM = [];
+    var poolF = [];
+
+    G.topics.forEach(function (t) {
+      var isR = t.id.indexOf('r_') === 0;
+      var isM = t.id.indexOf('m_') === 0;
+      if (!isR && !isM) return;
+
+      t.seq.forEach(function (it) {
+        if (it.type === 'flash') {
+          poolF.push(it);
+        } else if (it.type === 'mcq' && it.mental) {
+          if (isR) poolR.push(it);
+          if (isM) poolM.push(it);
+        }
+      });
+    });
+
+    function pickWeighted(arr, count) {
+      var copy = arr.slice();
+      var res = [];
+      copy.sort(function (a, b) {
+        var sa = S && S.items && S.items[a.id] ? (S.items[a.id].w || 0) * 2 - (S.items[a.id].c || 0) : 1;
+        var sb = S && S.items && S.items[b.id] ? (S.items[b.id].w || 0) * 2 - (S.items[b.id].c || 0) : 1;
+        return (sb + rnd()) - (sa + rnd());
+      });
+      while (res.length < count && copy.length > 0) {
+        res.push(copy.shift());
+      }
+      for (var i = res.length - 1; i > 0; i--) {
+        var j = Math.floor(rnd() * (i + 1));
+        var temp = res[i];
+        res[i] = res[j];
+        res[j] = temp;
+      }
+      return res;
+    }
+
+    if (category === 'shortcuts') {
+      return pickWeighted(poolF, n);
+    } else if (category === 'reasoning') {
+      return pickWeighted(poolR, n);
+    } else if (category === 'maths') {
+      return pickWeighted(poolM, n);
+    } else {
+      // 'psi_a' - Gujarat PSI Paper 1 Part A (50 Marks Reasoning + 50 Marks Quant)
+      var half = Math.floor(n / 2);
+      var rItems = pickWeighted(poolR, half);
+      var mItems = pickWeighted(poolM, n - rItems.length);
+      var combined = rItems.concat(mItems);
+      for (var i = combined.length - 1; i > 0; i--) {
+        var j = Math.floor(rnd() * (i + 1));
+        var t = combined[i];
+        combined[i] = combined[j];
+        combined[j] = t;
+      }
+      return combined;
+    }
   };
 
   // ------------------------------------------------------------- PET & Physical Tracker

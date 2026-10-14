@@ -29,6 +29,12 @@
     Q('√0.0081 = ?', ['0.09', '0.9', '0.009', '0.81'], '√81 = 9. 0.0081 has 4 decimal places, so the root has 2 → 0.09.', M),
     Q('Which is largest: 2/3, 3/5, 5/8, 7/11?', ['2/3', '3/5', '5/8', '7/11'], 'As decimals: 0.667, 0.6, 0.625, 0.636.'),
     Q('256^(1/4) × 27^(1/3) = ?', ['12', '16', '9', '24'], '256^(1/4) = 4 and 27^(1/3) = 3, so 4 × 3 = 12.', M),
+    Q('54² = ? (Near 50 trick)', ['2916', '2816', '2926', '2716'], '54 is 50+4. Trick: (25 + 4) | 4² = 29 | 16 → 2916.', M),
+    Q('48² = ? (Near 50 trick)', ['2304', '2404', '2204', '2314'], '48 is 50−2. Trick: (25 − 2) | 2² = 23 | 04 → 2304.', M),
+    Q('75² = ?', ['5625', '5425', '5825', '5225'], 'Ends in 5: 7 × 8 = 56, append 25 → 5625.', M),
+    Q('95² = ?', ['9025', '9125', '8525', '9225'], 'Ends in 5: 9 × 10 = 90, append 25 → 9025.', M),
+    Q('35 × 11 = ?', ['385', '375', '395', '355'], '11 trick: 3 | (3+5) | 5 → 385.', M),
+    Q('98 × 98 = ?', ['9604', '9704', '9504', '9804'], 'Near 100: (98 − 2) | 2² = 96 | 04 → 9604.', M),
     Q('1 / (√2 + 1) simplifies to?', ['√2 − 1', '√2 + 1', '1/√2', '2 − √2'], 'Multiply top and bottom by (√2 − 1). The denominator becomes 2 − 1 = 1.'),
     Q('999 × 999 = ?', ['998001', '999001', '998999', '990001'], '(1000 − 1)² = 1,000,000 − 2,000 + 1 = 998,001.', M)
   ]);
@@ -37,6 +43,10 @@
     L('Percent means "per 100"', 'x% of y = x × y ÷ 100.\n**Swap trick:** x% of y = y% of x. 8% of 50 = 50% of 8 = **4**.\nTo find 10%, move the decimal point one place left. 15% = 10% + 5% (5% is half of 10%).', '15% of 640 → 10% = 64, 5% = 32 → **96**'),
     Q('15% of 640 = ?', ['96', '86', '106', '92'], '10% = 64, 5% = 32, total 96.', M),
     Q('16% of 25 = ?', ['4', '2.5', '6.25', '5'], 'Swap: 25% of 16 = 4.', M),
+    Q('48% of 25 = ?', ['12', '14', '10', '16'], 'Swap trick: x% of y = y% of x. 25% of 48 = 48 ÷ 4 = 12.', M),
+    Q('36% of 50 = ?', ['18', '16', '20', '22'], 'Swap trick: 50% of 36 = 18.', M),
+    Q('37.5% of 64 = ?', ['24', '28', '20', '32'], 'Fraction equivalent: 37.5% = 3/8. (3/8) × 64 = 3 × 8 = 24.', M),
+    Q('16.67% of 420 = ?', ['70', '60', '80', '65'], 'Fraction equivalent: 16.67% = 1/6. 420 ÷ 6 = 70.', M),
     L('Increase and decrease by a percentage', 'Increase by r% → multiply by (1 + r/100). Decrease by r% → multiply by (1 − r/100).\n**Percent change = change ÷ ORIGINAL × 100.** Always divide by the old value.', 'Price 400 → 500 is 100 on 400 = **25% up**. Price 500 → 400 is 100 on 500 = **20% down**.'),
     Q('A price rises from ₹400 to ₹500. Percentage increase?', ['25%', '20%', '100%', '10%'], '100 ÷ 400 × 100 = 25%. Divide by the original.', M),
     Q('A salary of ₹30,000 is cut by 10%. New salary?', ['₹27,000', '₹29,000', '₹33,000', '₹20,000'], '30,000 × 0.9 = 27,000.', M),
@@ -74,6 +84,10 @@
     L('Types of numbers', '- **Prime**: exactly 2 factors (2, 3, 5, 7, 11…). 2 is the only even prime. 1 is NOT prime.\n- **Co-prime**: HCF = 1 (e.g. 8 and 15).\n- There are **25** primes below 100.\n- Sum of first n natural numbers = n(n + 1)/2. Sum of first n odd numbers = n².\n- **Number of factors**: write N = aᵖ × bᵠ … → factors = (p + 1)(q + 1)…'),
     F('How many primes below 100?', '25'), F('Is 1 a prime number?', 'No — a prime has exactly two factors'),
     F('1 + 2 + … + n', 'n(n + 1)/2'), F('Sum of the first n odd numbers', 'n²'), F('HCF × LCM =', 'product of the two numbers'),
+    Q('Sum of the first 20 odd numbers (1 + 3 + ... + 39) = ?', ['400', '420', '380', '210'], 'Sum of first n odd numbers = n² → 20² = 400.', M),
+    Q('Sum of the first 10 even numbers (2 + 4 + ... + 20) = ?', ['110', '100', '120', '90'], 'Sum of first n even numbers = n(n + 1) → 10 × 11 = 110.', M),
+    Q('Unit digit of 4¹⁷ + 4¹⁸ = ?', ['0', '4', '6', '8'], '4^(odd) ends in 4, 4^(even) ends in 6. 4 + 6 = 10 → unit digit 0.', M),
+    Q('How many numbers between 1 and 100 are divisible by 7?', ['14', '15', '13', '12'], '100 ÷ 7 = 14 remainder 2 → exactly 14.', M),
     Q('1 + 2 + 3 + … + 50 = ?', ['1275', '1250', '2550', '1225'], '50 × 51 ÷ 2 = 1275.', M),
     Q('Number of factors of 72?', ['12', '10', '8', '14'], '72 = 2³ × 3² → (3 + 1)(2 + 1) = 12.', M)
   ]);
@@ -105,6 +119,9 @@
     Q('A father is 30 years older than his son. In 5 years he will be 3 times as old as the son. Son’s present age?', ['10', '15', '12', '5'], 'F = S + 30. S + 35 = 3(S + 5) → S + 35 = 3S + 15 → S = 10.', P),
     Q('A class of 30 averages 15 years. Including the teacher the average is 16. Teacher’s age?', ['46', '31', '45', '40'], '31 × 16 = 496, 30 × 15 = 450 → 46.', M),
     Q('The average of 4 consecutive even numbers is 27. The largest?', ['30', '28', '32', '26'], 'The numbers are 24, 26, 28, 30.', M),
+    Q('The average of 7 consecutive numbers is 20. The largest number is?', ['23', '24', '22', '25'], 'Consecutive numbers: the average is the middle (4th) number = 20. Largest (7th) = 20 + 3 = 23.', M),
+    Q('Average of 10 numbers is 15. If each number is multiplied by 3, the new average is?', ['45', '18', '30', '50'], 'Multiplying every value by k multiplies the average by k: 15 × 3 = 45.', M),
+    Q('Average weight of 8 men increases by 1.5 kg when a 65 kg man is replaced. Weight of the new man?', ['77 kg', '75 kg', '80 kg', '72 kg'], 'Total increase = 8 × 1.5 = 12 kg. New man = 65 + 12 = 77 kg.', M),
     F('Total from average', 'average × count'),
     F('What never changes in age problems?', 'the difference between two ages')
   ]);
@@ -148,6 +165,9 @@
     Q('Pipe A fills a tank in 6 h; pipe B empties it in 9 h. With both open, time to fill?', ['18 hours', '15 hours', '3.6 hours', '12 hours'], 'Tank = 18 units: +3 − 2 = 1 per hour.', M),
     Q('A does a job in 20 days, B in 30. They work together for 6 days, then A leaves. B finishes the rest in?', ['15 days', '12 days', '10 days', '18 days'], 'Work 60: together 5/day × 6 = 30 done. B at 2/day does 30 in 15 days.', P),
     Q('A is twice as efficient as B. Together they finish in 14 days. A alone?', ['21 days', '28 days', '42 days', '20 days'], 'Efficiency 2 : 1, so work = 3 × 14 = 42 units. A at 2/day → 21 days.', P),
+    Q('A takes 12 days and B takes 24 days to finish a task. Together they take?', ['8 days', '10 days', '6 days', '9 days'], 'Shortcut xy/(x+y): (12 × 24)/36 = 8 days.', M),
+    Q('A can do a job in 15 days, B in 30 days. Together?', ['10 days', '12 days', '8 days', '9 days'], 'Shortcut xy/(x+y): (15 × 30)/45 = 10 days.', M),
+    Q('A and B together take 6 days. A alone takes 10 days. B alone?', ['15 days', '12 days', '14 days', '16 days'], 'Shortcut (product/diff): (10 × 6)/(10 − 6) = 60/4 = 15 days.', M),
     F('M1 × D1 × H1 =', 'M2 × D2 × H2 (men × days × hours is constant for the same work)'),
     F('An outlet pipe counts as…', 'negative work')
   ]);
@@ -163,6 +183,10 @@
     L('Boats and streams', 'Downstream = boat + stream. Upstream = boat − stream.\nBoat = (down + up)/2. Stream = (down − up)/2.'),
     Q('A boat goes 12 km/h downstream and 8 km/h upstream. Speed of the stream?', ['2 km/h', '4 km/h', '10 km/h', '3 km/h'], '(12 − 8) ÷ 2 = 2.', M),
     Q('At 4 km/h a man is 10 min late; at 5 km/h he is 5 min early. Distance?', ['5 km', '6 km', '4 km', '10 km'], 'Time difference = 15 min = 1/4 h. d/4 − d/5 = 1/4 → d/20 = 1/4 → d = 5.', P),
+    Q('Convert 90 km/h to m/s?', ['25 m/s', '20 m/s', '30 m/s', '18 m/s'], 'Multiply by 5/18: 90 × (5/18) = 5 × 5 = 25 m/s.', M),
+    Q('Convert 15 m/s to km/h?', ['54 km/h', '45 km/h', '60 km/h', '50 km/h'], 'Multiply by 18/5: 15 × (18/5) = 3 × 18 = 54 km/h.', M),
+    Q('A train 120 m long runs at 54 km/h. Time taken to pass a telegraph post?', ['8 s', '10 s', '6 s', '12 s'], '54 km/h = 15 m/s. Time = 120 / 15 = 8 s.', M),
+    Q('Two cars drive towards each other from 180 km apart at 40 km/h and 50 km/h. They meet in?', ['2 hours', '3 hours', '1.5 hours', '2.5 hours'], 'Relative speed = 40 + 50 = 90 km/h. Time = 180 / 90 = 2 hours.', M),
     F('km/h → m/s', '× 5/18'),
     F('Average speed for equal distances at a and b', '2ab / (a + b)'),
     F('Train crossing a platform: distance =', 'train length + platform length'),

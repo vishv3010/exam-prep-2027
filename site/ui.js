@@ -316,6 +316,13 @@
   // ------------------------------------------------------------- PRACTICE
   var mockPart = { psi: '', cds: '' };
   var QMINS = [5, 10, 15, 20, 30];
+  var MCATS = [
+    ['psi_a', '⚡ PSI Part A (Mixed 50/50)'],
+    ['reasoning', 'Reasoning & Logic'],
+    ['maths', 'Speed Maths & Quant'],
+    ['shortcuts', 'Formula Flashcards']
+  ];
+  var MCOUNTS = [10, 20, 30];
   function placeFor(t) { return t.metro ? S.prefs.place : 'desk'; }
   function planFor(place, mins) {
     var s = G.build(S, place, mins);
@@ -324,23 +331,64 @@
   }
 
   function viewPractice() {
+    var curCat = S.prefs.mentalCat || 'psi_a';
+    var curCount = S.prefs.mentalCount || 10;
     var place = S.prefs.place === 'metro' ? 'metro' : 'desk';
     var mins = QMINS.indexOf(S.prefs.mins) >= 0 ? S.prefs.mins : 10;
     var next = G.nextTask(S, 60);
     var tasks = [];
     G.topics.forEach(function (t) { t.seq.forEach(function (it) { if (it.type === 'task') tasks.push(it); }); });
-    var parts = { psi: [['', 'Mixed'], ['A', 'Part A'], ['B', 'Part B']], cds: [['', 'Mixed'], ['E', 'English'], ['G', 'GK'], ['M', 'Maths']] };
+    var parts = { psi: [['', 'Mixed'], ['A', 'Part A (Aptitude)'], ['B', 'Part B (GS)']], cds: [['', 'Mixed'], ['E', 'English'], ['G', 'GK'], ['M', 'Maths']] };
     var open = S.mistakes.filter(function (m) { return !m.done; });
+    var estTime = curCount === 10 ? '3m' : curCount === 20 ? '6m' : '10m';
 
-    return head('Practice', 'test what your notes taught you') +
-      '<section class="card"><h2>Quick quiz</h2><p class="fine">Flashcards and questions with spaced repetition — for metro rides and short gaps.</p>' +
-      '<div class="seg">' + [['metro', 'Metro · one hand'], ['desk', 'Desk · pen ok']].map(function (p) {
-        return '<button class="' + (p[0] === place ? 'on' : '') + '" data-act="place" data-v="' + p[0] + '">' + IC[p[0]] + p[1] + '</button>';
+    return head('Practice', 'mental aptitude + speed drills + mocks') +
+      '<section class="card mental-hero">' +
+      '<div class="mhero-top"><span class="mhero-badge">⚡ Zero Pen & Paper · 100 Marks</span><span class="mhero-sub">PSI Paper 1 Part A · CDS Maths</span></div>' +
+      '<h2 class="mhero-title">Mental Aptitude & Reasoning Sprint</h2>' +
+      '<p class="fine">Solve completely in your head in 10–20 seconds. Built for trains, waiting, and anywhere practice with instant 10-second mental shortcuts.</p>' +
+      '<div class="mhero-label">Select Sprint Focus</div>' +
+      '<div class="chips sm mhero-chips">' +
+      MCATS.map(function (c) {
+        return '<button class="chip' + (c[0] === curCat ? ' on' : '') + '" data-act="mcat" data-v="' + c[0] + '">' + c[1] + '</button>';
+      }).join('') +
+      '</div>' +
+      '<div class="mhero-label">Sprint Length</div>' +
+      '<div class="chips mins mhero-counts">' +
+      MCOUNTS.map(function (n) {
+        return '<button class="chip' + (n === curCount ? ' on' : '') + '" data-act="mcount" data-v="' + n + '">' + n + ' Q <small>(' + (n === 10 ? '3m' : n === 20 ? '6m' : '10m') + ')</small></button>';
+      }).join('') +
+      '</div>' +
+      '<button class="go mental-hero-go" data-act="startMental">⚡ Start Mental Sprint · ' + curCount + ' Questions (' + estTime + ')</button>' +
+      '<div class="mhero-actions">' +
+      '<button class="btn sm ghost vault-link" data-act="formulaVault">📖 Open Mental Formula Vault & Shortcuts Sheet</button>' +
+      '</div>' +
+      '</section>' +
+
+      '<section class="card mock-hub">' +
+      '<h2>Exam mini mocks <small class="unit">25 Q · 25 min</small></h2>' +
+      '<p class="fine">Timed full-experience tests with official marking schemes.</p>' +
+      '<div class="mock-grid">' +
+      '<div class="mini-mock-box psi">' +
+      '<div class="mock-h"><span class="tag">PSI PAPER 1</span><span class="mono fine">+1 / −0.25 (E=0)</span></div>' +
+      '<div class="chips sm">' + parts.psi.map(function (p) {
+        return '<button class="chip' + (mockPart.psi === p[0] ? ' on' : '') + '" data-act="mockPart" data-e="psi" data-v="' + p[0] + '">' + p[1] + '</button>';
       }).join('') + '</div>' +
-      '<div class="chips mins">' + QMINS.map(function (m) { return '<button class="chip' + (m === mins ? ' on' : '') + '" data-act="mins" data-v="' + m + '">' + m + '</button>'; }).join('') + '</div>' +
-      '<button class="go" data-act="start">Start ' + mins + ' min</button></section>' +
+      '<button class="go sm" data-act="mock" data-v="psi">Start PSI Mock</button>' +
+      '</div>' +
+      '<div class="mini-mock-box cds">' +
+      '<div class="mock-h"><span class="tag">UPSC CDS</span><span class="mono fine">+1 / −1/3</span></div>' +
+      '<div class="chips sm">' + parts.cds.map(function (p) {
+        return '<button class="chip' + (mockPart.cds === p[0] ? ' on' : '') + '" data-act="mockPart" data-e="cds" data-v="' + p[0] + '">' + p[1] + '</button>';
+      }).join('') + '</div>' +
+      '<button class="go sm" data-act="mock" data-v="cds">Start CDS Mock</button>' +
+      '</div>' +
+      '</div>' +
+      '</section>' +
 
-      '<section class="card"><h2>Mistake log <small class="unit">' + open.length + ' open</small></h2>' +
+      '<details class="card c-drawer">' +
+      '<summary><span class="c-title">⚠️ Mistake Log & Spaced Drill</span><span class="unit">' + open.length + ' open</span></summary>' +
+      '<div class="drawer-body">' +
       '<p class="fine">One line per question you got wrong — the fact or the trap. Read these before every mock.</p>' +
       '<form data-form="mistake" class="logf">' + topicSelect('') +
       '<textarea name="text" class="txt" rows="2" placeholder="e.g. Art. 21A = right to education, not Art. 21" maxlength="240" required></textarea>' +
@@ -349,24 +397,34 @@
       (open.length ? '<ul class="list">' + open.slice().reverse().map(function (m) {
         var t = G.topicMap[m.topic];
         return '<li><span class="lrow static"><b>' + esc(m.text) + '</b><small>' + (t ? esc(t.name) + ' · ' : '') + dayShort(m.day) + '</small></span><button class="btn sm" data-act="mfix" data-v="' + S.mistakes.indexOf(m) + '">Fixed</button></li>';
-      }).join('') + '</ul>' : '') + '</section>' +
+      }).join('') + '</ul>' : '') +
+      '</div>' +
+      '</details>' +
 
-      ['psi', 'cds'].map(function (e) {
-        return '<section class="card mock ' + e + '"><div class="mock-h"><span class="tag">' + e.toUpperCase() + '</span><h3>Mini mock · 25 Q · 25 min</h3></div>' +
-          '<p class="rule">' + esc(G.EXAMS[e].rules) + '</p>' +
-          '<div class="chips sm">' + parts[e].map(function (p) {
-            return '<button class="chip' + (mockPart[e] === p[0] ? ' on' : '') + '" data-act="mockPart" data-e="' + e + '" data-v="' + p[0] + '">' + p[1] + '</button>';
-          }).join('') + '</div>' +
-          '<button class="go" data-act="mock" data-v="' + e + '">Start ' + e.toUpperCase() + ' mock</button></section>';
-      }).join('') +
-
-      '<section class="card"><h2>Paper 2 writing</h2><p class="fine">Handwritten and human-marked — the only way to train it is to write. Frame, timer and a self-check list.</p>' +
-      (next ? '<button class="go" data-act="task" data-v="' + next.id + '">Next: ' + esc(next.title) + ' · ' + next.min + ' min</button>' : '') +
-      '<details><summary>All ' + tasks.length + ' tasks</summary><ul class="tasks">' + tasks.map(function (it) {
+      '<details class="card c-drawer">' +
+      '<summary><span class="c-title">✍️ Paper 2 Descriptive Writing</span><span class="unit">' + tasks.length + ' tasks</span></summary>' +
+      '<div class="drawer-body">' +
+      '<p class="fine">Handwritten and human-marked — the only way to train it is to write. Frame, timer and a self-check list.</p>' +
+      (next ? '<button class="go" data-act="task" data-v="' + next.id + '" style="margin-bottom:12px;">Next: ' + esc(next.title) + ' · ' + next.min + ' min</button>' : '') +
+      '<ul class="tasks">' + tasks.map(function (it) {
         var done = S.tasks.filter(function (x) { return x.id === it.id; });
         var l = done[done.length - 1];
         return '<li><button data-act="task" data-v="' + it.id + '"><span>' + gu(it.prompt) + '<small>' + esc(it.title) + (it.en ? ' — ' + esc(it.en) : '') + '</small></span><span class="mono">' + (l ? l.score + '/' + l.max : it.min + 'm') + '</span></button></li>';
-      }).join('') + '</ul></details></section>';
+      }).join('') + '</ul>' +
+      '</div>' +
+      '</details>' +
+
+      '<details class="card c-drawer">' +
+      '<summary><span class="c-title">⏱️ Classic Metro / Desk Leitner Quiz</span><span class="unit">Spaced repetition</span></summary>' +
+      '<div class="drawer-body">' +
+      '<p class="fine">Spaced repetition quiz across the full syllabus with Metro (one hand) or Desk (pen allowed) filters.</p>' +
+      '<div class="seg">' + [['metro', 'Metro · one hand'], ['desk', 'Desk · pen ok']].map(function (p) {
+        return '<button class="' + (p[0] === place ? 'on' : '') + '" data-act="place" data-v="' + p[0] + '">' + IC[p[0]] + p[1] + '</button>';
+      }).join('') + '</div>' +
+      '<div class="chips mins">' + QMINS.map(function (m) { return '<button class="chip' + (m === mins ? ' on' : '') + '" data-act="mins" data-v="' + m + '">' + m + '</button>'; }).join('') + '</div>' +
+      '<button class="go" data-act="start">Start ' + mins + ' min quiz</button>' +
+      '</div>' +
+      '</details>';
   }
 
   // ------------------------------------------------------------- PROGRESS
@@ -585,6 +643,9 @@
         var el = (Date.now() - run.start) / 1000;
         if (t) t.textContent = clock(Math.max(0, run.minutes * 60 - el));
         if (b) b.style.width = Math.min(100, el / (run.minutes * 60) * 100) + '%';
+      } else if (run.kind === 'mental') {
+        var qEl = Math.max(0, Math.floor((Date.now() - run.qStart) / 1000));
+        if (t) t.textContent = clock(qEl);
       }
       if (run.timer) {
         var rem = run.timer - Date.now();
@@ -852,8 +913,265 @@
     run = null;
   }
 
+  // ------------------------------------------------------------- mental sprint runner
+  function startMentalSprint(cat, count) {
+    cat = cat || S.prefs.mentalCat || 'psi_a';
+    count = count || S.prefs.mentalCount || 10;
+    var items = G.buildMentalDrill(S, cat, count);
+    if (!items || !items.length) {
+      toast('No mental questions available for this category');
+      return;
+    }
+    run = {
+      kind: 'mental',
+      cat: cat,
+      count: count,
+      queue: items,
+      i: 0,
+      right: 0,
+      wrong: 0,
+      start: Date.now(),
+      qStart: Date.now(),
+      times: [],
+      misses: [],
+      lang: 'en'
+    };
+    showMentalCard();
+    startTick();
+  }
+
+  function showMentalCard() {
+    if (!run || run.kind !== 'mental') return;
+    if (run.i >= run.queue.length) return finishMentalSprint();
+    var it = run.queue[run.i];
+    var t = G.topicMap[it.topic] || { name: 'Aptitude & Reasoning', psiFrac: 0.8 };
+    run.qStart = Date.now();
+    run.state = 'ask';
+    var progressPct = Math.round((run.i / run.queue.length) * 100);
+
+    var top = '<div class="rtop">' +
+      '<button class="icon" data-act="quitMental" aria-label="Quit sprint">' + IC.x + '</button>' +
+      '<div class="rbar"><i id="rbar" style="width:' + progressPct + '%"></i></div>' +
+      '<span class="mono rcnt">' + (run.i + 1) + '/' + run.queue.length + '</span>' +
+      '<span id="rtime" class="mono">0:00</span>' +
+      '</div>';
+
+    if (it.type === 'flash') {
+      var head = '<div class="ctag"><span class="tdot psi"></span>' + esc(t.name) + '<span class="kind">Formula Flashcard</span><span class="mhero-badge">⚡ Mental Anchor</span></div>';
+      var body = '<div class="flash"><div class="front">' + gu(it.front) + '</div><div class="back" id="mfback" hidden>' + gu(it.back) + '</div></div>';
+      var actions = '<button class="go" data-act="revealMentalFlash" id="mreveal">Show shortcut</button>' +
+        '<div class="two" id="mjudge" hidden><button class="btn bad" data-act="judgeMentalFlash" data-v="0">Forgot</button><button class="btn good" data-act="judgeMentalFlash" data-v="1">Recalled (Fast)</button></div>';
+      full(top + '<div class="rbody">' + head + body + '</div><div class="ract">' + actions + '</div>', 'metro');
+      return;
+    }
+
+    run.order = it.fixed ? [0, 1, 2, 3] : shuffle([0, 1, 2, 3]);
+    var useGu = run.lang === 'gu' && it.gu;
+    var q = useGu ? it.gu.q : it.q;
+    var opts = useGu && it.gu.o ? it.gu.o : it.o;
+
+    var head = '<div class="ctag"><span class="tdot psi"></span>' + esc(t.name) + '<span class="kind">Mental MCQ</span><span class="mhero-badge">⚡ Zero Pen & Paper</span></div>';
+    var body = (it.gu ? '<button class="lang" data-act="mentalLang">' + (useGu ? 'English' : 'ગુજરાતી') + '</button>' : '') +
+      '<p class="q mental-q">' + gu(q) + '</p>' +
+      '<div class="opts mental-opts">' +
+      run.order.map(function (oi, k) {
+        return '<button class="opt" data-act="mentalPick" data-v="' + k + '"><span class="ol">' + 'ABCD'[k] + '</span><span>' + gu(opts[oi]) + '</span></button>';
+      }).join('') +
+      '</div><div id="mwhy"></div>';
+
+    var actions = '<button class="btn ghost sm" data-act="mentalDunno">Don’t know — reveal mental trick</button>';
+    full(top + '<div class="rbody">' + head + body + '</div><div class="ract">' + actions + '</div>', 'mental-runner');
+  }
+
+  function answerMental(k) {
+    if (!run || run.kind !== 'mental' || run.state !== 'ask') return;
+    run.state = 'shown';
+    var it = run.queue[run.i];
+    var ok = k != null && run.order[k] === it.a;
+    var qSecs = Math.max(1, Math.round((Date.now() - run.qStart) / 1000));
+    run.times.push(qSecs);
+
+    var btns = ov.querySelectorAll('.opt');
+    for (var j = 0; j < btns.length; j++) {
+      btns[j].disabled = true;
+      if (run.order[j] === it.a) btns[j].classList.add('right');
+      else if (j === k) btns[j].classList.add('wrong');
+    }
+
+    if (ok) {
+      run.right++;
+    } else {
+      run.wrong++;
+      buzz(25);
+      run.misses.push({ it: it, chosen: k != null ? it.o[run.order[k]] : null, secs: qSecs });
+    }
+
+    G.grade(S, it, ok);
+    G.countCard(S);
+
+    var speedBadge = qSecs <= 10 ? '⚡ Lightning (' + qSecs + 's)' : qSecs <= 20 ? '✓ Solid (' + qSecs + 's)' : '⏱️ ' + qSecs + 's';
+    var whyText = run.lang === 'gu' && it.gu && it.gu.why ? it.gu.why : it.why;
+    var whyBox = document.getElementById('mwhy');
+    if (whyBox) {
+      whyBox.innerHTML = '<div class="mwhy-box ' + (ok ? 'ok' : 'no') + '">' +
+        '<div class="mwhy-top"><b>' + (ok ? '⚡ Correct!' : (k == null ? '⚡ Mental Shortcut:' : '❌ Not quite!')) + '</b><span class="speed-pill mono">' + speedBadge + '</span></div>' +
+        '<div class="mwhy-text">' + gu(whyText) + '</div>' +
+        '</div>';
+      setTimeout(function () {
+        whyBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 50);
+    }
+
+    var nextLabel = run.i + 1 < run.queue.length ? 'Next Question →' : 'See Sprint Results →';
+    ov.querySelector('.ract').innerHTML = '<div class="mact-row">' +
+      '<button class="go" data-act="mentalNext">' + nextLabel + '</button>' +
+      (!ok ? '<button class="btn sm" data-act="mentalSaveMistake" data-v="' + run.i + '">+ Save to Mistake Log</button>' : '') +
+      '</div>';
+  }
+
+  function finishMentalSprint() {
+    stopTick();
+    var totalSecs = Math.max(1, Math.round((Date.now() - run.start) / 1000));
+    var totalMins = totalSecs / 60;
+    var avgSecs = run.times.length ? Math.round(run.times.reduce(function (a, b) { return a + b; }, 0) / run.times.length) : Math.round(totalSecs / run.queue.length);
+    var pct = Math.round((run.right / run.queue.length) * 100);
+
+    var catLabel = { psi_a: 'PSI Part A (Mixed)', reasoning: 'Reasoning & Logic', maths: 'Speed Maths & Quant', shortcuts: 'Formula Flashcards' }[run.cat] || 'Mental Sprint';
+
+    if (run.cat === 'reasoning') G.logTime(S, 'r_series', totalMins);
+    else if (run.cat === 'maths') G.logTime(S, 'm_simplify', totalMins);
+    else { G.logTime(S, 'r_series', totalMins * 0.5); G.logTime(S, 'm_simplify', totalMins * 0.5); }
+    save();
+
+    var title = pct >= 90 ? '⚡ PSI Ranker Speed & Accuracy!' : pct >= 70 ? '🎯 Strong Mental Agility!' : '📈 Good Workout — Boost with Shortcuts!';
+    var feedback = pct >= 90 ? 'You are thinking and solving at top qualifying speed without needing pen and paper.'
+      : pct >= 70 ? 'Great mental calculation. Daily sprints will sharpen your 10-second recall.'
+      : 'Review the shortcut tricks below to eliminate written calculations completely.';
+
+    var missHtml = '';
+    if (run.misses.length) {
+      missHtml = '<div class="mreview-sec"><h3>Shortcuts for Missed Questions (' + run.misses.length + ')</h3><ul class="mreview-list">' +
+        run.misses.map(function (m) {
+          return '<li><p class="mq-txt"><b>' + gu(m.it.q) + '</b></p>' +
+            '<p class="fine">Correct: <b class="good-txt">' + gu(m.it.o[m.it.a]) + '</b>' + (m.chosen ? ' · Chosen: <span class="bad-txt">' + gu(m.chosen) + '</span>' : '') + '</p>' +
+            '<div class="mwhy-text-sm">💡 ' + gu(m.it.why) + '</div></li>';
+        }).join('') + '</ul></div>';
+    }
+
+    full('<div class="done mental-done">' +
+      '<div class="done-k">' + esc(catLabel) + ' · Sprint Done</div>' +
+      '<div class="gain">' +
+        '<div><span class="mono">' + run.right + '/' + run.queue.length + '</span><small>correct (' + pct + '%)</small></div>' +
+        '<div><span class="mono">' + avgSecs + 's</span><small>avg / question</small></div>' +
+        '<div><span class="mono">' + clock(totalSecs) + '</span><small>total time</small></div>' +
+      '</div>' +
+      '<h2 class="mdone-title">' + title + '</h2>' +
+      '<p class="msg">' + feedback + '</p>' +
+      missHtml +
+      '<div class="btns col" style="margin-top:16px;">' +
+        '<button class="go" data-act="startMental" data-cat="' + run.cat + '" data-count="' + run.count + '">⚡ Sprint Again (' + run.count + ' Q)</button>' +
+        '<button class="btn" data-act="formulaVault">📖 Open Shortcut Vault</button>' +
+        '<button class="btn ghost" data-act="close">Back to Practice</button>' +
+      '</div>' +
+      '</div>');
+    run = null;
+  }
+
+  function openFormulaVault() {
+    var vaultHtml = '<div class="sheet-h"><h2>⚡ Mental Formulas & Shortcuts</h2><button class="icon" data-act="close" aria-label="Close">' + IC.x + '</button></div>' +
+      '<div class="vault-body">' +
+      '<div class="vault-sec">' +
+        '<h3>🔤 Alphabet & EJOTY Anchors</h3>' +
+        '<p class="fine">Forward positions: E=5, J=10, O=15, T=20, Y=25. Opposite pairs sum to 27.</p>' +
+        '<div class="vault-grid">' +
+          '<div class="vcard"><b>E J O T Y</b><span>5 · 10 · 15 · 20 · 25</span></div>' +
+          '<div class="vcard"><b>CFILORUX</b><span>Multiples of 3 (3, 6, 9... 24)</span></div>' +
+          '<div class="vcard"><b>A–Z Pairs (Sum 27)</b><span>AZ, BY, CX, DW, EV, FU, GT, HS, IR, JQ, KP, LO, MN</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="vault-sec">' +
+        '<h3>🔢 Squares to 30 & Speed Maths</h3>' +
+        '<p class="fine">Near-50: (25 ± d) | d² · Ending in 5: n(n+1) | 25 · ×11: a | (a+b) | b</p>' +
+        '<div class="vault-grid compact">' +
+          '<div class="vcard"><b>11²=121</b> <b>12²=144</b> <b>13²=169</b> <b>14²=196</b> <b>15²=225</b></div>' +
+          '<div class="vcard"><b>16²=256</b> <b>17²=289</b> <b>18²=324</b> <b>19²=361</b> <b>20²=400</b></div>' +
+          '<div class="vcard"><b>21²=441</b> <b>22²=484</b> <b>23²=529</b> <b>24²=576</b> <b>25²=625</b></div>' +
+          '<div class="vcard"><b>26²=676</b> <b>27²=729</b> <b>28²=784</b> <b>29²=841</b> <b>30²=900</b></div>' +
+          '<div class="vcard full-w"><b>Cubes to 15:</b> <span>6³=216 · 7³=343 · 8³=512 · 9³=729 · 11³=1331 · 12³=1728 · 13³=2197 · 15³=3375</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="vault-sec">' +
+        '<h3>% Fraction-to-Percentage Equivalence</h3>' +
+        '<p class="fine">Swap trick: x% of y = y% of x (e.g. 16% of 25 = 25% of 16 = 4)</p>' +
+        '<div class="vault-grid compact fractions">' +
+          '<div class="vcard"><b>1/2</b> <span>50%</span></div>' +
+          '<div class="vcard"><b>1/3</b> <span>33.33%</span></div>' +
+          '<div class="vcard"><b>1/4</b> <span>25%</span></div>' +
+          '<div class="vcard"><b>1/5</b> <span>20%</span></div>' +
+          '<div class="vcard"><b>1/6</b> <span>16.67%</span></div>' +
+          '<div class="vcard"><b>1/7</b> <span>14.29%</span></div>' +
+          '<div class="vcard"><b>1/8</b> <span>12.5%</span></div>' +
+          '<div class="vcard"><b>1/9</b> <span>11.11%</span></div>' +
+          '<div class="vcard"><b>1/11</b> <span>9.09%</span></div>' +
+          '<div class="vcard"><b>1/12</b> <span>8.33%</span></div>' +
+          '<div class="vcard"><b>3/8</b> <span>37.5%</span></div>' +
+          '<div class="vcard"><b>5/6</b> <span>83.33%</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="vault-sec">' +
+        '<h3>⏰ Clock, Speed & Work Shortcuts</h3>' +
+        '<div class="vault-grid">' +
+          '<div class="vcard"><b>Clock Mirror Image</b><span>11:60 − time (or 23:60 − time)</span></div>' +
+          '<div class="vcard"><b>Clock Angle Formula</b><span>|30H − 5.5M|</span></div>' +
+          '<div class="vcard"><b>Speed (km/h ↔ m/s)</b><span>km/h → m/s: × 5/18 · m/s → km/h: × 18/5</span></div>' +
+          '<div class="vcard"><b>2 Workers Together</b><span>xy / (x + y)</span></div>' +
+          '<div class="vcard"><b>Average Speed (Equal Dist)</b><span>2ab / (a + b)</span></div>' +
+          '<div class="vcard"><b>Pythagorean Triples</b><span>3-4-5 · 5-12-13 · 8-15-17 · 7-24-25</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="btns" style="margin-top:16px;">' +
+        '<button class="go" data-act="startMental" data-cat="shortcuts" data-count="15">⚡ Drill Shortcut Flashcards Now</button>' +
+      '</div>' +
+      '</div>';
+
+    sheet(vaultHtml);
+  }
+
   // ------------------------------------------------------------- actions
   var A = {
+    mcat: function (d) { S.prefs.mentalCat = d.v; save(); render(); },
+    mcount: function (d) { S.prefs.mentalCount = +d.v; save(); render(); },
+    startMental: function (d) { startMentalSprint(d && d.cat ? d.cat : null, d && d.count ? +d.count : null); },
+    quitMental: function () { if (confirm('Quit this mental sprint? Progress so far is logged.')) finishMentalSprint(); },
+    mentalPick: function (d) { answerMental(+d.v); },
+    mentalDunno: function () { answerMental(null); },
+    mentalNext: function () { run.i++; showMentalCard(); },
+    revealMentalFlash: function () {
+      var fb = document.getElementById('mfback'); if (fb) fb.hidden = false;
+      var rev = document.getElementById('mreveal'); if (rev) rev.hidden = true;
+      var jdg = document.getElementById('mjudge'); if (jdg) jdg.hidden = false;
+    },
+    judgeMentalFlash: function (d) {
+      var ok = d.v === '1';
+      G.grade(S, run.queue[run.i], ok);
+      G.countCard(S);
+      if (ok) run.right++; else { run.wrong++; buzz(25); }
+      run.i++;
+      showMentalCard();
+    },
+    mentalLang: function () {
+      run.lang = run.lang === 'gu' ? 'en' : 'gu';
+      showMentalCard();
+    },
+    mentalSaveMistake: function (d) {
+      var it = run.queue[+d.v];
+      if (it) {
+        S.mistakes.push({ day: G.dayNum(), topic: it.topic, text: it.q + ' → ' + it.o[it.a], done: null });
+        save();
+        toast('Saved to mistake log ✓');
+      }
+    },
+    formulaVault: function () { openFormulaVault(); },
     place: function (d) { S.prefs.place = d.v; save(); render(); },
     mins: function (d) { S.prefs.mins = +d.v; save(); render(); },
     start: function () { startSession(S.prefs.place === 'metro' ? 'metro' : 'desk', QMINS.indexOf(S.prefs.mins) >= 0 ? S.prefs.mins : 10); },
