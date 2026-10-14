@@ -614,16 +614,19 @@
     var poolR = [];
     var poolM = [];
     var poolF = [];
+    var poolB = [];
 
     G.topics.forEach(function (t) {
       var isR = t.id.indexOf('r_') === 0;
       var isM = t.id.indexOf('m_') === 0;
+      var isB = t.id === 'r_blood';
       if (!isR && !isM) return;
 
       t.seq.forEach(function (it) {
         if (it.type === 'flash') {
           poolF.push(it);
         } else if (it.type === 'mcq' && it.mental) {
+          if (isB) poolB.push(it);
           if (isR) poolR.push(it);
           if (isM) poolM.push(it);
         }
@@ -650,7 +653,9 @@
       return res;
     }
 
-    if (category === 'shortcuts') {
+    if (category === 'blood') {
+      return pickWeighted(poolB, n);
+    } else if (category === 'shortcuts') {
       return pickWeighted(poolF, n);
     } else if (category === 'reasoning') {
       return pickWeighted(poolR, n);

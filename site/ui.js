@@ -318,6 +318,7 @@
   var QMINS = [5, 10, 15, 20, 30];
   var MCATS = [
     ['psi_a', '⚡ PSI Part A (Mixed 50/50)'],
+    ['blood', '🩸 Blood Relations (સંબંધો)'],
     ['reasoning', 'Reasoning & Logic'],
     ['maths', 'Speed Maths & Quant'],
     ['shortcuts', 'Formula Flashcards']
@@ -1036,9 +1037,10 @@
     var avgSecs = run.times.length ? Math.round(run.times.reduce(function (a, b) { return a + b; }, 0) / run.times.length) : Math.round(totalSecs / run.queue.length);
     var pct = Math.round((run.right / run.queue.length) * 100);
 
-    var catLabel = { psi_a: 'PSI Part A (Mixed)', reasoning: 'Reasoning & Logic', maths: 'Speed Maths & Quant', shortcuts: 'Formula Flashcards' }[run.cat] || 'Mental Sprint';
+    var catLabel = { psi_a: 'PSI Part A (Mixed)', blood: '🩸 Blood Relations (સંબંધો)', reasoning: 'Reasoning & Logic', maths: 'Speed Maths & Quant', shortcuts: 'Formula Flashcards' }[run.cat] || 'Mental Sprint';
 
-    if (run.cat === 'reasoning') G.logTime(S, 'r_series', totalMins);
+    if (run.cat === 'blood') G.logTime(S, 'r_blood', totalMins);
+    else if (run.cat === 'reasoning') G.logTime(S, 'r_series', totalMins);
     else if (run.cat === 'maths') G.logTime(S, 'm_simplify', totalMins);
     else { G.logTime(S, 'r_series', totalMins * 0.5); G.logTime(S, 'm_simplify', totalMins * 0.5); }
     save();
@@ -1129,8 +1131,21 @@
           '<div class="vcard"><b>Pythagorean Triples</b><span>3-4-5 · 5-12-13 · 8-15-17 · 7-24-25</span></div>' +
         '</div>' +
       '</div>' +
-      '<div class="btns" style="margin-top:16px;">' +
-        '<button class="go" data-act="startMental" data-cat="shortcuts" data-count="15">⚡ Drill Shortcut Flashcards Now</button>' +
+      '<div class="vault-sec">' +
+        '<h3>🩸 Blood Relations & Family Tree (સંબંધો)</h3>' +
+        '<p class="fine">High-yield Gujarat PSI family shortcuts: Gujarati vocabulary, generation levels, and backward phrase decoding.</p>' +
+        '<div class="vault-grid">' +
+          '<div class="vcard"><b>Gen +2 (Grandparents)</b><span>દાદા/દાદી (Paternal) · નાના/નાની (Maternal)</span></div>' +
+          '<div class="vcard"><b>Gen +1 (Uncles / Aunts)</b><span>કાકા (Father’s bro) · મામા (Mother’s bro) · ફોઈ (Father’s sis) · માસી (Mother’s sis)</span></div>' +
+          '<div class="vcard"><b>Gen 0 (In-Laws & Siblings)</b><span>સાળો (Wife’s bro) · બનેવી (Sister’s husb) · દિયર (Husb’s younger bro) · ભાભી (Bro’s wife)</span></div>' +
+          '<div class="vcard"><b>Gen −1 (Nephews & Nieces)</b><span>ભત્રીજો/ભત્રીજી (Bro’s kids) · ભાણો/ભાણી (Sis’s kids) · જમાઈ (Son-in-law) · પુત્રવધૂ (Daughter-in-law)</span></div>' +
+          '<div class="vcard"><b>⚡ Self-Reference Traps</b><span>"Only son of my father" (said by male) = Myself<br>"Only daughter of my mother" (said by female) = Myself</span></div>' +
+          '<div class="vcard"><b>⚠️ Golden Rules</b><span>Never assume gender from name alone.<br>Decode pointing clues backwards from the end of the phrase.</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="btns" style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">' +
+        '<button class="go" data-act="startMental" data-cat="blood" data-count="10">🩸 Drill Blood Relations (10 Q)</button>' +
+        '<button class="btn" data-act="startMental" data-cat="shortcuts" data-count="15">⚡ Drill Shortcut Flashcards (15)</button>' +
       '</div>' +
       '</div>';
 
