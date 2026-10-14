@@ -135,5 +135,22 @@ console.log('Tracker');
   nx.length === 3 && !nx.some(t => t.id === 'g_polity') ? ok('next to learn: ' + nx.map(t => t.name).join(', ')) : err('next-to-learn includes a finished topic');
 }
 
+console.log('PET & Physical');
+{
+  const b1 = G.petBracket(19.5);
+  b1.qual && b1.marks === 50 && b1.pace === '3:54/km' ? ok('PET 19:30 → Top tier, 50m, 3:54/km') : err('PET 19:30 bracket wrong');
+  const b2 = G.petBracket(22.5);
+  b2.qual && b2.marks === 36 && b2.pace === '4:30/km' ? ok('PET 22:30 → Safe qualify, 36m, 4:30/km') : err('PET 22:30 bracket wrong');
+  const b3 = G.petBracket(26.0);
+  !b3.qual && b3.marks === 0 ? ok('PET 26:00 → Cut exceeded, fail') : err('PET 26:00 bracket wrong');
+
+  const S = G.blank();
+  const today = G.dayNum();
+  S.runs.push({ day: today - 1, kind: 'football', min: 90 });
+  S.runs.push({ day: today, kind: '5km', km: 5, min: 23.0 });
+  const st = G.petStats(S);
+  st.weekKm === 5 && st.weekAeroMin === 113 && st.best5k.min === 23.0 ? ok('PET stats: weekKm = 5, aeroMin = 113m, best5k = 23m') : err('PET stats calculation wrong');
+}
+
 console.log(fail ? `\n${fail} problem(s)` : '\nAll checks passed');
 process.exit(fail ? 1 : 0);

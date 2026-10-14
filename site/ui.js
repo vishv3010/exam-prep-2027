@@ -195,7 +195,7 @@
 
   // UI-only choices (not saved)
   var KINDS = { learn: 'Study + notes', revise: 'Revision', pyq: 'Past paper / practice', ca: 'Current affairs' };
-  var ui = { kind: 'learn', min: 30, topic: '', filter: 'all', squery: '' };
+  var ui = { kind: 'learn', min: 30, topic: '', filter: 'all', squery: '', petKind: '5km', footMin: 90 };
   function chipRow(group, list, cur, cls) {
     return '<div class="chips ' + (cls || 'sm') + '">' + list.map(function (x) {
       return '<button type="button" class="chip' + (String(x[0]) === String(cur) ? ' on' : '') + '" data-act="pickChip" data-g="' + group + '" data-v="' + x[0] + '">' + x[1] + '</button>';
@@ -377,12 +377,86 @@
     S.outside.forEach(function (o) { tot += o.min; });
     var grp = {}, gmax = 1;
     S.log.forEach(function (l) { if (l.day > today - 7) { var g = (G.topicMap[l.topic] || {}).group || 'Other'; grp[g] = (grp[g] || 0) + l.min; if (grp[g] > gmax) gmax = grp[g]; } });
-    var runs = S.runs.slice().sort(function (a, b) { return a.min - b.min; });
-    var best = runs[0], lastRuns = S.runs.slice(-4).reverse();
+    var petStats = G.petStats(S);
+    var best = petStats.best5k;
+    var pKind = ui.petKind || '5km';
     var proj = G.project(S);
     var scores = S.scores.map(function (x) { return { exam: x.exam, day: x.day, label: x.label, score: x.score, max: x.max, real: 1 }; })
       .concat(S.mocks.map(function (x) { return { exam: x.exam, day: x.day, label: 'App mini mock' + (x.part ? ' · ' + x.part : ''), score: x.score, max: x.max }; }))
       .sort(function (a, b) { return a.day - b.day; });
+
+    var petFormHtml = '';
+    if (pKind === '5km') {
+      petFormHtml = '<form class="pet-form" data-form="pet">' +
+        '<input type="hidden" name="kind" value="5km">' +
+        '<div class="pet-form-row">' +
+        '<input name="t" inputmode="numeric" placeholder="mm:ss e.g. 23:45" pattern="\\d{1,2}:\\d{2}" required aria-label="5 km time" class="txt">' +
+        '<input name="note" class="txt" placeholder="Surface/notes (e.g. 400m track)" maxlength="40">' +
+        '<button class="btn">Log 5km</button></div>' +
+        '<div class="pet-standards-hint">Standards: <b>≤20:00</b> (50m) · <b>≤21:30</b> (44m) · <b>≤23:00</b> (36m safe target) · <b>25:00</b> (Qualify)</div>' +
+        '</form>';
+    } else if (pKind === 'run') {
+      petFormHtml = '<form class="pet-form" data-form="pet">' +
+        '<input type="hidden" name="kind" value="run">' +
+        '<div class="pet-form-row">' +
+        '<input name="km" inputmode="decimal" placeholder="Km (e.g. 7.5)" step="0.1" required class="txt" style="max-width:110px;">' +
+        '<input name="t" inputmode="numeric" placeholder="mm:ss e.g. 38:00" pattern="\\d{1,2}:\\d{2}" required aria-label="Run time" class="txt">' +
+        '<input name="note" class="txt" placeholder="e.g. Easy aerobic base, intervals" maxlength="40">' +
+        '<button class="btn">Log Run</button></div>' +
+        '</form>';
+    } else if (pKind === 'football') {
+      petFormHtml = '<form class="pet-form" data-form="pet">' +
+        '<input type="hidden" name="kind" value="football">' +
+        '<div class="chips sm pet-f-chips">' +
+        [[60, '60 min'], [75, '75 min'], [90, '90 min match'], [105, '105 min']].map(function (x) {
+          return '<button type="button" class="chip' + ((ui.footMin || 90) === x[0] ? ' on' : '') + '" data-act="pickChip" data-g="footMin" data-v="' + x[0] + '">' + x[1] + '</button>';
+        }).join('') +
+        '</div>' +
+        '<div class="pet-form-row" style="margin-top:8px;">' +
+        '<input name="note" class="txt" placeholder="Format (e.g. 11v11 league, turf 7v7, sprints)" maxlength="50">' +
+        '<button class="btn">Log Football Session</button></div>' +
+        '</form>';
+    } else if (pKind === 'drills') {
+      petFormHtml = '<form class="pet-form" data-form="pet">' +
+        '<input type="hidden" name="kind" value="drills">' +
+        '<div class="pet-form-row">' +
+        '<input name="pullups" inputmode="numeric" placeholder="Pull-ups (target 8-10)" class="txt">' +
+        '<input name="pushups" inputmode="numeric" placeholder="Push-ups (target 30+)" class="txt">' +
+        '<input name="plank" inputmode="numeric" placeholder="Plank sec (e.g. 90)" class="txt">' +
+        '<button class="btn">Log Drills</button></div>' +
+        '<div class="pet-standards-hint">Upper body pull/push & core stability for race day posture.</div>' +
+        '</form>';
+    }
+
+    var recentWorkouts = S.runs.slice(-6).reverse();
+    var workoutListHtml = recentWorkouts.length ? '<ul class="list pet-list">' + recentWorkouts.map(function (r, idx) {
+      var origIdx = S.runs.length - 1 - idx;
+      var kind = r.kind || (r.km === 5 ? '5km' : 'run');
+      var label = '', detail = '';
+      if (kind === '5km') {
+        var b = G.petBracket(r.min);
+        label = '5 km Test · <span class="mono">' + clock(r.min * 60) + '</span> <span class="pace-badge mono">' + (b ? b.pace : '') + '</span>';
+        detail = (b ? '<span class="tier-badge ' + b.cls + '">' + b.tier + '</span> ' : '') + (r.note ? esc(r.note) + ' · ' : '') + dayShort(r.day);
+      } else if (kind === 'run') {
+        var pace = r.km > 0 ? clock((r.min / r.km) * 60) + '/km' : '';
+        label = 'Run ' + r.km + ' km · <span class="mono">' + clock(r.min * 60) + '</span>' + (pace ? ' <span class="pace-badge mono">' + pace + '</span>' : '');
+        detail = (r.note ? esc(r.note) + ' · ' : '') + dayShort(r.day);
+      } else if (kind === 'football') {
+        label = '⚽ Football · <span class="mono">' + fmtMin(r.min) + '</span>';
+        detail = (r.note ? esc(r.note) + ' · ' : 'Match conditioning · ') + dayShort(r.day);
+      } else if (kind === 'drills') {
+        var parts = [];
+        if (r.reps) {
+          if (r.reps.pullups) parts.push(r.reps.pullups + ' pull-ups');
+          if (r.reps.pushups) parts.push(r.reps.pushups + ' push-ups');
+          if (r.reps.plank) parts.push(r.reps.plank + 's plank');
+        }
+        label = '💪 Bodyweight Drills';
+        detail = (parts.length ? parts.join(' · ') + ' · ' : '') + (r.note ? esc(r.note) + ' · ' : '') + dayShort(r.day);
+      }
+      return '<li><span class="lrow static"><b>' + label + '</b><small>' + detail + '</small></span>' +
+        '<button class="icon sm" data-act="unrun" data-v="' + origIdx + '" aria-label="Delete workout">' + IC.x + '</button></li>';
+    }).join('') + '</ul>' : '<p class="empty">No workouts logged yet. 5km cutoff is 25:00.</p>';
 
     return head('Progress', fmtMin(tot) + ' studied in total') +
       '<section class="card"><h2>Last 14 days</h2><div class="chart">' + days.map(function (d) {
@@ -431,10 +505,25 @@
           (idx >= 0 ? '<button class="icon sm" data-act="unscore" data-v="' + idx + '" aria-label="Delete score">' + IC.x + '</button>' : '') + '</li>';
       }).join('') + '</ul>' : '') + '</section>' +
 
-      '<section class="card"><h2>5 km · PET</h2><p class="fine">Qualify: <b>25:00</b> (5:00/km). Aim for 23:00 (4:36/km) so a bad day still passes.</p>' +
-      '<form class="runf" data-form="run"><input name="t" inputmode="numeric" placeholder="mm:ss e.g. 24:30" pattern="\\d{1,2}:\\d{2}" required aria-label="5 km time"><button class="btn">Log run</button></form>' +
-      (best ? '<p class="runbest">Best <b class="mono">' + clock(best.min * 60) + '</b> <span class="pace-badge mono">(' + clock((best.min / 5) * 60) + '/km)</span>' + (best.min <= 25 ? ' <span class="okk">qualifies</span>' : ' <span class="low">' + clock((best.min - 25) * 60) + ' to cut</span>') + ' · <span class="fine">Target: 23:00 (4:36/km)</span></p>' : '') +
-      (lastRuns.length ? '<ul class="hist">' + lastRuns.map(function (r) { return '<li><span class="mono">' + clock(r.min * 60) + '</span><span class="pace-badge mono">' + clock((r.min / 5) * 60) + '/km</span><span class="fine">' + dayShort(r.day) + '</span></li>'; }).join('') + '</ul>' : '') + '</section>' +
+      '<section class="card pet-card"><h2>Physical & PET <small class="unit">Gujarat PSI + CDS</small></h2>' +
+      '<p class="fine">Qualify: <b>5000m in 25:00</b> (5:00/km). Aim for <b>23:00</b> (4:36/km). Football builds sprint stamina.</p>' +
+      '<div class="pet-readiness"><span>' + esc(petStats.readiness) + '</span></div>' +
+      '<div class="pet-kpis">' +
+      '<div class="kpi"><span class="mono">' + petStats.weekKm + ' km</span><small>Running this wk</small></div>' +
+      '<div class="kpi"><span class="mono">' + fmtMin(petStats.weekAeroMin) + '</span><small>Aerobic total</small></div>' +
+      '<div class="kpi"><span class="mono">' + (best ? clock(best.min * 60) : '—') + '</span><small>Best 5km' + (petStats.bestBracket ? ' · ' + petStats.bestBracket.tier : '') + '</small></div>' +
+      '</div>' +
+      chipRow('petKind', [['5km', '5 km Test'], ['run', 'Base / Tempo Run'], ['football', 'Football · ⚽'], ['drills', 'Upper Body & Core']], pKind, 'sm pet-chips') +
+      petFormHtml +
+      workoutListHtml +
+      '<details class="pst-details"><summary>PST Physical Standards (Height, Chest, Medicals)</summary>' +
+      '<div class="pst-body">' +
+      '<div class="pst-item"><b>Height (Male):</b> 165 cm minimum (General/SEBC/EWS/SC); 162 cm (ST).</div>' +
+      '<div class="pst-item"><b>Chest (Male):</b> 84 cm deflated with min 5 cm expansion (89 cm inflated). ST: 79 cm / 84 cm.</div>' +
+      '<div class="pst-item"><b>Weight:</b> Min 50 kg (proportional to height).</div>' +
+      '<div class="pst-item"><b>CDS Standards:</b> 2.4 km in 10–12 min, 10–14 chin-ups, sit-ups, vertical rope climb (IMA/INA/AFA).</div>' +
+      '</div></details>' +
+      '</section>' +
 
       '<section class="card"><h2>Settings</h2>' +
       '<div class="slide"><span>Theme<b data-show="theme">' + esc(S.prefs.theme || 'auto').toUpperCase() + '</b></span>' +
@@ -777,10 +866,20 @@
         toast('Theme: ' + d.v);
         return;
       }
-      ui[d.g] = d.g === 'min' ? +d.v : d.v;
-      if (d.g === 'filter') return render();
+      if (d.g === 'min' || d.g === 'footMin') ui[d.g] = +d.v;
+      else ui[d.g] = d.v;
+      if (d.g === 'filter' || d.g === 'petKind' || d.g === 'footMin') return render();
       [].forEach.call(el.parentNode.children, function (c) { c.classList.toggle('on', c === el); });
       if (d.g === 'min') document.getElementById('logBtn').textContent = 'Log ' + d.v + ' min';
+    },
+    unrun: function (d) {
+      var idx = +d.v;
+      if (idx >= 0 && idx < S.runs.length) {
+        S.runs.splice(idx, 1);
+        save();
+        render();
+        toast('Workout removed');
+      }
     },
     pickTopicChip: function (d) {
       ui.topic = d.v;
@@ -1004,11 +1103,43 @@
       save(); render(); toast('Score saved');
       return;
     }
-    if (f.dataset.form !== 'run') return;
-    var m = (f.t.value || '').match(/^(\d{1,2}):(\d{2})$/);
-    if (!m || +m[2] > 59) { toast('Use mm:ss, e.g. 24:30'); return; }
-    S.runs.push({ day: G.dayNum(), km: 5, min: +m[1] + m[2] / 60 });
-    save(); render(); toast('Run logged');
+    if (f.dataset.form === 'run') {
+      var m = (f.t.value || '').match(/^(\d{1,2}):(\d{2})$/);
+      if (!m || +m[2] > 59) { toast('Use mm:ss, e.g. 24:30'); return; }
+      S.runs.push({ day: G.dayNum(), kind: '5km', km: 5, min: +m[1] + m[2] / 60, note: (f.note && f.note.value.trim()) || '' });
+      save(); render(); toast('5km run logged');
+      return;
+    }
+    if (f.dataset.form === 'pet') {
+      var pkind = f.kind.value;
+      var today = G.dayNum();
+      if (pkind === '5km') {
+        var m5 = (f.t.value || '').match(/^(\d{1,2}):(\d{2})$/);
+        if (!m5 || +m5[2] > 59) { toast('Use mm:ss, e.g. 23:45'); return; }
+        S.runs.push({ day: today, kind: '5km', km: 5, min: +m5[1] + m5[2] / 60, note: (f.note && f.note.value.trim()) || '' });
+        toast('5km time trial logged');
+      } else if (pkind === 'run') {
+        var rkm = parseFloat(f.km.value);
+        if (!(rkm > 0)) { toast('Enter distance in km'); return; }
+        var mr = (f.t.value || '').match(/^(\d{1,2}):(\d{2})$/);
+        if (!mr || +mr[2] > 59) { toast('Use mm:ss, e.g. 38:00'); return; }
+        S.runs.push({ day: today, kind: 'run', km: rkm, min: +mr[1] + mr[2] / 60, note: (f.note && f.note.value.trim()) || '' });
+        toast('Base run logged');
+      } else if (pkind === 'football') {
+        var fmin = ui.footMin || 90;
+        S.runs.push({ day: today, kind: 'football', km: 0, min: fmin, note: (f.note && f.note.value.trim()) || 'Match / football session' });
+        toast('Football conditioning logged');
+      } else if (pkind === 'drills') {
+        var pu = parseInt(f.pullups.value, 10) || 0;
+        var ps = parseInt(f.pushups.value, 10) || 0;
+        var pl = parseInt(f.plank.value, 10) || 0;
+        if (!pu && !ps && !pl) { toast('Enter pull-ups, push-ups, or plank'); return; }
+        S.runs.push({ day: today, kind: 'drills', km: 0, min: 15, reps: { pullups: pu, pushups: ps, plank: pl }, note: '' });
+        toast('Bodyweight drills logged');
+      }
+      save(); render();
+      return;
+    }
   });
 
   // Keyboard: 1–4 pick, Enter/Space next — handy on the office laptop.

@@ -600,5 +600,78 @@
     return { right: right, wrong: wrong, blank: blank, e: e, score: Math.round(score * 100) / 100, max: items.length };
   };
 
+  // ------------------------------------------------------------- PET & Physical Tracker
+  /**
+   * Gujarat Police PSI PET standard benchmarks for 5000m:
+   * Qualifying cutoff: 25:00 (5:00/km)
+   * Top tier: <= 20:00 (50 marks / 4:00/km)
+   * Safe qualifier: 21:31 to 23:00 (36 marks / 4:36/km)
+   */
+  G.petBracket = function (min) {
+    if (!(min > 0)) return null;
+    var paceSec = (min / 5) * 60;
+    var paceM = Math.floor(paceSec / 60);
+    var paceS = Math.round(paceSec % 60);
+    var paceStr = paceM + ':' + (paceS < 10 ? '0' : '') + paceS + '/km';
+    if (min <= 20.0) return { marks: 50, tier: 'Top Tier (50m)', cls: 'top', pace: paceStr, qual: true };
+    if (min <= 21.5) return { marks: 44, tier: 'Excellent (44m)', cls: 'okk', pace: paceStr, qual: true };
+    if (min <= 23.0) return { marks: 36, tier: 'Safe Qualify (36m)', cls: 'okk', pace: paceStr, qual: true };
+    if (min <= 25.0) return { marks: 20, tier: 'Qualifies (20m)', cls: 'warn', pace: paceStr, qual: true };
+    var overSec = Math.round((min - 25.0) * 60);
+    var om = Math.floor(overSec / 60), os = overSec % 60;
+    return { marks: 0, tier: '+' + om + ':' + (os < 10 ? '0' : '') + os + ' to cut', cls: 'low', pace: paceStr, qual: false };
+  };
+
+  G.petStats = function (S) {
+    var today = G.dayNum();
+    var runs = S.runs || [];
+    var fivers = runs.filter(function (r) { return r.km === 5 && r.min > 0; }).sort(function (a, b) { return a.min - b.min; });
+    var best5k = fivers[0] || null;
+
+    var weekKm = 0;
+    var weekAeroMin = 0;
+    var footballSessions = 0;
+    var lastWorkout = null;
+
+    runs.forEach(function (r) {
+      if (!lastWorkout || r.day > lastWorkout.day) lastWorkout = r;
+      if (r.day >= today - 6) {
+        if (r.km > 0) weekKm += r.km;
+        if (r.min > 0) weekAeroMin += r.min;
+        if (r.kind === 'football') footballSessions++;
+      }
+    });
+
+    var readiness = '';
+    if (!lastWorkout) {
+      readiness = 'No workouts logged yet. Start with a baseline 5 km trial or easy 20m jog.';
+    } else {
+      var daysAgo = today - lastWorkout.day;
+      var kind = lastWorkout.kind || (lastWorkout.km === 5 ? '5km' : 'run');
+      if (daysAgo === 0) {
+        if (kind === 'football') readiness = '⚽ Football logged today. Good aerobic work; keep legs fresh with stretching.';
+        else if (kind === '5km') readiness = '🏃 5km time trial logged today. Solid effort! Plan an easy recovery day tomorrow.';
+        else readiness = 'Physical session logged today. Great consistency!';
+      } else if (daysAgo === 1) {
+        if (kind === 'football') readiness = '⚽ Football yesterday — legs recovering. Great day for deep study; save all-out 5km trial for fresh legs.';
+        else if (kind === '5km') readiness = '🏃 Rest or easy recovery jog today after yesterday’s 5km trial.';
+        else readiness = 'Workout logged yesterday. Ready for light training or study sprints.';
+      } else if (daysAgo >= 4) {
+        readiness = '⚠️ ' + daysAgo + ' days since last physical session. Time for a 5km time trial or football conditioning!';
+      } else {
+        readiness = 'Legs rested and primed for a quality running or conditioning session.';
+      }
+    }
+
+    return {
+      best5k: best5k,
+      bestBracket: best5k ? G.petBracket(best5k.min) : null,
+      weekKm: Math.round(weekKm * 10) / 10,
+      weekAeroMin: Math.round(weekAeroMin),
+      footballSessions: footballSessions,
+      readiness: readiness
+    };
+  };
+
   if (typeof module !== 'undefined') module.exports = G;
 })(typeof window !== 'undefined' ? window : globalThis);
