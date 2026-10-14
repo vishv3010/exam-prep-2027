@@ -128,6 +128,8 @@ console.log('Mental Aptitude & Reasoning Sprint');
   mM.length === 10 && mM.every(x => x.topic.startsWith('m_')) ? ok('Maths drill: 10 speed maths items') : err('Maths drill invalid');
   const mB = G.buildMentalDrill(S, 'blood', 10);
   mB.length === 10 && mB.every(x => x.topic === 'r_blood' && x.mental === 1) ? ok('Blood Relations drill: 10 pen-and-paper-free family questions') : err('Blood Relations drill invalid');
+  const mG = G.buildMentalDrill(S, 'guj_gram', 10);
+  mG.length === 10 && mG.every(x => x.topic === 'w_guj_gram' && x.mental === 1) ? ok('Gujarati Grammar drill: 10 pen-and-paper-free grammar questions') : err('Gujarati Grammar drill invalid');
   const mF = G.buildMentalDrill(S, 'shortcuts', 10);
   mF.length === 10 && mF.every(x => x.type === 'flash') ? ok('Shortcuts drill: 10 formula flashcards') : err('Shortcuts drill invalid');
 }

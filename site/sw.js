@@ -2,7 +2,7 @@
  * GOAL service worker — the whole app works offline (underground metro).
  * When you add a content file to index.html, add it here and bump CACHE_NAME.
  */
-const CACHE_NAME = 'goal-v3-20261014d';
+const CACHE_NAME = 'goal-v3-20261014e';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -18,6 +18,7 @@ const ASSETS_TO_CACHE = [
   './content/writing.js',
   './content/gk.js',
   './content/gujarat.js',
+  './content/guj_grammar.js',
   './legacy/pyq-2021.js',
   './legacy/gujarat-gk.js',
   './legacy/law.js',

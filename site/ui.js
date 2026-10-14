@@ -318,6 +318,7 @@
   var QMINS = [5, 10, 15, 20, 30];
   var MCATS = [
     ['psi_a', '⚡ PSI Part A (Mixed 50/50)'],
+    ['guj_gram', '📖 ગુજરાતી વ્યાકરણ (Grammar)'],
     ['blood', '🩸 Blood Relations (સંબંધો)'],
     ['reasoning', 'Reasoning & Logic'],
     ['maths', 'Speed Maths & Quant'],
@@ -1037,9 +1038,10 @@
     var avgSecs = run.times.length ? Math.round(run.times.reduce(function (a, b) { return a + b; }, 0) / run.times.length) : Math.round(totalSecs / run.queue.length);
     var pct = Math.round((run.right / run.queue.length) * 100);
 
-    var catLabel = { psi_a: 'PSI Part A (Mixed)', blood: '🩸 Blood Relations (સંબંધો)', reasoning: 'Reasoning & Logic', maths: 'Speed Maths & Quant', shortcuts: 'Formula Flashcards' }[run.cat] || 'Mental Sprint';
+    var catLabel = { psi_a: 'PSI Part A (Mixed)', guj_gram: '📖 ગુજરાતી વ્યાકરણ (Grammar)', blood: '🩸 Blood Relations (સંબંધો)', reasoning: 'Reasoning & Logic', maths: 'Speed Maths & Quant', shortcuts: 'Formula Flashcards' }[run.cat] || 'Mental Sprint';
 
-    if (run.cat === 'blood') G.logTime(S, 'r_blood', totalMins);
+    if (run.cat === 'guj_gram') G.logTime(S, 'w_guj_gram', totalMins);
+    else if (run.cat === 'blood') G.logTime(S, 'r_blood', totalMins);
     else if (run.cat === 'reasoning') G.logTime(S, 'r_series', totalMins);
     else if (run.cat === 'maths') G.logTime(S, 'm_simplify', totalMins);
     else { G.logTime(S, 'r_series', totalMins * 0.5); G.logTime(S, 'm_simplify', totalMins * 0.5); }
@@ -1143,8 +1145,21 @@
           '<div class="vcard"><b>⚠️ Golden Rules</b><span>Never assume gender from name alone.<br>Decode pointing clues backwards from the end of the phrase.</span></div>' +
         '</div>' +
       '</div>' +
+      '<div class="vault-sec">' +
+        '<h3>📖 ગુજરાતી વ્યાકરણ & સાહિત્ય ચાવીઓ (PSI Paper 2)</h3>' +
+        '<p class="fine">સમાસ, અલંકાર, છંદ, જોડણી અને સંધિના સુવર્ણ નિયમો — પ્રશ્ન જોતાં જ ૧૦ સેકન્ડમાં ઓળખો.</p>' +
+        '<div class="vault-grid">' +
+          '<div class="vcard"><b>🧩 સમાસ ઓળખવાની ચાવી</b><span>દ્વંદ્વ (અને/કે) · તત્પુરુષ (વિભક્તિ સંબંધ) · મધ્યમપદલોપી (વચ્ચેનું પદ લુપ્ત) · કર્મધારય (વિશેષણ+વિશેષ્ય) · દ્વિગુ (સંખ્યા) · ઉપપદ (-નાર) · બહુવ્રીહી (અન્ય પદ વિશેષણ)</span></div>' +
+          '<div class="vcard"><b>🎨 અલંકાર સૂચક શબ્દો</b><span>ઉપમા: જેવો, સમો, સરખો<br>ઉત્પ્રેક્ષા: જાણે, રખે, શકે<br>અનન્વય: મા તે મા / ગાંધીજી એટલે ગાંધીજી<br>વ્યાજસ્તુતિ: પ્રશંસા રૂપે નિંદા<br>સજીવારોપણ: નિર્જીવ પર સજીવ ક્રિયા</span></div>' +
+          '<div class="vcard"><b>🎶 ૧૭ અક્ષરના ૩ મુખ્ય છંદ</b><span>શિખરિણી: ય મ ન સ ભ લ ગા (યતિ ૬, ૧૨)<br>મંદાક્રાન્તા: મ ભ ન ત ત ગા ગા (યતિ ૪, ૧૦)<br>પૃથ્વી: જ સ જ સ ય લ ગા (યતિ ૮)</span></div>' +
+          '<div class="vcard"><b>📏 માત્રામેળ છંદ માત્રાઓ</b><span>ચોપાઈ: ૧૫ માત્રા<br>દોહરો: ૨૪ માત્રા (૧૩ + ૧૧)<br>હરિગીત: ૨૮ માત્રા (૧૬ + ૧૨)<br>સવૈયા: ૩૧ / ૩૨ માત્રા</span></div>' +
+          '<div class="vcard"><b>✍️ મોસ્ટ આઈએમપી જોડણી</b><span>આશીર્વાદ (રેફ "વા" પર)<br>ઉજ્જ્વલ (બે અડધા "જ" અને "વ")<br>કવયિત્રી ("વ" સાદો, "યિ" હ્રસ્વ)<br>મુહૂર્ત ("મુ" હ્રસ્વ, "હૂ" દીર્ઘ)</span></div>' +
+          '<div class="vcard"><b>🔗 મુખ્ય સંધિ રહસ્ય</b><span>સૂર્ય+ઉદય = સૂર્યોદય<br>રવિ+ઇન્દ્ર = રવીન્દ્ર (હ્રસ્વ+હ્રસ્વ=દીર્ઘ)<br>સત્+જન = સજ્જન · મનઃ+રથ = મનોરથ</span></div>' +
+        '</div>' +
+      '</div>' +
       '<div class="btns" style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">' +
-        '<button class="go" data-act="startMental" data-cat="blood" data-count="10">🩸 Drill Blood Relations (10 Q)</button>' +
+        '<button class="go" data-act="startMental" data-cat="guj_gram" data-count="10">📖 Drill Gujarati Grammar (10 Q)</button>' +
+        '<button class="btn" data-act="startMental" data-cat="blood" data-count="10">🩸 Drill Blood Relations (10 Q)</button>' +
         '<button class="btn" data-act="startMental" data-cat="shortcuts" data-count="15">⚡ Drill Shortcut Flashcards (15)</button>' +
       '</div>' +
       '</div>';

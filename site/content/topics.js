@@ -48,10 +48,11 @@
   T({ id: 'e_reading', group: 'English', name: 'Reading comprehension & ordering', psi: 10, cds: 40, sec: { psi: 'W', cds: 'E' }, hrs: 15 });
   T({ id: 'e_writing', group: 'Writing', name: 'English précis & Gujarati→English translation', psi: 20, sec: { psi: 'W' }, hrs: 5 });
 
-  // ── Gujarati writing ── PSI Paper 2 (~65)
-  T({ id: 'w_essay', group: 'Writing', name: 'Gujarati essay (350 words)', psi: 30, sec: { psi: 'W' }, hrs: 8 });
-  T({ id: 'w_letter', group: 'Writing', name: 'Gujarati letter & report writing', psi: 20, sec: { psi: 'W' }, hrs: 5 });
-  T({ id: 'w_precis', group: 'Writing', name: 'Gujarati précis & comprehension', psi: 15, sec: { psi: 'W' }, hrs: 4 });
+  // ── Gujarati language & writing ── PSI Paper 2 (~65)
+  T({ id: 'w_essay', group: 'Writing', name: 'Gujarati essay (350 words)', psi: 25, sec: { psi: 'W' }, hrs: 8 });
+  T({ id: 'w_letter', group: 'Writing', name: 'Gujarati letter & report writing', psi: 15, sec: { psi: 'W' }, hrs: 5 });
+  T({ id: 'w_precis', group: 'Writing', name: 'Gujarati précis & comprehension', psi: 10, sec: { psi: 'W' }, hrs: 4 });
+  T({ id: 'w_guj_gram', group: 'Writing', name: 'Gujarati grammar & vocabulary (સમાસ, અલંકાર, છંદ, જોડણી)', psi: 15, sec: { psi: 'W' }, hrs: 4, metro: true });
 
   // ── General Studies ── PSI Part B (100) · CDS GK (100)
   T({ id: 'g_polity', group: 'GS', name: 'Constitution & polity', psi: 18, cds: 12, sec: { psi: 'B', cds: 'G' }, hrs: 8, metro: true });
